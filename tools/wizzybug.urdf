@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot name="wizzybug">
+
+  <!-- Chassis -->
+  <link name="chassis" />
+      
+<!-- realsense cameras -->
+    <!-- realsense_front -->
+    <link name="realsense_front"/>
+    <joint name="realsense_front_joint" type="fixed">
+        <parent link="chassis" />
+        <child link="realsense_front" />
+        <origin xyz="0 0 0" rpy="0 0 0" /> 
+    </joint>
+    <!-- realsense_right  -->
+    <link name="realsense_right"/>
+    <joint name="realsense_right_joint" type="fixed">
+        <parent link="chassis" />
+        <child link="realsense_right" />
+        <origin xyz="0 0 0" rpy="0 0 -1.57079" /> 
+    </joint>
+    <!-- realsense_rear  -->
+    <link name="realsense_rear"/>
+    <joint name="realsense_rear_joint" type="fixed">
+        <parent link="chassis" />
+        <child link="realsense_rear" />
+        <origin xyz="0 0 0" rpy="0 0 3.141592" /> 
+    </joint>
+    <!-- realsense_left  -->
+    <link name="realsense_left"/>
+    <joint name="realsense_left_joint" type="fixed">
+        <parent link="chassis" />
+        <child link="realsense_left" />
+        <origin xyz="0 0 0" rpy="0 0 1.57079" /> 
+    </joint>
+    
+<!-- lidars -->
+    <!-- rplidar_front  -->
+    <link name="rplidar_front"/>
+    <joint name="rplidar_front_joint" type="fixed">
+        <parent link="chassis" />
+        <child link="rplidar_front" />
+        <origin xyz="0 0 0" rpy="1.57079 0 0" /> 
+    </joint>
