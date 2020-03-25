@@ -3,11 +3,11 @@
 ## Install
 
 Note:
-**if you get any errors look for a solution in the Troubleshooting section below**
+**this is a work in progress and not ready for use**
 
 ### ROS
 
-Install ros melodic (Ubuntu 18.04) <http://wiki.ros.org/melodic/Installation/Ubuntu> ~~kinetic (Ubuntu 16.04) <http://wiki.ros.org/kinetic/Installation/Ubuntu>~~
+Install ros melodic (Ubuntu 18.04) <http://wiki.ros.org/melodic/Installation/Ubuntu> 
 
 ### Wizzybug
 
