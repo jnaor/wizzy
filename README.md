@@ -11,11 +11,6 @@ Install ros melodic (Ubuntu 18.04) <http://wiki.ros.org/melodic/Installation/Ubu
 
 ### Wizzybug
 
-####  Clone repository:
-
-```    
-git clone <new repo here>
-```
 
 #### install python 3.8 or other version:
 
