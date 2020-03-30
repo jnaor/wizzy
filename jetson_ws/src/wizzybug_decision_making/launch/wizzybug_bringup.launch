@@ -1,0 +1,18 @@
+<launch>
+
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder '$(find wizzybug_description)/urdf/wizzybug.xacro'"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+    <node name="ttc" pkg="wizzybug_decision_making" type="ttc_node.py" launch-prefix="xterm -e" />
+
+    <node name="process_laserscan" pkg="wizzybug_perception" type="process_laserscan.py" launch-prefix="xterm -e" />
+
+    <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py" launch-prefix="xterm -e" />
+
+
+
+</launch>

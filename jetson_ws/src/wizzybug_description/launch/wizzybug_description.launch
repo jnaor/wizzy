@@ -1,0 +1,17 @@
+<launch>
+<!--  <param name="robot_description"-->
+<!--    command="$(find xacro)/xacro &#45;&#45;inorder '$(find wizzybug_description)/urdf/wizzybug.xacro'" />-->
+
+<!--  &lt;!&ndash; send fake joint values &ndash;&gt;-->
+   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+     <param name="use_gui" value="false"/>
+   </node>
+
+<!--&lt;!&ndash;    &ndash;&gt;&lt;!&ndash; Combine joint values &ndash;&gt;-->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+  <!-- Show in Rviz   -->
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/wizzybug.rviz"/>
+ <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rrbot_description)/launch/rrbot.rviz"/>-->
+</launch>

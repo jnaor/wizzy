@@ -1,0 +1,12 @@
+<launch>
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+    
+    <node name="image_converter" pkg="wizzybug_perception" type="image_converter.py"></node>
+    
+    <node name="segnet" pkg="ros_deep_learning" type="segnet">
+    <remap from="/segnet/image_in" to="/image_topic_bgr8_camera"/>
+    <param name = "model_name" value ="fcn-resnet18-sun-512x400"/>
+    </node>
+    
+   <!-- <node name="container" pkg="wizzybug_perception" type="container.py"></node>-->
+</launch>

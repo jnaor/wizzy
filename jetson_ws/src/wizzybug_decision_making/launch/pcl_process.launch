@@ -1,0 +1,14 @@
+<launch>
+
+    <node name="pcl_to_scan" pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node">
+            <remap from ="cloud_in" to="/camera/depth/color/points"/>
+            <param name = "use_inf" value="false"/>
+            <param name = "target_frame" value="camera_depth_frame"/>
+    </node>
+
+
+<!--    <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node">-->
+<!--        <rosparam file="$(find wizzybug_decision_making)/params/costmap_params.yaml" command="load" ns="costmap"/>-->
+<!--    </node>-->
+
+</launch>

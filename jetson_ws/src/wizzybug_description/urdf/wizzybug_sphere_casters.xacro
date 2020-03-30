@@ -1,0 +1,325 @@
+<?xml version="1.0" ?>
+<robot name="wizzybug" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find wizzybug_description)/urdf/common_properties.xacro"/>
+    <xacro:include filename="$(find realsense2_description)/urdf/_d415.urdf.xacro"/>
+    <xacro:include filename="$(find wizzybug_description)/urdf/wizzybug.gazebo"/>
+    <xacro:property name="base_length" value="0.4"/>
+    <xacro:property name="base_width" value="0.4"/>
+    <xacro:property name="base_height" value="0.3"/>
+    <xacro:property name="wheel_radius" value="0.1025"/>
+    <xacro:property name="wheel_thickness" value="0.06"/>
+    <xacro:property name="base_mass" value="5.0"/>
+    <xacro:property name="wheel_mass" value="1.0"/>
+    <xacro:property name="imu_x" value="0.0"/>
+    <xacro:property name="imu_y" value="0.0"/>
+    <xacro:property name="imu_z" value="0.0"/>
+    <xacro:property name="chair_thickness" value="0.1"/>
+    <xacro:property name="chair_width" value="0.3"/>
+    <xacro:property name="chair_height" value="0.5"/>
+    <xacro:property name="chair_x" value="-0.3"/>
+    <xacro:property name="chair_y" value="0.0"/>
+    <xacro:property name="chair_z" value="0.2"/>
+    <xacro:property name="chair_mass" value="5.0"/>
+    <xacro:property name="caster_wheel_base" value="0.32"/>
+    <xacro:property name="caster_axis_x" value="0.45"/>
+    <xacro:property name="caster_axis_z" value="0.16"/>
+    <xacro:property name="caster_axis_offset_x" value="0.04"/>
+    <xacro:property name="caster_axis_offset_z" value="0.16"/>
+
+    <link name="base_footprint">
+    </link>
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="${base_length/2} 0.0 ${wheel_radius}" rpy="0 0 0"/>
+    </joint>
+    <link name="base_link">
+        <visual>
+            <origin xyz="-0.1 -0.195 -0.05" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://wizzybug_description/meshes/Wizzibug_no_wheels.STL"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+
+        <collision>
+            <origin xyz="${-base_length/2} 0.0 ${wheel_radius}" rpy="0 0 0"/>
+            <geometry>
+                <box size="${base_length} ${base_width} ${base_height}"/>
+            </geometry>
+        </collision>
+
+        <inertial>
+            <mass value="${base_mass}"/>
+
+            <inertia ixx="${1/12*base_mass*(base_width*base_width + base_height*base_height)}" ixy="0.0" ixz="0.0"
+                     iyy="${1/12*base_mass*(base_length*base_length + base_height*base_height)}" iyz="0.0"
+                     izz="${1/12*base_mass*(base_width*base_width + base_length*base_length)}"/>
+        </inertial>
+    </link>
+
+
+    <!-- ################################Left Wheel##############################################-->
+    <link name="wheel_left_link">
+        <visual>
+            <geometry>
+                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="${wheel_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}" ixy="0.0"
+                     ixz="0.0"
+                     iyy="${1/2*wheel_mass*wheel_radius*wheel_radius}" iyz="0.0"
+                     izz="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}"/>
+        </inertial>
+    </link>
+    <joint name="wheel_left_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_left_link"/>
+        <origin xyz="0.0 ${base_width/2 + wheel_thickness/2} 0.0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+    <!-- ################################Right Wheel##############################################-->
+    <link name="wheel_right_link">
+        <visual>
+            <geometry>
+                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>
+            </geometry>
+            <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="${wheel_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}" ixy="0.0"
+                     ixz="0.0"
+                     iyy="${1/2*wheel_mass*wheel_radius*wheel_radius}" iyz="0.0"
+                     izz="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}"/>
+        </inertial>
+    </link>
+    <joint name="wheel_right_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_right_link"/>
+        <origin xyz="0.0 ${-base_width/2 - wheel_thickness/2} 0.0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+
+    </joint>
+
+    <!-- ################################Left caster Wheel##############################################-->
+
+    <link name="left_caster_axle_link">
+        <inertial>
+            <mass value="${wheel_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.0" ixy="0.0"
+                     ixz="0.0"
+                     iyy="0.0" iyz="0.0"
+                     izz="0.1"/>
+        </inertial>
+    </link>
+
+    <joint name="left_caster_axle_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="left_caster_axle_link"/>
+        <origin xyz="${-caster_axis_x}  ${caster_wheel_base/2+wheel_thickness/2} ${caster_axis_z}" rpy="0 0 0"/>
+<!--        <axis xyz="0 0 1"/>-->
+    </joint>
+    <!--    <link name="left_caster_link">-->
+    <!--        <visual>-->
+    <!--            <geometry>-->
+    <!--                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>-->
+    <!--            </geometry>-->
+    <!--            <origin rpy="1.5708 0 0" xyz="0 0 0"/>-->
+    <!--            <material name="black"/>-->
+    <!--        </visual>-->
+    <!--        <collision>-->
+    <!--            <geometry>-->
+    <!--                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>-->
+    <!--            </geometry>-->
+    <!--            <origin rpy="1.5708 0 0" xyz="0 0 0"/>-->
+    <!--        </collision>-->
+    <!--        <inertial>-->
+    <!--            <mass value="${wheel_mass}"/>-->
+    <!--            <origin xyz="0 0 0" rpy="0 0 0"/>-->
+    <!--            <inertia ixx="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}" ixy="0.0"-->
+    <!--                     ixz="0.0"-->
+    <!--                     iyy="${1/2*wheel_mass*wheel_radius*wheel_radius}" iyz="0.0"-->
+    <!--                     izz="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}"/>-->
+    <!--        </inertial>-->
+    <!--    </link>-->
+
+    <link name="left_caster_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="${wheel_radius}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="${wheel_radius}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="${wheel_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="${2/5*wheel_mass*wheel_radius*wheel_radius}" ixy="0.0"
+                     ixz="0.0"
+                     iyy="${2/5*wheel_mass*wheel_radius*wheel_radius}" iyz="0.0"
+                     izz="${2/5*wheel_mass*wheel_radius*wheel_radius}"/>
+        </inertial>
+
+    </link>
+    <joint name="left_caster_joint" type="continuous">
+        <parent link="left_caster_axle_link"/>
+        <child link="left_caster_link"/>
+        <origin xyz="${caster_axis_offset_x} 0.0 ${-caster_axis_offset_z}" rpy="0 0 0"/>
+<!--        <axis xyz="0 1 0"/>-->
+    </joint>
+
+
+    <!-- ################################Right caster Wheel##############################################-->
+    <link name="right_caster_axle_link">
+        <inertial>
+            <mass value="${wheel_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.0" ixy="0.0"
+                     ixz="0.0"
+                     iyy="0.0" iyz="0.0"
+                     izz="0.1"/>
+        </inertial>
+    </link>
+    <joint name="right_caster_axle_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="right_caster_axle_link"/>
+        <origin xyz="${-caster_axis_x} ${-caster_wheel_base/2-wheel_thickness/2} ${caster_axis_z}" rpy="0 0 0"/>
+<!--        <axis xyz="0 0 1"/>-->
+    </joint>
+<!--    <link name="right_caster_link">-->
+<!--        <visual>-->
+<!--            <geometry>-->
+<!--                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>-->
+<!--            </geometry>-->
+<!--            <origin rpy="1.5708 0 0" xyz="0 0 0"/>-->
+<!--            <material name="black"/>-->
+<!--        </visual>-->
+<!--        <collision>-->
+<!--            <geometry>-->
+<!--                <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>-->
+<!--            </geometry>-->
+<!--            <origin rpy="1.5708 0 0" xyz="0 0 0"/>-->
+<!--        </collision>-->
+<!--        <inertial>-->
+<!--            <mass value="${wheel_mass}"/>-->
+<!--            <origin xyz="0 0 0" rpy="0 0 0"/>-->
+<!--            <inertia ixx="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}" ixy="0.0"-->
+<!--                     ixz="0.0"-->
+<!--                     iyy="${1/2*wheel_mass*wheel_radius*wheel_radius}" iyz="0.0"-->
+<!--                     izz="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}"/>-->
+<!--        </inertial>-->
+<!--    </link>-->
+        <link name="right_caster_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="${wheel_radius}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="${wheel_radius}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="${wheel_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="${2/5*wheel_mass*wheel_radius*wheel_radius}" ixy="0.0"
+                     ixz="0.0"
+                     iyy="${2/5*wheel_mass*wheel_radius*wheel_radius}" iyz="0.0"
+                     izz="${2/5*wheel_mass*wheel_radius*wheel_radius}"/>
+        </inertial>
+
+    </link>
+    <joint name="right_caster_joint" type="continuous">
+        <parent link="right_caster_axle_link"/>
+        <child link="right_caster_link"/>
+        <origin xyz="${caster_axis_offset_x} 0.0 ${-caster_axis_offset_z}" rpy="0 0 0"/>
+<!--        <axis xyz="0 1 0"/>-->
+    </joint>
+    <!-- ################################imu##############################################-->
+
+    <link name="imu_link"/>
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin xyz="${imu_x} ${imu_y} ${imu_z}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- ################################chair##############################################-->
+
+    <joint name="chair_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="chair_link"/>
+        <origin xyz="${chair_x} ${chair_y} ${chair_z}" rpy="0 0 0"/>
+    </joint>
+    <link name="chair_link">
+        <collision>
+            <geometry>
+                <box size="${chair_thickness} ${chair_width} ${chair_height}"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 ${chair_height/2}"/>
+        </collision>
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 ${chair_height/2}"/>
+            <mass value="${chair_mass}"/>
+
+            <inertia ixx="${1/12*chair_mass*(chair_width*chair_width + chair_height*chair_height)}" ixy="0.0" ixz="0.0"
+                     iyy="${1/12*chair_mass*(chair_thickness*chair_thickness + chair_height*chair_height)}" iyz="0.0"
+                     izz="${1/12*chair_mass*(chair_width*chair_width + chair_thickness*chair_thickness)}"/>
+        </inertial>
+    </link>
+    <!-- ################################cam bottom##############################################-->
+    <joint name="cam_bottom_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="cam_bottom_link"/>
+        <origin xyz="0 0 0.3" rpy="0 0.2 0"/>
+    </joint>
+    <link name="cam_bottom_link"/>
+    <sensor_d415 parent="cam_bottom_link" name="camera1">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </sensor_d415>
+    <!-- ################################cam top##############################################-->
+
+    <joint name="cam_top_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="cam_top_link"/>
+        <origin xyz="${chair_x} ${chair_y} ${chair_z+chair_height+0.2}" rpy="0 0 0"/>
+    </joint>
+    <link name="cam_top_link"/>
+    <sensor_d415 parent="cam_top_link" name="camera2">
+        <origin xyz="0 0 0" rpy="0 0.2 0"/>
+    </sensor_d415>
+
+</robot>
