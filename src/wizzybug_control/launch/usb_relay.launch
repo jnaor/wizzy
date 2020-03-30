@@ -1,4 +1,0 @@
-<launch>
-
-    <node name="usb_relay_ROS" pkg="wizzybug_control" type="usb_relay_ROS.py"/>
-</launch>

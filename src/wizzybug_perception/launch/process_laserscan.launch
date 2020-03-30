@@ -1,4 +1,0 @@
-<launch>
-
-    <node name="process_laserscan" pkg="wizzybug_perception" type="process_laserscan.py"></node>
-</launch>
