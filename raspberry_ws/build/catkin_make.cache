@@ -1,0 +1,2 @@
+wizzy_hmi:wizzybug_msgs
+-DCATKIN_DEVEL_PREFIX=/home/wizzy-aux/wizzy_git/raspberry_ws/devel -DCMAKE_INSTALL_PREFIX=/home/wizzy-aux/wizzy_git/raspberry_ws/install -G Unix Makefiles
