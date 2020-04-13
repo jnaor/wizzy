@@ -11,13 +11,13 @@
     <include>
       <uri>model://sun</uri>
     </include>
-
+<!-- 
     <model name="Kitchen Dining">
     <pose> 1 6.5 0 0 0 0</pose>
     </model>
     <include>
       <uri>model://Kitchen Dining</uri>
-    </include>
+    </include> -->
     <!-- Focus camera on tall pendulum -->
     <gui fullscreen='0'>
       <camera name='user_camera'>
