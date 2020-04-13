@@ -24,7 +24,7 @@
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
           args="-urdf -model wizzybug -param robot_description"/>
 
-    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py" launch-prefix="xterm -e" />    
+    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py"/>    
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/wizzybug.rviz"/>
 

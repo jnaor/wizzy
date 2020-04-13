@@ -1,8 +1,0 @@
-prefix=/home/wizzy-aux/wizzy_git/raspberry_ws/devel
-
-Name: wizzy_hmi
-Description: Description of wizzy_hmi
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
