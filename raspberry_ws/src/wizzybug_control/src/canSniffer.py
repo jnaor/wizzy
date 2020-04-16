@@ -16,7 +16,9 @@ MAX_ANGULAR_VELOCITY = 40.0
 MAX_VALUE = 100.0
 
 def sign(x):
-  return 1-(x<=0)
+    if x<=0:
+        return -1
+    return 1
 
 def can_recv(iface):
     bus = can.interface.Bus(bustype='socketcan', channel=iface)
@@ -30,16 +32,19 @@ def can_recv(iface):
             data_array = struct.unpack('>4b', bytes(msg.data))
             x = data_array[2]
 
-            # normalize according to measured joystick characteristics
-            x, y = min(abs(x), MAX_VALUE) * sign(x), min(abs(y), MAX_VALUE) * sign(y)
+	if x*y == 0:
+            continue
 
-            # notice sign flip to make forward motion positive
-            velocity = (y / MAX_VALUE) * MAX_VELOCITY
+        # normalize according to measured joystick characteristics
+        xn, yn = min(abs(x), MAX_VALUE) * sign(x), min(abs(y), MAX_VALUE) * sign(y)
 
-            # angular velocity
-            angular_velocity = (x / MAX_VALUE) * MAX_ANGULAR_VELOCITY
+        # forward motion is positive
+        velocity = (yn / MAX_VALUE) * MAX_VELOCITY
 
-            logging.debug('vel: {}, ang: {}'.format(velocity, angular_velocity))
+        # angular velocity. sign flip to make turn around left positive
+        angular_velocity = (-xn / MAX_VALUE) * MAX_ANGULAR_VELOCITY
+
+        logging.debug('vel: {}, ang: {}'.format(velocity, angular_velocity))
 
 def disable_iface(iface):
     os.system('sudo ip link set down {}'.format(iface))
