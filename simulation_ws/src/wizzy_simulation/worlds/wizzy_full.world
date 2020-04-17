@@ -63,7 +63,7 @@
     </light>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>22.9952 -19.7269 10.4677 0 0.275643 2.35619</pose>
+        <pose frame=''>24.1729 -3.27908 22.0177 -0 0.72565 2.4737</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
@@ -911,46 +911,145 @@
       </link>
       <pose frame=''>-0.404926 4.71802 0 0 -0 0</pose>
     </model>
-    <model name='person_walking'>
+    <state world_name='default'>
+      <sim_time>988 399000000</sim_time>
+      <real_time>582 18000572</real_time>
+      <wall_time>1587132626 598399251</wall_time>
+      <iterations>580522</iterations>
+      <model name='ambulance'>
+        <pose frame=''>0.173323 6.34909 0 0 -0 1.19362</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.173323 6.34909 0 0 -0 1.19362</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='asphalt_plane'>
+        <pose frame=''>0.024091 -0.032501 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.024091 -0.032501 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='bookshelf'>
+        <pose frame=''>-0.08169 -1.9926 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-0.08169 -1.9926 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='cafe_table'>
+        <pose frame=''>-1.80922 -0.085626 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-1.80922 -0.085626 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='create'>
+        <pose frame=''>2.62838 -2.73632 0.050937 8.9e-05 -0.001057 -1.13753</pose>
+        <scale>1 1 1</scale>
+        <link name='base'>
+          <pose frame=''>2.62838 -2.73632 0.050937 8.9e-05 -0.001057 -1.13753</pose>
+          <velocity>0.000384 -0.000936 -0.005087 -0.010911 -0.006648 0.002387</velocity>
+          <acceleration>0.000584 0.000353 -9.58071 -0.014279 0.061122 -7.7e-05</acceleration>
+          <wrench>0.001304 0.000789 -21.4033 0 -0 0</wrench>
+        </link>
+        <link name='left_wheel'>
+          <pose frame=''>2.74635 -2.68171 0.082991 3.14127 1.27197 2.00376</pose>
+          <velocity>-2.8e-05 -0.000342 -0.015391 0.007282 0.003102 0.002389</velocity>
+          <acceleration>-0.066475 -0.041617 -30.8196 2.09225 0.873113 3.14042</acceleration>
+          <wrench>-0.000665 -0.000416 -0.308196 0 -0 0</wrench>
+        </link>
+        <link name='right_wheel'>
+          <pose frame=''>2.51037 -2.79087 0.082985 0.000136 -0.803293 -1.13763</pose>
+          <velocity>0.000237 -0.000902 -0.020194 0.024325 0.011179 0.002391</velocity>
+          <acceleration>-0.063921 -0.0373 -37.7691 2.03782 0.755454 3.14116</acceleration>
+          <wrench>-0.000639 -0.000373 -0.377691 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='fire_hydrant'>
+        <pose frame=''>0.502583 -4.0422 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.502583 -4.0422 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='fountain'>
+        <pose frame=''>3.68494 -1.12932 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>3.68494 -1.12932 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='grey_wall'>
+        <pose frame=''>1.70859 -6.70476 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>1.70859 -6.70476 1.4 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='person_standing'>
+        <pose frame=''>1.14183 0.70224 0.05 0 1e-06 -2.79324</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>1.14183 0.70224 0.05 0 1e-06 -2.79324</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>-1.8594 0.503968 -1.68891 2.5782 -1.17443 -3.09777</acceleration>
+          <wrench>-148.752 40.3174 -135.113 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='playground'>
+        <pose frame=''>-7.1678 0.169154 0 0 -0 2.01186</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-7.1678 0.169154 0 0 -0 2.01186</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 0</pose>
+      </light>
+    </state>
+    <model name='ambulance'>
+      <static>1</static>
       <link name='link'>
-        <inertial>
-          <pose frame=''>0 0 0.95 0 -0 0</pose>
-          <mass>80</mass>
-          <inertia>
-            <ixx>27.82</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>24.88</iyy>
-            <iyz>0</iyz>
-            <izz>4.57</izz>
-          </inertia>
-        </inertial>
-        <collision name='bottom'>
-          <pose frame=''>0 0 0.01 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>0.35 0.75 0.02</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <collision name='person'>
-          <pose frame=''>0 0 -0.02 0 -0 0</pose>
+        <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>model://person_walking/meshes/walking.dae</uri>
+              <scale>0.0254 0.0254 0.0254</scale>
+              <uri>model://ambulance/meshes/ambulance.obj</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -968,10 +1067,10 @@
           </surface>
         </collision>
         <visual name='visual'>
-          <pose frame=''>0 0 -0.02 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>model://person_walking/meshes/walking.dae</uri>
+              <scale>0.0254 0.0254 0.0254</scale>
+              <uri>model://ambulance/meshes/ambulance.obj</uri>
             </mesh>
           </geometry>
         </visual>
@@ -979,15 +1078,15 @@
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
-      <pose frame=''>-2.54395 0.997634 0 0 -0 0</pose>
+      <pose frame=''>0.173323 6.34909 0 0 -0 0</pose>
     </model>
-    <model name='pine_tree'>
+    <model name='fountain'>
       <static>1</static>
       <link name='link'>
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>model://pine_tree/meshes/pine_tree.dae</uri>
+              <uri>model://fountain/meshes/fountain.dae</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -1004,37 +1103,90 @@
             </friction>
           </surface>
         </collision>
-        <visual name='branch'>
+        <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://pine_tree/meshes/pine_tree.dae</uri>
-              <submesh>
-                <name>Branch</name>
-              </submesh>
+              <uri>model://fountain/meshes/fountain.dae</uri>
             </mesh>
           </geometry>
-          <material>
-            <script>
-              <uri>model://pine_tree/materials/scripts/</uri>
-              <uri>model://pine_tree/materials/textures/</uri>
-              <name>PineTree/Branch</name>
-            </script>
-          </material>
         </visual>
-        <visual name='bark'>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>3.68494 -1.12932 0 0 -0 0</pose>
+    </model>
+    <model name='fire_hydrant'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>model://pine_tree/meshes/pine_tree.dae</uri>
-              <submesh>
-                <name>Bark</name>
-              </submesh>
+              <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
             </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.502583 -4.0422 0 0 -0 0</pose>
+    </model>
+    <model name='asphalt_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>20 20 0.1</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <box>
+              <size>20 20 0.1</size>
+            </box>
           </geometry>
           <material>
             <script>
-              <uri>model://pine_tree/materials/scripts/</uri>
-              <uri>model://pine_tree/materials/textures/</uri>
-              <name>PineTree/Bark</name>
+              <uri>model://asphalt_plane/materials/scripts</uri>
+              <uri>model://asphalt_plane/materials/textures</uri>
+              <name>vrc/asphalt</name>
             </script>
           </material>
         </visual>
@@ -1042,108 +1194,52 @@
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
-      <pose frame=''>0.642334 -4.73911 0 0 -0 0</pose>
+      <pose frame=''>0.024091 -0.032501 0 0 -0 0</pose>
     </model>
-    <state world_name='default'>
-      <sim_time>407 877000000</sim_time>
-      <real_time>410 256107566</real_time>
-      <wall_time>1587130988 176801125</wall_time>
-      <iterations>407877</iterations>
-      <model name='bookshelf'>
-        <pose frame=''>-3.95017 -4.25217 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>-3.95017 -4.25217 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='cafe_table'>
-        <pose frame=''>-3.2321 -1.54988 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>-3.2321 -1.54988 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='create'>
-        <pose frame=''>2.62155 -2.76842 0.000938 -7.3e-05 -0.000598 -0.055905</pose>
-        <scale>1 1 1</scale>
-        <link name='base'>
-          <pose frame=''>2.62155 -2.76842 0.000938 -7.3e-05 -0.000598 -0.055905</pose>
-          <velocity>0.000901 1.4e-05 -0.005093 -0.001776 -0.002718 -0.000405</velocity>
-          <acceleration>-0.000136 -0.000655 -9.58072 0.043372 0.009642 2.9e-05</acceleration>
-          <wrench>-0.000305 -0.001463 -21.4033 0 -0 0</wrench>
-        </link>
-        <link name='left_wheel'>
-          <pose frame=''>2.6288 -2.63862 0.032988 -0.000496 -1.409 -0.055415</pose>
-          <velocity>0.000874 0.000131 -0.020143 0.001522 0.025703 -0.000407</velocity>
-          <acceleration>0.014664 0.072794 -37.6753 -3.02367 -0.182411 0.001215</acceleration>
-          <wrench>0.000147 0.000728 -0.376753 0 -0 0</wrench>
-        </link>
-        <link name='right_wheel'>
-          <pose frame=''>2.61427 -2.89821 0.03299 -3.1413 -1.29152 3.08541</pose>
-          <velocity>0.000769 0.00014 -0.015442 0.001249 0.022506 -0.000407</velocity>
-          <acceleration>0.015787 0.073539 -30.9122 -3.04878 -0.181006 0.001472</acceleration>
-          <wrench>0.000158 0.000735 -0.309122 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='ground_plane'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='person_standing'>
-        <pose frame=''>0.138431 2.71488 0 1e-06 1e-06 -0.000606</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>0.138431 2.71488 0 1e-06 1e-06 -0.000606</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-2.20764 1.51907 1.48093 1.42868 -0.897553 2.91369</acceleration>
-          <wrench>-176.612 121.525 118.474 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='person_walking'>
-        <pose frame=''>-2.54395 0.997634 -1e-06 2e-06 -1e-06 0.000528</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>-2.54395 0.997634 -1e-06 2e-06 -1e-06 0.000528</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-0.963719 -2.03342 -2.68361 2.12102 -1.05628 0.105705</acceleration>
-          <wrench>-77.0975 -162.674 -214.689 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pine_tree'>
-        <pose frame=''>0.642334 -4.73911 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>0.642334 -4.73911 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='playground'>
-        <pose frame=''>-0.404926 4.71802 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>-0.404926 4.71802 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <light name='sun'>
-        <pose frame=''>0 0 10 0 -0 0</pose>
-      </light>
-    </state>
+    <model name='grey_wall'>
+      <static>1</static>
+      <link name='link'>
+        <pose frame=''>0 0 1.4 0 -0 0</pose>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>7.5 0.2 2.8</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <box>
+              <size>7.5 0.2 2.8</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://grey_wall/materials/scripts</uri>
+              <uri>model://grey_wall/materials/textures</uri>
+              <name>vrc/grey_wall</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>1.70859 -6.70476 0 0 -0 0</pose>
+    </model>
   </world>
 </sdf>
