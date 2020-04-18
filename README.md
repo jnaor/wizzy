@@ -4,61 +4,14 @@ Proof of Concept Technical Specification
 
 **Note: Work in progress**
 
-# Contents
-
-[1. Introduction 2](#_Toc29883433)
-
-[2. ADAS for the Wizzybug Electric Wheelchair 3](#_Toc29883434)
-
-[2.1 Feature Overview 3](#_Toc29883435)
-
-[2.2 System Components 3](#_Toc29883436)
-
-[2.3 Software Architecture 3](#_Toc29883437)
-
-[2.4 Functionality 5](#_Toc29883438)
-
-[2.5 Safety 5](#_Toc29883439)
-
-[3. Component Design 5](#_Toc29883440)
-
-[3.1 Perception 5](#_Toc29883441)
-
-[3.1.1 Depth Cameras 5](#_Toc29883442)
-
-[3.1.2 LIDAR 5](#_Toc29883443)
-
-[3.1.3 IMU 5](#_Toc29883444)
-
-[3.1.4 Joystick 6](#_Toc29883445)
-
-[3.2 Decision Making 6](#_Toc29883446)
-
-[3.3 Control 6](#_Toc29883447)
-
-[3.4 HMI 7](#_Toc29883448)
-
-[3.4.1 Visual Feedback 7](#_Toc29883449)
-
-[3.4.2 Audio Feedback 8](#_Toc29883450)
-
-[3.4.3 Haptic Feedback 8](#_Toc29883451)
-
-[5. Functional/Performance Requirements 8](#_Toc29883452)
-
-[6. Non-Functional Requirements 8](#_Toc29883453)
-
-1.
 # Introduction
 
 When a child begins walking, normally at age 9-16 months, they gain the power to explore, move around and impact their environment. For children with disabilities, it is not unusual to have to wait until the age of 5 years, due to the complicated process of learning to drive an electric wheelchair.
 
 By connecting cameras and other sensors to the electric wheelchair and to the care-giver&#39;s application, we hope to close this gap and prevent the developmental deficits related to it, and to allow simple and safe usage of the electric wheelchair for very young children.
 
-1.
 # ADAS for the Wizzybug Electric Wheelchair
 
-  1.
 ## Feature Overview
 
 Learning to drive the Wizzybug is hard. Starting at late age (such as age 5) delays the child&#39;s development. Technology can aid in speeding up the learning process, and increase safety.
@@ -71,7 +24,6 @@ When the children first try to drive the electric wheelchair, they might bump in
 
 In case the sensory / vocal signal does not help, the system should apply resistance to the wheelchair problematic trajectory, or even bring the wheelchair to a full stop. Continuing the wheelchair&#39;s movement will be enabled only in an obstacle free direction.
 
-  1.
 ## System Components
 
 1. Four [RealSense 415](https://www.intelrealsense.com/depth-camera-d415/) depth cameras providing depth and RGB images at 30 frames per second
@@ -81,7 +33,6 @@ In case the sensory / vocal signal does not help, the system should apply resist
 5. LaserScan LIDAR providing a one-dimensional range map in front of the chair
 6. [Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) as the system central computing module
 
-  1.
 ## Software Architecture
 
 The system components:
@@ -99,7 +50,6 @@ The system has four main functional components:
 
 The middleware software that integrates all the components is the [Robot Operating System](https://www.ros.org/) (ROS), which implements a Publisher-Subscriber architecture that enables synchronized data flow between the different components.
 
-  1.
 ## Functionality
 
 ![](RackMultipart20200418-4-1yquz6t_html_4e5c19fa24b47f56.png)
@@ -112,20 +62,16 @@ The system shall provide the following main functions:
 2. Warn the parent / caretaker of a potential collision with an obstacle
 3. Provide the parent / caretaker with the capability to remotely stop the chair
 
-  1.
 ## Safety
 
 1. The system is a proof of concept prototype to be used solely under adult attendant supervision.
 2. The system shall not have any adverse safety effect on the wheelchair&#39;s mobility; it may only decrease velocity in case of obstacle collision avoidance. In all other cases the system is advisory.
 3. The human machine interface shall not provide misleading safety information and shall not have any adverse effect on the child&#39;s cognitive capability to control the chair&#39;s movement.
 
-1.
 # Component Design
 
-  1.
 ## Perception
 
-    1.
 ### Depth Cameras
 
 Four depth and RGB images acquired from four [RealSense 415](https://www.intelrealsense.com/depth-camera-d415/) depth cameras at resolution of 640x480, at 30 frames per second.
@@ -133,31 +79,26 @@ Four depth and RGB images acquired from four [RealSense 415](https://www.intelre
 1. Segment the depth images and extract objects within the warning zone. This is immediately passed to the Decision Making module in case immediate action is necessary
 2. Classify the close objects using a Neural Network object detector, and pass this information to the Decision Maker (this might affect non-safety behavior, for example after an emergency stop)
 
-    1.
 ### LIDAR
 
 ![](RackMultipart20200418-4-1yquz6t_html_70be395d689f1a0.png)Based on [RpLidar type A2](https://www.slamtec.com/en/Lidar/A2). The Lidar transits 360 measurements per cycle, at the speed of 5Hz.
 
 The Lidar is placed perpendicular to the floor, enabling to identify walls and drops in the floor.
 
-    1.
 ### IMU
 
 Reads the Wizzybug inclination and passes on to DM.
 
-    1.
 ### _Figure 3: Lidar scanning the front of the Wheelchair path_Joystick
 
 From the joystick readings we get a reading of the chair velocity. This is used by the Decision Making module to estimate Time to Collision (TTC) with detected obstacles.
 
-  1.
 ## Decision Making
 
 Algorithm Flow Chart:
 
 _ **TBD** _
 
-  1.
 ## Control
 
 The Control module activates Numato Lab&#39;s 1 Channel USB Powered Relay Module. Activates DX Control Power Module to enable and disable the Wizzybug&#39;s motors.
@@ -176,7 +117,6 @@ _Figure 5: Power Module controlling the Motors_
 
 _Figure 6: Controlling Speed Limit using DCI Connectors in the Power Module_
 
-  1.
 ## HMI
 
 The system has two main users: the child and the caregiver. The aim of the design is to provide both types of users a set of tools to assess the **situation awareness** of the system at any given moment. The bug senses its environment and identifies the obstacles around it.
@@ -199,12 +139,10 @@ Type C events – These obstacles impose harm to the child or the environment (e
 
 Type U- Unknowns – Assuming that the system fails to classify an obstacle that has the potential to harm the child as type C obstacles do, the feedback should appear as C
 
-    1.
 ### Multimodal feedback
 
 The set of feedback consists of **synchronized multimodal visual-haptic** feedback that will give the child a sense of directionality for the obstacles and their level of threat, plus sound alerts when needed.
 
-      1.
 ### Haptic Feedback
 
 Vibration alerting is a great alternative to lights and beeps. By mounting them on the body, the child&#39;s eyes are free, and the child can drive toward her areas of interest. The motor needs to be strong enough to overcome the damping of soft materials (nappies, coats and jumpers). This can be aided by ensuring the vibrations are directed towards the user. In our system, we will be used coin motors.
@@ -238,7 +176,6 @@ The **potential urgency** of the event will be conveyed by manipulating the foll
 
 High intensity pulse with sharp attack and decay of the stimuli envelope, short pulses with short intervals and high number of repetitions will give the user a high sense of urgency.
 
-      1.
 ### Visual feedback
 
 Visual feedback will be given by marking areas on a LED ring. A 24 LED ring placed around the joystick will be used to mark 6 areas, 4 LED lights per area: Front, Right/Front, Right/Rear, Rear, Left/Rear, and Left/Front.
@@ -283,7 +220,6 @@ Same as described above for the haptic stimuli, high intensity pulse with sharp 
 
 _Figure 12. Visual Feedback_
 
-      1.
 ### Sound alerts
 
 Sound alerts will play when the bug stops in type B &amp; C/U events.
@@ -294,12 +230,10 @@ Type C - In risky scenarios (C), an intensive sound should play just before the 
 
 Verbal instructions will play after the car stopped to provide the child maneuvering guidance (should be tailored to front/back alerts).
 
-  1.
 ## Caretaker Remote Application
 
 The caretaker application is run on a mobile phone and provides notifications, connection monitoring and emergency remote stop of the chair.
 
-    1.
 ## Remote Notification
 
 The system shall notify the caretaker of imminent collision with obstacles; the same notifications the child receives (see section ‎3.4) shall be broadcast to the caretaker&#39;s phone and induce:
@@ -308,12 +242,10 @@ The system shall notify the caretaker of imminent collision with obstacles; the 
 2. Vibration
 3. Visual Notification that includes the direction of the object relative to the chair
 
-    1.
 ## Remote Emergency Stop
 
 The caretaker application shall provide the capability to remotely stop the chair.
 
-    1.
 ## Remote Application Connection Status
 
 The application shall indicate the status of the remote connection to the vehicle and notify the caretaker when there is no connection.
