@@ -1,8 +1,8 @@
-rm -rf /home/user/wizzy/raspberry_ws/build
-rm -rf /home/user/wizzy/raspberry_ws/devel
+rm -rf raspberry_ws/build
+rm -rf raspberry_ws/devel
 
-rm -rf /home/user/wizzy/jetson_ws/build
-rm -rf /home/user/wizzy/jetson_ws/devel
+rm -rf jetson_ws/build
+rm -rf jetson_ws/devel
 
-rm -rf /home/user/wizzy/simulation_ws/build
-rm -rf /home/user/wizzy/simulation_ws/devel
+rm -rf simulation_ws/build
+rm -rf simulation_ws/devel
