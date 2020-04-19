@@ -16,7 +16,5 @@ cd ..
 
 source simulation_ws/devel/setup.bash
 
-rosdep update
-
-#export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:/home/user/wizzy/raspberry_ws/src:/home/user/wizzy/simulation_ws/src
-#echo "added to ros package path"
+# haven't figured out when this is actually needed. uncomment if you encounter trouble
+# rosdep update
