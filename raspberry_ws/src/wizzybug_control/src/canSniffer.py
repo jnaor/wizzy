@@ -32,7 +32,7 @@ def can_recv(iface):
             data_array = struct.unpack('>4b', bytes(msg.data))
             x = data_array[2]
 
-	if x*y == 0:
+	    if x*y == 0:
             continue
 
         # normalize according to measured joystick characteristics
