@@ -64,6 +64,11 @@ class LidarProcess :
         # Notice x, y flipping (because angle is measured towards the y axis, and not towards x axis)
         y, x = polar2cart(msg.ranges, np.deg2rad(range(START_WIN_ANG, END_WIN_ANG)))
 
+        # check that both x and y are not empty
+        if len(x) * len(y) == 0:
+            rospy.logerr("invalid laser scan readings")
+            return
+
         # Restrict x and y to finite elements
         x, y = x[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))], \
                y[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))]
