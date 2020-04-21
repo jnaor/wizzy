@@ -9,9 +9,6 @@ from sensor_msgs.msg    import LaserScan
 # Output measurements of hazards to the DM node
 from wizzybug_msgs.msg  import lidar_data
 
-# Used to run the Audio node. Replaced by code in DM node.
-# import subprocess
-
 import numpy as np
 
 
@@ -21,11 +18,7 @@ class LidarProcess :
     and publish obstacle distance and LidarProcess state (i.e., obstacle type)
     """
     def __init__ (self) :
-        # Publish - TODO - Aggregate these four variables to a single message
-        # self.dist_to_pitfall_pub   = rospy.Publisher ('/myLidar/dist_to_pitfall',   Float64, queue_size=10)
-        # self.dist_to_obstacle_pub  = rospy.Publisher ('/myLidar/dist_to_obstacle',  Float64, queue_size=10)
-        # self.dist_of_floor_pub     = rospy.Publisher ('/myLidar/dist_of_floor',     Float64, queue_size=10)
-        # self.state_pub             = rospy.Publisher ('/myLidar/state',             String, queue_size=10)
+        # initialize publisher 
         self.lidar_proc             = rospy.Publisher ('/myLidar/lidar_proc',       lidar_data, queue_size=10)       
         
         # Subscribe 
@@ -35,11 +28,6 @@ class LidarProcess :
         self.floor_angle_pub       = rospy.Publisher ('/myLidar/floor_angle',        Float64, queue_size=10)
         self.lidar_height_pub      = rospy.Publisher ('/myLidar/lidar_height',        Float64, queue_size=10)
         self.myScan_pub            = rospy.Publisher ('/myLidar/myScan', LaserScan,  queue_size=10)
-                
-        # Lidar detection state
-        self.prev_state = "OK"  # Initialize previous state for debugging
-
-        self.start_time = 0
         
     def scan_cb(self, msg):           
         # Set parameters
@@ -66,16 +54,7 @@ class LidarProcess :
     
         # Lidar maximum detection distance - 20m for RPLidar A2
         MAX_LIDAR_DISTANCE = (20)
-        
-        # Initialize State
-        state = "OK"
-
-        # Hazards limits
-        MIN_ALLOWED_OBSTACLE_DIST = (1.2) # One meter minimum for obstacles, otherwise activate relay
-        MIN_ALLOWED_PITFALL_DIST  = (0.6) # One meter minimum for pitfall, otherwise activate relay
-        MIN_ALLOWED_FLOOR_DIST    = (0.4) # 60cm minimum of floor, otherwise activate relay
-
-        
+       
         # Measurements validity check 
         # ---------------------------
         if np.rad2deg(msg.angle_min) > START_WIN_ANG or \
@@ -119,9 +98,9 @@ class LidarProcess :
         # try to make less ugly
         distances, heights = N[:, 0], N[:, 1]
 
-        # Debugging - Pretty print floats
+        # Debugging - Pretty rospy.logdebug floats
         # TODO: delete this
-        np.set_printoptions(suppress=True, precision=2)
+        np.set_rospy.logdebugoptions(suppress=True, precision=2)
 
         # Run Filters
         # -----------
@@ -169,21 +148,15 @@ class LidarProcess :
         elif dist_of_floor <= MIN_ALLOWED_FLOOR_DIST :
             state = "DIST_OF_FLOOR_ERR"
 
-        # debug prints
+        # debug rospy.logdebugs
         if state != "OK" :
             curr_time = rospy.get_time()
-            print ("State : " + state)
-            print ("dist_to_pitfall : " + str(dist_to_pitfall))
-            print ("dist_to_obstacle : " + str(dist_to_obstacle))
-            print ("dist_of_floor : " + str(dist_of_floor))
-            print ("floor_angle : " + str(np.rad2deg(floor_angle)))
-            print ("lidar_height : " + str(abs(lidar_height)) + "\n")
-
-            # if self.start_time == 0 or (curr_time - self.start_time) > 5.0 :
-                # self.start_time = rospy.get_time()
-                # subprocess.run(["sh", "../../wizzybug_ux/audio/playAlertC1.sh"])
-            
-        # self.state_pub.publish(state)                
+            rospy.logdebug("State : " + state)
+            rospy.logdebug("dist_to_pitfall : " + str(dist_to_pitfall))
+            rospy.logdebug("dist_to_obstacle : " + str(dist_to_obstacle))
+            rospy.logdebug("dist_of_floor : " + str(dist_of_floor))
+            rospy.logdebug("floor_angle : " + str(np.rad2deg(floor_angle)))
+            rospy.logdebug("lidar_height : " + str(abs(lidar_height)) + "\n")            
 
         
 def polar2cart(rho, phi):
@@ -196,7 +169,7 @@ def polar2cart(rho, phi):
 
     
 if __name__ == '__main__':
-    rospy.init_node('Lidar_process')
+    rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
     myLidarProcess = LidarProcess()
     rospy.spin()
     

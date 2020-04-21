@@ -17,15 +17,21 @@
         <arg name="headless" value="$(arg headless)"/>
     </include>
 
-    <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
-
-    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+    <!-- run gazebo_ros and spawn wizzy -->
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
           args="-urdf -model wizzybug -param robot_description"/>
 
-    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py"/>    
-
+    <!-- convert depth images to realsense-like format -->
     <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>    
+
+    <!-- run perception - laser scan -->
+    <node name="process_laserscan" pkg="wizzybug_perception" type="process_laserscan.py"></node> 
+
+    <!-- bringup decision making -->
+    <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
+
+    <!-- enable telep control of wizzy in simulation -->
+    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py"/>    
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/wizzybug.rviz"/>
 
