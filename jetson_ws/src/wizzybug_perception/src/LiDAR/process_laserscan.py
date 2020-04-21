@@ -24,11 +24,6 @@ class LidarProcess :
         # Subscribe 
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
         
-        # Debug publish        
-        self.floor_angle_pub       = rospy.Publisher ('/myLidar/floor_angle',        Float64, queue_size=10)
-        self.lidar_height_pub      = rospy.Publisher ('/myLidar/lidar_height',        Float64, queue_size=10)
-        self.myScan_pub            = rospy.Publisher ('/myLidar/myScan', LaserScan,  queue_size=10)
-        
     def scan_cb(self, msg):           
         # Set parameters
         # ---------------
@@ -98,10 +93,6 @@ class LidarProcess :
         # try to make less ugly
         distances, heights = N[:, 0], N[:, 1]
 
-        # Debugging - Pretty rospy.logdebug floats
-        # TODO: delete this
-        np.set_rospy.logdebugoptions(suppress=True, precision=2)
-
         # Run Filters
         # -----------
         # Indices where bad things happen
@@ -128,25 +119,9 @@ class LidarProcess :
         ld.dist_to_pitfall = dist_to_pitfall
         ld.dist_to_obstacle = dist_to_obstacle
         ld.dist_to_floor = dist_of_floor        
+        ld.floor_inclination_degrees = np.rad2deg(floor_angle)
+        ld.lidar_height = abs(lidar_height)
         self.lidar_proc.publish(ld)
-        
-        # self.dist_to_pitfall_pub.publish(dist_to_pitfall) 
-        # self.dist_to_obstacle_pub.publish(dist_to_obstacle)  
-        # self.dist_of_floor_pub.publish(dist_of_floor)
-         
-        # Debug publish 
-        self.floor_angle_pub.publish(np.rad2deg(floor_angle))
-        self.lidar_height_pub.publish(abs(lidar_height))         
-        # Monitor the measurement window for filtering
-        self.myScan_pub.publish(msg)
-
-        # Replace the DM logic
-        if dist_to_pitfall <= MIN_ALLOWED_PITFALL_DIST :
-            state = "DIST_TO_PITFALL_ERR"
-        elif dist_to_obstacle <= MIN_ALLOWED_OBSTACLE_DIST :
-            state = "DIST_TO_OBSTACLE_ERR"
-        elif dist_of_floor <= MIN_ALLOWED_FLOOR_DIST :
-            state = "DIST_OF_FLOOR_ERR"
 
         # debug rospy.logdebugs
         if state != "OK" :
@@ -170,6 +145,7 @@ def polar2cart(rho, phi):
     
 if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
+    
     myLidarProcess = LidarProcess()
     rospy.spin()
     
