@@ -19,7 +19,7 @@ class LidarProcess :
     """
     def __init__ (self) :
         # initialize publisher 
-        self.lidar_proc             = rospy.Publisher ('/myLidar/lidar_proc',       lidar_data, queue_size=10)       
+        self.lidar_proc = rospy.Publisher ('/wizzy/lidar_proc', lidar_data, queue_size=10)       
         
         # Subscribe 
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
@@ -64,14 +64,14 @@ class LidarProcess :
         # Notice x, y flipping (because angle is measured towards the y axis, and not towards x axis)
         y, x = polar2cart(msg.ranges, np.deg2rad(range(START_WIN_ANG, END_WIN_ANG)))
 
+        # Restrict x and y to finite elements
+        x, y = x[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))], \
+               y[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))]
+
         # check that both x and y are not empty
         if len(x) * len(y) == 0:
             rospy.logerr("invalid laser scan readings")
             return
-
-        # Restrict x and y to finite elements
-        x, y = x[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))], \
-               y[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))]
 
         # Fit a line to first measurements which are nearest to the lidar, towards the floor
         l = np.polyfit(x[:GROUND_PLANE_ESTIMATE_MAX_INDEX], y[:GROUND_PLANE_ESTIMATE_MAX_INDEX], 1)
@@ -129,14 +129,11 @@ class LidarProcess :
         self.lidar_proc.publish(ld)
 
         # debug rospy.logdebugs
-        if state != "OK" :
-            curr_time = rospy.get_time()
-            rospy.logdebug("State : " + state)
-            rospy.logdebug("dist_to_pitfall : " + str(dist_to_pitfall))
-            rospy.logdebug("dist_to_obstacle : " + str(dist_to_obstacle))
-            rospy.logdebug("dist_of_floor : " + str(dist_of_floor))
-            rospy.logdebug("floor_angle : " + str(np.rad2deg(floor_angle)))
-            rospy.logdebug("lidar_height : " + str(abs(lidar_height)) + "\n")            
+        rospy.logdebug("dist_to_pitfall : " + str(dist_to_pitfall))
+        rospy.logdebug("dist_to_obstacle : " + str(dist_to_obstacle))
+        rospy.logdebug("dist_of_floor : " + str(dist_of_floor))
+        rospy.logdebug("floor_angle : " + str(np.rad2deg(floor_angle)))
+        rospy.logdebug("lidar_height : " + str(abs(lidar_height)) + "\n")            
 
         
 def polar2cart(rho, phi):
