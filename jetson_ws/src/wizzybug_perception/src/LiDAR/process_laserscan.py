@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 
-from std_msgs.msg       import Float64
+# from std_msgs.msg       import Float64
 
 # Input measurements from the RPLidar driver node
 from sensor_msgs.msg    import LaserScan
@@ -10,14 +10,25 @@ from sensor_msgs.msg    import LaserScan
 from wizzybug_msgs.msg  import lidar_data
 
 import numpy as np
+from sklearn import linear_model
 
-
-class LidarProcess :
-    """
+"""
     Process lidar sensor input from topic /scan, 
     and publish obstacle distance and LidarProcess state (i.e., obstacle type)
     """
-    def __init__ (self) :
+class LidarProcess :
+
+    # estimate inclination and height of lidar based on readings below
+    GROUND_PLANE_ESTIMATE_MAX_ANGLE = 10
+
+    """
+    :param angles_to_ignore list of angle ranges in degrees for which to disregard readings 
+        (for example those behind / above the lidar attachment)
+    """
+    def __init__ (self, angles_to_ignore):
+        # save irrelevant angles
+        self.angles_to_ignore = angles_to_ignore
+
         # initialize publisher 
         self.lidar_proc = rospy.Publisher ('/wizzy/lidar_proc', lidar_data, queue_size=10)       
         
@@ -25,24 +36,40 @@ class LidarProcess :
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
         
     def scan_cb(self, msg):           
+
+        # copy range readings from message to numpy array
+        range_readings = np.array(msg.ranges)
+
+        # get angle ranges from message
+        angles = np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)
+
+        # save also in degrees because it's more convenient sometimes
+        angles_deg = np.rad2deg(angles)
+
+        # invalidate readings where they should be ignored
+        for angle_range in angles_to_ignore:
+
+            # invalidate range readings
+            range_readings[(angles_deg >= angle_range[0]) & (angles_deg <= angle_range[1])]  = np.nan
+
+        # estimate ground plane based on readings directly below lidar
+        ground_indices = (angles_deg <= LidarProcess.GROUND_PLANE_ESTIMATE_MAX_ANGLE - 180) | (
+                    angles_deg >= 180 - LidarProcess.GROUND_PLANE_ESTIMATE_MAX_ANGLE)
+        ground_ranges = range_readings[ground_indices]
+        ground_angles = angles_deg[ground_indices]
+
         # Set parameters
         # ---------------
         # -178.0 deg. -180deg is straight down from the lidar.
         # It is turning counter clock wise            
-        START_WIN_ANG   = (-178)                                         
-        END_WIN_ANG     = (-70)         # -70.0 deg                                                                                                      
+        # START_WIN_ANG   = (-178)
+        # END_WIN_ANG     = (-70)         # -70.0 deg
         
         # 5cm depth allowed at most 
         BELOW_GND_HEIGHT_LIMIT = (-0.05)
         
         # 20cm is the maximum object height above ground to stop wheel chair        
-        ABOVE_GND_HEIGHT_LIMIT = (0.20)          
-        
-        # Number of readings to base ground plane inclination estimate 
-        # 30 measurement points from the beginning of measurement is about 12cm 
-        # distance from the lidar
-        # TODO: kind of a lame way to do this
-        GROUND_PLANE_ESTIMATE_MAX_INDEX = 30
+        ABOVE_GND_HEIGHT_LIMIT = (0.20)
         
         # Points with height less then 40cm will be considered part of the floor
         FLOOR_MAX_HEIGHT = (0.4)
@@ -52,29 +79,31 @@ class LidarProcess :
        
         # Measurements validity check 
         # ---------------------------
-        if np.rad2deg(msg.angle_min) > START_WIN_ANG or \
-           np.rad2deg(msg.angle_max) < END_WIN_ANG :
-               raise ValueError ("Scan vector do not contain the relevant window values")
+        # if np.rad2deg(msg.angle_min) > START_WIN_ANG or \
+        #    np.rad2deg(msg.angle_max) < END_WIN_ANG :
+        #        raise ValueError ("Scan vector do not contain the relevant window values")
 
         # Capture relevant slice for the filters to work on - Only what
         # is in-front of the lidar
-        msg.ranges = msg.ranges[180 + START_WIN_ANG: 180 + END_WIN_ANG]  
+        # msg.ranges = msg.ranges[180 + START_WIN_ANG: 180 + END_WIN_ANG]
                               
         # Polar to Cartesian coordinates change
-        # Notice x, y flipping (because angle is measured towards the y axis, and not towards x axis)
-        y, x = polar2cart(msg.ranges, np.deg2rad(range(START_WIN_ANG, END_WIN_ANG)))
+        # Notice x, z flipping (because angle is measured towards the z axis, and not towards x axis)
+        # z, x = polar2cart(msg.ranges, np.deg2rad(range(START_WIN_ANG, END_WIN_ANG)))
+        z, x = polar2cart(msg.ranges, np.arange(msg.angle_min, msg.angle_max, msg.angle_increment))
+        x = -x
 
         # Restrict x and y to finite elements
-        x, y = x[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))], \
-               y[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(y)))]
+        x, z = x[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(z)))], \
+               z[np.where(np.bitwise_and(np.isfinite(x), np.isfinite(z)))]
 
         # check that both x and y are not empty
-        if len(x) * len(y) == 0:
+        if len(x) * len(z) == 0:
             rospy.logerr("invalid laser scan readings")
             return
 
         # Fit a line to first measurements which are nearest to the lidar, towards the floor
-        l = np.polyfit(x[:GROUND_PLANE_ESTIMATE_MAX_INDEX], y[:GROUND_PLANE_ESTIMATE_MAX_INDEX], 1)
+        l = np.polyfit(x[:GROUND_PLANE_ESTIMATE_MAX_ANGLE], z[:GROUND_PLANE_ESTIMATE_MAX_ANGLE], 1)
 
         # Angle of floor (should ideally have been zero but isn't). in radians
         floor_angle = np.arctan(l[0])
@@ -84,13 +113,13 @@ class LidarProcess :
                       [np.sin(floor_angle), np.cos(floor_angle), 0], [0, 0, 1]])
 
         # Perform transformation
-        N = np.matmul (np.hstack((x[:, np.newaxis], y[:, np.newaxis], np.ones((y.shape[0], 1)))), T)
+        N = np.matmul (np.hstack((x[:, np.newaxis], z[:, np.newaxis], np.ones((z.shape[0], 1)))), T)
 
         # de-homogenize
         N = N[:, :2] / N[:, [-1]]
 
         # Estimate "bias" - height of LIDAR
-        lidar_height = np.mean(N[:GROUND_PLANE_ESTIMATE_MAX_INDEX, 1])
+        lidar_height = np.mean(N[:GROUND_PLANE_ESTIMATE_MAX_ANGLE, 1])
 
         # Bring measurements to around zero
         N[:, 1] -= lidar_height 
@@ -147,8 +176,11 @@ def polar2cart(rho, phi):
     
 if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
-    
-    myLidarProcess = LidarProcess()
+
+    # ignore angles behind the wizzy
+    angles_to_ignore = [(-120, -60) ]
+
+    myLidarProcess = LidarProcess(angles_to_ignore)
     rospy.spin()
     
 
