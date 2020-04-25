@@ -30,7 +30,7 @@ class LidarProcess :
         self.min_obstacle_height, self.min_pitfall_depth = min_obstacle_height, min_pitfall_depth
 
         # initialize publisher 
-        self.lidar_proc = rospy.Publisher ('/wizzy/lidar_proc', lidar_data, queue_size=10)       
+        self.lidar_proc = rospy.Publisher('/wizzy/lidar_proc', lidar_data, queue_size=10)       
         
         # Subscribe 
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
@@ -39,11 +39,6 @@ class LidarProcess :
 
         # prepare result structure to publish
         ld = lidar_data()
-        # ld.dist_to_pitfall = None
-        # ld.dist_to_obstacle = None
-        # ld.visible_floor_distance = None
-        # ld.floor_inclination_degrees = None
-        # ld.lidar_height = None
 
         # copy range readings from message to numpy array
         range_readings = np.array(msg.ranges)
@@ -76,7 +71,11 @@ class LidarProcess :
 
         # if readings do not fit a line then report error
         if np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z)) > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
-            drek = 6
+            ld.dist_to_obstacle = 0
+            ld.dist_to_pitfall = 0
+            ld.visible_floor_distance = 0
+            self.lidar_proc.publish(ld)
+            return
 
         # estimate line at all x
         l = ransac.predict(x.reshape(-1, 1))
@@ -85,7 +84,7 @@ class LidarProcess :
         ld.lidar_height = -ransac.predict([[0]])[0]
 
         # floor angle
-        ld.floor_inclination_degrees = np.rad2deg(np.arctan2(l[-1]-l[0], x[-1]-x[0]))
+        ld.floor_inclination_degrees = 180 - np.rad2deg(np.arctan2(l[-1]-l[0], x[-1]-x[0]))
 
         # x's where there is an obstacle
         obstacle_x = x[l + self.min_obstacle_height < z]
