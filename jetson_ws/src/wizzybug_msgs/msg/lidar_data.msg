@@ -2,7 +2,7 @@ Header header
 
 float32 dist_to_pitfall
 float32 dist_to_obstacle
-float32 dist_to_floor
+float32 visible_floor_distance
 float32 floor_inclination_degrees
 float32 lidar_height
 

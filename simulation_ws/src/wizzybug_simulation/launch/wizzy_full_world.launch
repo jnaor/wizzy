@@ -25,7 +25,7 @@
     <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>    
 
     <!-- run perception - laser scan -->
-    <node name="process_laserscan" pkg="wizzybug_perception" type="process_laserscan.py"></node> 
+<!--     <node name="process_laserscan" pkg="wizzybug_perception" type="process_laserscan.py"></node>  -->
 
     <!-- bringup decision making -->
     <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
