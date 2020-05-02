@@ -22,7 +22,10 @@
           args="-urdf -model wizzybug -param robot_description"/>
 
     <!-- convert depth images to realsense-like format -->
-    <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>    
+    <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>
+
+    <!-- run vision-based obstacle detector -->
+<!--     <node name="obstacle_detector" pkg="wizzybug_vision" type="object_detection.py" output="screen"></node> -->
 
     <!-- run laser scan -->
     <node name="process_laserscan" pkg="wizzybug_lidar" type="process_laserscan.py"></node>

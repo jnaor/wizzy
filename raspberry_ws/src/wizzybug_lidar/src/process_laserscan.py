@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import rospy
 
-# from std_msgs.msg       import Float64
-
 # Input measurements from the RPLidar driver node
-from sensor_msgs.msg    import LaserScan
+from sensor_msgs.msg import LaserScan
 
 # Output measurements of hazards to the DM node
-from wizzybug_msgs.msg  import lidar_data
+from wizzybug_msgs.msg import lidar_data
 
 import numpy as np
 from sklearn.linear_model import RANSACRegressor

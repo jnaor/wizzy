@@ -6,7 +6,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 # fetch values from package.xml
 setup_args = generate_distutils_setup(
-    packages=['wizzybug_perception'],
+    packages=['wizzybug_control', 'wizzybug_decision_making', 'wizzybug_hmi', 'wizzybug_lidar'],
     package_dir={'': 'src'}
 )
 

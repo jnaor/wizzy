@@ -1,0 +1,116 @@
+import numpy as np
+import cv2
+
+import rospy
+
+# from ros_interface import RosInterface
+from segmentation import segment_depth
+# from realsense import Realsense
+
+from cv_bridge import CvBridge, CvBridgeError
+
+# inputs are images
+from sensor_msgs.msg import Image
+
+# output
+from wizzybug_msgs.msg import obstacleArray
+
+
+""" Base class for vision-based object detection """
+class ObstacleDetector(object):
+    def __init__(self, camera_names):
+
+        # initialize ros2opencv converter
+        self.bridge = CvBridge()
+
+        # save camera names
+        self.camera_names = camera_names
+
+        # subscribe to camera readings
+        for camera_name in camera_names:
+            # subscribe to depth
+            rospy.Subscriber("/{}/depth/image_mono16".format(camera_name), Image, self.process_depth)
+
+            # subscribe to rgb
+            rospy.Subscriber("/{}/color/image_raw".format(camera_name), Image, self.process_rgb)
+
+        # initialize publisher
+        self.publisher = rospy.Publisher('wizzy/obstacle_list', obstacleArray, queue_size=10)
+
+        # initialize images
+        self.vis_image, self.depth_image = None, None
+
+        # TODO: remove
+        self.viewer = Viewer(5)
+
+    def process_depth(self, msg):
+        self.depth_image = self.bridge.imgmsg_to_cv2(msg, "passthrough")
+
+    def process_rgb(self, msg):
+        self.vis_image = self.bridge.imgmsg_to_cv2(msg, "passthrough")
+
+        if self.depth_image is not None:
+            obstacle_list, obstacle_mask = segment_depth(self.depth_image)
+
+            self.viewer.display(self.vis_image, obstacle_list, obstacle_mask)
+
+
+class Viewer(object):
+    def __init__(self, max_objects):
+
+        # max number for display
+        self.max_objects = max_objects
+
+        # initialize figure
+        self.fig = None
+
+        # initialize handles
+        self.handles = dict()
+
+    def display(self, vis_image, obstacle_list, obstacle_mask):
+        from matplotlib import pylab as plt
+
+        # create figure if it does not already exist
+        if self.fig is None:
+            self.fig, self.ax = plt.subplots(1, self.max_objects)
+
+            # remove ticks
+            for ind in range(self.max_objects):
+
+                # get segment if it exists
+                if ind < len(obstacle_mask):
+                    self.handles[ind] = self.ax[ind].imshow(cv2.bitwise_and(vis_image, vis_image,
+                                                                  mask=obstacle_mask[ind].astype(np.uint8)))
+                else:
+                    self.handles[ind] = self.ax[ind].imshow(np.zeros((480, 640), dtype=np.uint8))
+
+                self.ax[ind].set_xticklabels([])
+                self.ax[ind].set_yticklabels([])
+
+            plt.tight_layout()
+
+        else:
+            for ind in range(self.max_objects):
+                # get segment if it exists
+                if ind < len(obstacle_mask):
+                    self.handles[ind].set_data(cv2.bitwise_and(vis_image, vis_image,
+                                                          mask=obstacle_mask[ind].astype(np.uint8)))
+
+                    self.ax[ind].set_title('depth {}'.format(obstacle_list[ind]["x"]))
+                else:
+                    self.handles[ind].set_data(np.zeros((480, 640), dtype=np.uint8))
+                    self.ax[ind].set_title('')
+
+            self.fig.canvas.draw()
+            plt.pause(0.01)
+
+
+if __name__ == '__main__':
+    rospy.init_node('wizzybug_vision', log_level=rospy.DEBUG)
+
+    # TODO: read from json or something
+    camera_names = ['front_camera']
+
+    # TODO: read from json or something
+    obstacle_detector = ObstacleDetector(camera_names)
+    rospy.spin()

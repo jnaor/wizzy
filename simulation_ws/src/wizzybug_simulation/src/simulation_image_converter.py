@@ -10,11 +10,15 @@ from cv_bridge import CvBridge, CvBridgeError
 
 class image_converter:
 
-    def __init__(self, cam="camera"):
-        self.image_pub = rospy.Publisher("/{}/depth/image_rect_raw".format(cam), Image, queue_size=100)
-
+    def __init__(self, cam="front_camera"):
+        # initialize ros2opencv bridge
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber('/front_camera/depth/image_rect_raw', Image, self.callback)
+
+        # subscribe to image from simulator
+        self.image_sub = rospy.Subscriber('/{}/depth/image_rect_raw'.format(cam), Image, self.callback)
+
+        # publish result
+        self.image_pub = rospy.Publisher("/{}/depth/image_mono16".format(cam), Image, queue_size=100)
 
     def callback(self, data):
         try:

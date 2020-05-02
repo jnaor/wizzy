@@ -24,7 +24,7 @@ class RosInterface():
         self.image_publisher = rospy.Publisher('wizzy/realsense2/image', CompressedImage, queue_size=10)
         self.depth_image_publisher = rospy.Publisher('realsense/depth_image', CompressedImage, queue_size=10)
         self.annotated_image_publisher = rospy.Publisher('realsense/annotated_image', CompressedImage, queue_size=10)
-        rospy.init_node('wizzy_perception', anonymous=True)
+        rospy.init_node('wizzybug_vision', anonymous=True)
         pass
 
     def is_shutdown(self):

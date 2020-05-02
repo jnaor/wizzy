@@ -39,7 +39,7 @@ class ImageContainer:
         #     "/detectnet/detections", Detection2DArray, self.detectnet_callback)
 
         # obstacle publisher
-        self.obstacle_list_pub = rospy.Publisher('wizzybug/perception/obstacle_list', wizzybug_msgs.obstacleArray, queue_size=10)
+        self.obstacle_list_pub = rospy.Publisher('/wizzy/vision/obstacle_list', wizzybug_msgs.obstacleArray, queue_size=10)
 
         # initialize
         self.rgb, self.depth, self.detections = None, None, None
