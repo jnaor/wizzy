@@ -277,43 +277,67 @@
         <origin xyz="${front_cam_x} ${front_cam_y} ${front_cam_z}" rpy="0 0 0"/>
     </joint>
     <link name="front_cam_link"/>
+    <joint name="front_cam_optical_joint" type="fixed">
+        <parent link="front_cam_link"/>
+        <child link="front_cam_link_optical"/>
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+    <link name="front_cam_link_optical"/>
    <!-- <sensor_d415 parent="front_cam_link" name="camera1">
         <origin xyz="0 0 0" rpy="0 0 0"/>
-    </sensor_d415>
+    </sensor_d415>-->
 
 
-        &lt;!&ndash; ################################ right cam ##############################################&ndash;&gt;
+        <!-- ################################ right cam ##############################################-->
     <joint name="right_cam_joint" type="fixed">
         <parent link="base_link"/>
         <child link="right_cam_link"/>
         <origin xyz="${right_cam_x} ${right_cam_y} ${right_cam_z}" rpy="0 0 -1.57"/>
     </joint>
     <link name="right_cam_link"/>
-    <sensor_d415 parent="right_cam_link" name="camera2">
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-    </sensor_d415>
+    <joint name="right_cam_optical_joint" type="fixed">
+        <parent link="right_cam_link"/>
+        <child link="right_cam_link_optical"/>
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+    <link name="right_cam_link_optical"/>
+<!--    <sensor_d415 parent="right_cam_link" name="camera2">-->
+<!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
+<!--    </sensor_d415>-->
 
-            &lt;!&ndash; ################################ left cam ##############################################&ndash;&gt;
+<!--            &lt;!&ndash; ################################ left cam ##############################################&ndash;&gt;-->
     <joint name="left_cam_joint" type="fixed">
         <parent link="base_link"/>
         <child link="left_cam_link"/>
         <origin xyz="${right_cam_x} ${-right_cam_y} ${right_cam_z}" rpy="0 0 1.57"/>
     </joint>
     <link name="left_cam_link"/>
-    <sensor_d415 parent="left_cam_link" name="camera3">
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-    </sensor_d415>
+    <joint name="left_cam_optical_joint" type="fixed">
+        <parent link="left_cam_link"/>
+        <child link="left_cam_link_optical"/>
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+    <link name="left_cam_link_optical"/>
+<!--    <sensor_d415 parent="left_cam_link" name="camera3">-->
+<!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
+<!--    </sensor_d415>-->
 
-                &lt;!&ndash; ################################ back cam ##############################################&ndash;&gt;
+<!--                &lt;!&ndash; ################################ back cam ##############################################&ndash;&gt;-->
     <joint name="back_cam_joint" type="fixed">
         <parent link="base_link"/>
         <child link="back_cam_link"/>
         <origin xyz="${back_cam_x} 0 ${back_cam_z}" rpy="0 0 3.14"/>
     </joint>
     <link name="back_cam_link"/>
-    <sensor_d415 parent="back_cam_link" name="camera4">
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-    </sensor_d415>-->
+    <joint name="back_cam_optical_joint" type="fixed">
+        <parent link="back_cam_link"/>
+        <child link="back_cam_link_optical"/>
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+    <link name="back_cam_link_optical"/>
+<!--    <sensor_d415 parent="back_cam_link" name="camera4">-->
+<!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
+<!--    </sensor_d415>&ndash;&gt;-->
 
     <!-- ################################ rplidar ##############################################-->
     <joint name="rplidar_joint" type="fixed">

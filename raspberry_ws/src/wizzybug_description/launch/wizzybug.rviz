@@ -14,7 +14,7 @@ Panels:
         - /PointCloud24
         - /LaserScan1
       Splitter Ratio: 0.5
-    Tree Height: 842
+    Tree Height: 869
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -73,6 +73,10 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        back_cam_link_optical:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         base_footprint:
           Alpha: 1
           Show Axes: false
@@ -82,170 +86,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        camera1_bottom_screw_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_color_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_color_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_depth_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_left_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_left_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera1_right_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera1_right_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_bottom_screw_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_color_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_color_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_depth_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_left_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_left_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera2_right_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera2_right_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_bottom_screw_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_color_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_color_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_depth_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_left_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_left_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera3_right_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera3_right_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_bottom_screw_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_color_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_color_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_depth_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_left_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_left_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera4_right_ir_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera4_right_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         chair_link:
           Alpha: 1
           Show Axes: false
@@ -255,11 +95,19 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        front_cam_link_optical:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         imu_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
         left_cam_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_cam_link_optical:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -273,6 +121,10 @@ Visualization Manager:
           Show Trail: false
           Value: true
         right_cam_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_cam_link_optical:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -335,9 +187,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 4.931680679321289
+      Max Intensity: 6
       Min Color: 0; 0; 0
-      Min Intensity: 0.8133826851844788
+      Min Intensity: 0.6197264194488525
       Name: PointCloud2
       Position Transformer: XYZ
       Queue Size: 10
@@ -345,7 +197,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /front_cam/depth/points
+      Topic: /front_camera/depth/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -362,12 +214,12 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 4.931873321533203
+      Max Intensity: 6
       Min Color: 0; 0; 0
-      Min Intensity: 0.8133902549743652
+      Min Intensity: 0.6197263598442078
       Name: PointCloud2
       Position Transformer: XYZ
       Queue Size: 10
@@ -375,11 +227,11 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /right_cam/depth/points
+      Topic: /right_camera/depth/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -392,12 +244,12 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 4.93197774887085
+      Max Intensity: 6
       Min Color: 0; 0; 0
-      Min Intensity: 0.8133912682533264
+      Min Intensity: 0.6197276711463928
       Name: PointCloud2
       Position Transformer: XYZ
       Queue Size: 10
@@ -405,11 +257,11 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /left_cam/depth/points
+      Topic: /left_camera/depth/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -422,12 +274,12 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 4.96442174911499
+      Max Intensity: 6
       Min Color: 0; 0; 0
-      Min Intensity: 2.269745349884033
+      Min Intensity: 1.729341745376587
       Name: PointCloud2
       Position Transformer: XYZ
       Queue Size: 10
@@ -435,11 +287,11 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /back_cam/depth/points
+      Topic: /back_camera/depth/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -498,33 +350,33 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.280056953430176
+      Distance: 14.642011642456055
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.3720647096633911
-        Y: -2.2444546222686768
-        Z: 2.9125139713287354
+        X: 0.5762336850166321
+        Y: -1.8698933124542236
+        Z: 3.816427707672119
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3297962248325348
+      Pitch: 1.129795789718628
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.351767539978027
+      Yaw: 4.541769027709961
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1145
+  Height: 1172
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd000000040000000000000205000003d5fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d000003d5000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f000003d5fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d000003d5000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073d00000044fc0100000002fb0000000800540069006d006501000000000000073d000002eb00fffffffb0000000800540069006d006501000000000000045000000000000000000000041d000003d500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd000000040000000000000205000003f0fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d000003f0000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f000003f0fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d000003f0000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000078000000044fc0100000002fb0000000800540069006d0065010000000000000780000002eb00fffffffb0000000800540069006d0065010000000000000450000000000000000000000460000003f000000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -533,6 +385,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1853
-  X: 67
-  Y: 27
+  Width: 1920
+  X: 0
+  Y: 0
