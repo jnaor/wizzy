@@ -1,2 +1,0 @@
-set(wizzybug_msgs_MESSAGE_FILES "/home/wizzy-aux/wizzy_git/raspberry_ws/src/wizzybug_msgs/msg/lidar_data.msg;/home/wizzy-aux/wizzy_git/raspberry_ws/src/wizzybug_msgs/msg/ttc.msg;/home/wizzy-aux/wizzy_git/raspberry_ws/src/wizzybug_msgs/msg/obstacle.msg;/home/wizzy-aux/wizzy_git/raspberry_ws/src/wizzybug_msgs/msg/obstacleArray.msg;/home/wizzy-aux/wizzy_git/raspberry_ws/src/wizzybug_msgs/msg/ChairState.msg")
-set(wizzybug_msgs_SERVICE_FILES "")

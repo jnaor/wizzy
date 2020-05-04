@@ -1,0 +1,42 @@
+<launch>
+
+    <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+
+    <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find wizzybug_simulation)/worlds/wizzy_full.world"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+
+    <!-- run gazebo_ros and spawn wizzy -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -model wizzybug -param robot_description"/>
+
+    <!-- convert depth images to realsense-like format -->
+    <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>
+
+    <!-- run vision-based obstacle detector -->
+<!--     <node name="obstacle_detector" pkg="wizzybug_vision" type="object_detection.py" output="screen"></node> -->
+
+    <!-- run laser scan -->
+    <node name="process_laserscan" pkg="wizzybug_lidar" type="process_laserscan.py"></node>
+
+    <!-- bringup decision making -->
+    <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
+
+    <!-- enable telep control of wizzy in simulation -->
+    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py"/>    
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/wizzybug.rviz"/>
+
+
+</launch>
