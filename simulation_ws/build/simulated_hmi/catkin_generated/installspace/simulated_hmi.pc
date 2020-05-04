@@ -1,0 +1,8 @@
+prefix=/home/wizzy-aux/wizzy_git/simulation_ws/install
+
+Name: simulated_hmi
+Description: Description of simulated_hmi
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -2,7 +2,6 @@
 import time
 import threading
 from struct import pack, unpack
-import pigpio
 
 def clamp(val, min_val, max_val):
     return max(min(val, max_val), min_val)
@@ -11,11 +10,9 @@ class VibrationMotor:
 
     DT = 0.01
 
-    def __init__(self, m_id, pin_num, gpio_object):
+    def __init__(self, m_id, motor_markers):
         self.motor_id = m_id
-        self.pin = pin_num
-        self.gpio = gpio_object
-        self.gpio.set_mode(pin_num, pigpio.OUTPUT)
+        self.markers = motor_markers
 
         self.execution = 0
         self.repetition = 0
@@ -31,7 +28,8 @@ class VibrationMotor:
 
     def turn_off(self):
         self.is_active = False
-        self.gpio.set_PWM_dutycycle(self.pin, 0) 
+        self.markers[motor_id].color.a = 0
+        self.set_mode('wizzy_clear')
 
     def begin_sequence(self):
         #print ('began sequence, motor:', self.motor_id)        
@@ -59,7 +57,7 @@ class VibrationMotor:
                 else:   # Iterate next step
                     self.current_power += self.jump_value * iteration_diff
                     self.current_power = clamp(self.current_power, 0, 255)
-                    self.gpio.set_PWM_dutycycle(self.pin, self.current_power)
+                    self.markers[motor_id].color.a = self.current_power/255.0
                     self.last_iteration = now
 
                 if self.repetition == self.pulses[self.pulse_num].repetitions:
