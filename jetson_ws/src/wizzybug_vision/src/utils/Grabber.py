@@ -61,8 +61,20 @@ class FileGrabber(Grabber):
         # regular stream grabber init
         super().__init__()
 
-        # Tell config that we will use a recorded device from filem to be used by the pipeline through playback.
+        # Tell config that we will use a recorded device from file to be used by the pipeline through playback.
         rs.config.enable_device_from_file(self.config, filename)
+
+
+def start_cameras():
+    realsense_ctx = rs.context()
+    connected_devices = []
+    for i in range(len(realsense_ctx.devices)):
+        detected_camera = realsense_ctx.devices[i].get_info(rs.camera_info.serial_number)
+        connected_devices.append(detected_camera)
+
+        # see: https://github.com/IntelRealSense/librealsense/issues/1735
+
+
 
 
 
