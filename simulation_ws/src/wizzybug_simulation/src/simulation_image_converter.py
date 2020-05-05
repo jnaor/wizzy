@@ -39,7 +39,10 @@ class image_converter:
 
 def main(args):
     rospy.init_node('simulation_image_converter', anonymous=True)
-    ic = image_converter()
+    fic = image_converter()
+    ric = image_converter(cam="right_camera")
+    lic = image_converter(cam="left_camera")
+    bic = image_converter(cam="back_camera")
     try:
         rospy.spin()
     except KeyboardInterrupt:
