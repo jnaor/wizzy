@@ -35,7 +35,7 @@ class LedSection:
     def set_section_brightness(self, brightness):
         for i in range(LedSection.LEDS_PER_SECTION):
             current_color = self.led_strip[self.section_id * LedSection.LEDS_PER_SECTION + i].color
-            current_color.a = brightness / 255.0
+            current_color.a = clamp(brightness / 255.0, 0.1, 1)
 
     def normalize_colors(self):
         # Makes sure highest color is always 254, keeps original r-g-b ratio

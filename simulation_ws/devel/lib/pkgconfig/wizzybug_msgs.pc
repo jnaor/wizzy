@@ -1,8 +1,8 @@
-prefix=/home/wizzy-aux/wizzy_git/simulation_ws/devel
+prefix=/home/tim/wizzy_git/wizzy/simulation_ws/devel
 
 Name: wizzybug_msgs
 Description: Description of wizzybug_msgs
 Version: 0.0.0
-Cflags: -I/home/wizzy-aux/wizzy_git/simulation_ws/devel/include
-Libs: -L${prefix}/lib 
+Cflags: -I/home/tim/wizzy_git/wizzy/simulation_ws/devel/include
+Libs: -L/home/tim/wizzy_git/wizzy/simulation_ws/devel/lib 
 Requires: message_runtime

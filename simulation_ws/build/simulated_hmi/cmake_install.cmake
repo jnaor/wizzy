@@ -1,8 +1,8 @@
-# Install script for directory: /home/wizzy-aux/wizzy_git/simulation_ws/src/simulated_hmi
+# Install script for directory: /home/tim/wizzy_git/wizzy/simulation_ws/src/simulated_hmi
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/wizzy-aux/wizzy_git/simulation_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/home/tim/wizzy_git/wizzy/simulation_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,17 +38,17 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/wizzy-aux/wizzy_git/simulation_ws/build/simulated_hmi/catkin_generated/installspace/simulated_hmi.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/tim/wizzy_git/wizzy/simulation_ws/build/simulated_hmi/catkin_generated/installspace/simulated_hmi.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/simulated_hmi/cmake" TYPE FILE FILES
-    "/home/wizzy-aux/wizzy_git/simulation_ws/build/simulated_hmi/catkin_generated/installspace/simulated_hmiConfig.cmake"
-    "/home/wizzy-aux/wizzy_git/simulation_ws/build/simulated_hmi/catkin_generated/installspace/simulated_hmiConfig-version.cmake"
+    "/home/tim/wizzy_git/wizzy/simulation_ws/build/simulated_hmi/catkin_generated/installspace/simulated_hmiConfig.cmake"
+    "/home/tim/wizzy_git/wizzy/simulation_ws/build/simulated_hmi/catkin_generated/installspace/simulated_hmiConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/simulated_hmi" TYPE FILE FILES "/home/wizzy-aux/wizzy_git/simulation_ws/src/simulated_hmi/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/simulated_hmi" TYPE FILE FILES "/home/tim/wizzy_git/wizzy/simulation_ws/src/simulated_hmi/package.xml")
 endif()
 

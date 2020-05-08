@@ -4,5 +4,5 @@ PROJECT_PKG_CONFIG_INCLUDE_DIRS = "".split(';') if "" != "" else []
 PROJECT_CATKIN_DEPENDS = "".replace(';', ' ')
 PKG_CONFIG_LIBRARIES_WITH_PREFIX = "".split(';') if "" != "" else []
 PROJECT_NAME = "simulated_hmi"
-PROJECT_SPACE_DIR = "/home/wizzy-aux/wizzy_git/simulation_ws/devel"
+PROJECT_SPACE_DIR = "/home/tim/wizzy_git/wizzy/simulation_ws/devel"
 PROJECT_VERSION = "0.0.0"

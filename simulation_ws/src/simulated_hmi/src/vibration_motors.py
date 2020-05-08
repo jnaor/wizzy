@@ -28,7 +28,7 @@ class VibrationMotor:
 
     def turn_off(self):
         self.is_active = False
-        self.markers[motor_id].color.a = 0
+        self.markers[self.motor_id].color.a = 0.1
         self.set_mode('wizzy_clear')
 
     def begin_sequence(self):
@@ -57,7 +57,7 @@ class VibrationMotor:
                 else:   # Iterate next step
                     self.current_power += self.jump_value * iteration_diff
                     self.current_power = clamp(self.current_power, 0, 255)
-                    self.markers[motor_id].color.a = self.current_power/255.0
+                    self.markers[self.motor_id].color.a = self.current_power/255.0
                     self.last_iteration = now
 
                 if self.repetition == self.pulses[self.pulse_num].repetitions:

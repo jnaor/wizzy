@@ -6,6 +6,7 @@ import rospy
 from sensor_msgs.msg import PointCloud2, PointField
 import sensor_msgs.point_cloud2 as pc2
 from visualization_msgs.msg import Marker, MarkerArray
+from geometry_msgs.msg import Vector3
 from led_sections import LedSection
 from vibration_motors import VibrationMotor
 from std_msgs.msg import *
@@ -16,7 +17,7 @@ class CallbackHandler:
 
     def __init__(self, motors, leds):
         self.motors = motors
-        self.motors = leds
+        self.leds = leds
 
     def activation_callback(self, data):        
         direction_type = 2
@@ -103,10 +104,8 @@ if __name__ == "__main__":
         current_marker = Marker()
         current_marker.header.frame_id = 'map'
         current_marker.type = Marker.CUBE
-        current_marker.color.r = 1
-        current_marker.color.g = 1
-        current_marker.color.b = 1
-        current_marker.color.a = 0
+        current_marker.color = ColorRGBA(1, 1, 1, 0.1)
+        current_marker.scale = Vector3(0.5, 0.5, 0.5)
         current_marker.ns = 'motor_markers'
         current_marker.id = direction_idx
         angle = direction_idx*3.14*2/6
@@ -120,7 +119,8 @@ if __name__ == "__main__":
             current_marker = Marker()
             current_marker.header.frame_id = 'map'
             current_marker.type = Marker.SPHERE
-            current_marker.color.a = 0
+            current_marker.color.a = 0.1
+            current_marker.scale = Vector3(0.5, 0.5, 0.5)
             current_marker.ns = 'led_markers'
             current_marker.id = led_idx + direction_idx*4
             angle = (led_idx + direction_idx*4 - 2)*2*3.14/24
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         current_thread.daemon=True
         current_thread.start() 
 
-    handler = CallbackHandler(motor_list, motor_threads)
+    handler = CallbackHandler(motor_list, section_list)
     section_subscriber = rospy.Subscriber('/hmi_commands', ChairState, handler.activation_callback)
     motors_publisher = rospy.Publisher('hmi_motors', MarkerArray, queue_size = 10)
     leds_publisher = rospy.Publisher('hmi_leds', MarkerArray, queue_size = 10)
