@@ -1,0 +1,8 @@
+prefix=/home/tim/wizzy_git/wizzy/simulation_ws/install
+
+Name: wizzybug_msgs
+Description: Description of wizzybug_msgs
+Version: 0.0.0
+Cflags: -I/home/tim/wizzy_git/wizzy/simulation_ws/install/include
+Libs: -L/home/tim/wizzy_git/wizzy/simulation_ws/install/lib 
+Requires: message_runtime

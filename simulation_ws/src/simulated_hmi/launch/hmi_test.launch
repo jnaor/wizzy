@@ -1,0 +1,12 @@
+<launch>
+
+		<node pkg="tf" type="static_transform_publisher" name="map2base" args="0 0 0 0 0 0 map base_link 100"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find simulated_hmi)/launch/empty_map.rviz"/>
+
+		<node name="marker_pub" pkg="simulated_hmi" type="wizzy_simulated_hmi.py"/>
+
+		<node name="dummy_messages" pkg="simulated_hmi" type="dummy_messages.py"/>
+
+
+</launch>

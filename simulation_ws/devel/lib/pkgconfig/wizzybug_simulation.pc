@@ -1,0 +1,8 @@
+prefix=/home/tim/wizzy_git/wizzy/simulation_ws/devel
+
+Name: wizzybug_simulation
+Description: Description of wizzybug_simulation
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/tim/wizzy_git/wizzy/simulation_ws/devel/lib 
+Requires: 

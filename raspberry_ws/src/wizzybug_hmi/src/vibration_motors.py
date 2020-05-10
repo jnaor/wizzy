@@ -15,7 +15,7 @@ class VibrationMotor:
         self.motor_id = m_id
         self.pin = pin_num
         self.gpio = gpio_object
-        self.gpio.set_mode(25, pigpio.OUTPUT)
+        self.gpio.set_mode(pin_num, pigpio.OUTPUT)
 
         self.execution = 0
         self.repetition = 0
@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
     desired_motor = 0  # [0-5]
     
-    motor_list = [VibrationMotor(1, 26, gpio)]
+    motor_list = [VibrationMotor(1, 25, gpio)]
     motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list] 
     for current_thread in motor_threads:
         current_thread.daemon=True

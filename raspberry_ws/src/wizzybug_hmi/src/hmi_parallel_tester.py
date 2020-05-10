@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # Motor inits:
     gpio = pigpio.pi()
     desired_motor = 0  # [0-5]    
-    motor_list = [VibrationMotor(1, 26, gpio)]
+    motor_list = [VibrationMotor(1, 11, gpio)]  # [25, 8, 7, 11, 9, 10]
     motor_threads = [threading.Thread(target = mot.loop_sequence, daemon=True) for mot in motor_list] 
     motor_list[desired_motor].set_mode('wizzy_clear')
     motor_threads[desired_motor].start() 
