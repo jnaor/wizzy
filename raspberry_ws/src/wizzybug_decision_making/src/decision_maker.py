@@ -6,6 +6,7 @@ from sensor_msgs.msg import Imu
 from std_msgs.msg import String
 from wizzybug_msgs.msg import *
 import smach
+import copy
 import smach_ros
 import serial
 
@@ -23,7 +24,7 @@ class WizzyA(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.ttc_state != 'outcome1':
+        if inputs_container.prev_state != 'outcome1':
             relay_cmd("off")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state A')
@@ -36,7 +37,7 @@ class WizzyB(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.ttc_state == 'outcome1':
+        if inputs_container.prev_state == 'outcome1':
             relay_cmd("on")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state B')
@@ -50,7 +51,7 @@ class WizzyC(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.ttc_state == 'outcome1':
+        if inputs_container.prev_state == 'outcome1':
             relay_cmd("on")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state C')
@@ -63,7 +64,7 @@ class WizzyClear(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.ttc_state == 'outcome1':
+        if inputs_container.prev_state == 'outcome1':
             relay_cmd("on")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state Clear')
@@ -84,14 +85,16 @@ def relay_cmd(relay_cmd_str):
 class callback_items:
 
     def __init__(self):
-        self.roll = 0
-        self.pitch = 0
-        self.yaw = 0
-        self.ttc = 1
+        self.roll = 0.0
+        self.pitch = 0.0
+        self.yaw = 0.0
+        self.ttc = 1.0
         self.azimuth = 0
         self.lidar_data = lidar_data()
         self.ttc_state = 'outcome4'
         self.prev_state = 'outcome4'
+        self.chair_state = ChairState()
+        self.state_publisher = rospy.Publisher('chair_state', ChairState, queue_size=10)
         # relevant for sim only
         self.relay_publisher = rospy.Publisher('usb_relay_command', String,queue_size=10)
         try:
@@ -104,17 +107,23 @@ class callback_items:
         self.yaw, self.pitch, self.roll = transformations.euler_from_quaternion(quat, 'rzyx')
 
     def ttc_callback(self, data):
-        self.prev_state = self.ttc_state
+        self.prev_state = copy.deepcopy(self.ttc_state)
         self.ttc = data.ttc
         self.azimuth = data.ttc_azimuth
+        self.chair_state.ttc_msg = data
         if self.ttc < DANGER_TTC:
             self.ttc_state = 'outcome1'
+            self.chair_state.state = 'WizzyA'
         elif DANGER_TTC < self.ttc < WARNING_TTC:
             self.ttc_state = 'outcome2'
+            self.chair_state.state = 'WizzyB'
         elif WARNING_TTC < self.ttc < CLEARANCE_TTC:
             self.ttc_state = 'outcome3'
+            self.chair_state.state = 'WizzyC'
         elif self.ttc > CLEARANCE_TTC:
             self.ttc_state = 'outcome4'
+            self.chair_state.state = 'WizzyClear'
+
 
     def lidar_data_callback(self, data):
         self.lidar_data = data
@@ -130,6 +139,8 @@ if __name__ == '__main__':
     imu_subscriber = rospy.Subscriber('/imu/data', Imu, inputs_container.imu_callback)
     ttc_subscriber = rospy.Subscriber('/ttc', ttc, inputs_container.ttc_callback)
     lidar_data_subscriber = rospy.Subscriber('/myLidar/lidar_proc', lidar_data, inputs_container.lidar_data_callback)
+
+
 
     # State machine
     wizzy_sm = smach.StateMachine(outcomes=['outcome5'])
