@@ -1,2 +1,0 @@
-simulated_hmi:wizzybug_msgs:wizzybug_simulation
--DCATKIN_DEVEL_PREFIX=/home/tim/wizzy_git/wizzy/simulation_ws/devel -DCMAKE_INSTALL_PREFIX=/home/tim/wizzy_git/wizzy/simulation_ws/install -G Unix Makefiles
