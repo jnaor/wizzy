@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-import sys
-import os
+
 import numpy as np
 import rospy
 import copy
-from std_msgs.msg import Float64
 from wizzybug_msgs.msg import ttc, lidar_data
 from wizzybug_msgs.msg import obstacle, obstacleArray
+from geometry_msgs.msg import Twist
 
 # sys.path.append(os.path.join(os.getcwd(), 'devel/lib/python2.7/dist-packages'))
 # sys.path.append(os.path.join(os.getcwd(), 'devel/lib/python3/dist-packages'))
@@ -17,8 +16,7 @@ from wizzybug_msgs.msg import obstacle, obstacleArray
 # objects = np.array([[5, 0, 0, 1, 1, 1],
 #                     [5, 3, 0, 1, 1, 1],
 #                     [5, -3, 0, 1, 1, 1]])
-objects = []
-lidar_obj_distance = 1000.0
+
 time_step = 0.2
 t_horizon = 5 + time_step
 robot_radius = 0.4
@@ -129,12 +127,11 @@ class Polygon:
         return vertex_pose
 
 
-def calc_time_to_collision(v, w):
-    global objects, lidar_obj_distance, time_step, t_horizon
-    objects_temp = copy.deepcopy(objects)
-    objects = []
+def calc_time_to_collision(v, w, objects, lidar_dist):
+
+
     wizzy = Polygon(width=wizzy_width, depth=wizzy_length)
-    lidar_obj = Polygon(x=lidar_obj_distance, width=lidar_obj_width, depth=lidar_obj_length)
+    lidar_obj = Polygon(x=lidar_dist, width=wizzy_width, depth=wizzy_length)
     ttc = t_horizon
     ttc_azimuth = 0.0
     for i in range(int(t_horizon / time_step)):
@@ -146,8 +143,8 @@ def calc_time_to_collision(v, w):
                 ttc = time_step * i
                 ttc_azimuth = 0.0
 
-        for obj in objects_temp:
-            obj_poly = Polygon(x = obj.x, y = obj.y, yaw = 0.0, width = obj.width, depth = wizzy_length)
+        for obj in objects:
+            obj_poly = Polygon(x = obj.x, y = obj.y, yaw = 0.0, width = obj.width, depth = obj.length)
             if wizzy.is_colliding(obj_poly):
                 if ttc > time_step * i:
                     ttc = time_step * i
@@ -156,33 +153,63 @@ def calc_time_to_collision(v, w):
     return ttc, ttc_azimuth
 
 
-def obj_sub_callback(data):
-    global objects
-    objects = data.data
-    # print objects
+class CallbackItems:
 
+    def __init__(self):
+        self.v = 0.0
+        self.w = 0.0
+        self.lidar_dist = 0.0
+        self.objects = []
+        self.ttc_msg = ttc()
 
-def lidar_dist_to_obstacle_callback(data):
-    global lidar_obj_distance
-    lidar_obj_distance = min([data.dist_to_pitfall, data.dist_to_obstacle])
+    def lidar_dist_to_obstacle_callback(self, data):
+        self.lidar_dist = min([data.dist_to_pitfall, data.dist_to_obstacle])
+
+    def joy_callback(self, data):
+        self.v = data.linear.x
+        self.w = data.angular.z
+
+    def objects_sub_callback(self, data):
+        lidar_obj = obstacle()
+        lidar_obj.y = 0.0
+        lidar_obj.x = self.lidar_dist
+        lidar_obj.width = wizzy_width
+        lidar_obj.length = wizzy_length
+        self.objects = data.data
 
 
 if __name__ == '__main__':
     rospy.init_node('ttc_node')
-    ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)
+    #
     ttc_msg = ttc()
-    obj_sub = rospy.Subscriber('wizzy/obstacle_list', obstacleArray, obj_sub_callback)
-    lidar_dist_to_obstacle_subscriber = rospy.Subscriber('/myLidar/lidar_proc', lidar_data, lidar_dist_to_obstacle_callback)
-    v_joy = 0.5
-    w_joy = 0.0
+    lidar_obj = obstacle()
+    obs_msg = obstacleArray()
+    #
+    inputs_container = CallbackItems()
+    obj_sub = rospy.Subscriber('wizzy/obstacle_list', obstacleArray, inputs_container.objects_sub_callback)
+    lidar_dist_to_obstacle_subscriber = rospy.Subscriber('/myLidar/lidar_proc', lidar_data, inputs_container.lidar_dist_to_obstacle_callback)
+    joy_sub = rospy.Subscriber('/cmd_vel', Twist, inputs_container.joy_callback)
+    #
+    ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)
     # loop rate of 8Hz
     rate = rospy.Rate(8)
 
     while not rospy.is_shutdown():
-        t, ang = calc_time_to_collision(v_joy, w_joy)
+        #
+        objects_temp = copy.deepcopy(inputs_container.objects)
+        lidar_temp = copy.deepcopy(inputs_container.lidar_dist)
+        t, ang = calc_time_to_collision(inputs_container.v, inputs_container.w, objects_temp, lidar_temp)
+        #
         ttc_msg.ttc = t
         ttc_msg.ttc_azimuth = ang
         ttc_msg.header.stamp = rospy.Time.now()
+        lidar_obj.y.data = 0.0
+        lidar_obj.x.data = lidar_temp
+        lidar_obj.width.data = wizzy_width
+        lidar_obj.length.data = wizzy_length
+        objects_temp.append(lidar_obj)
+        # obs_msg.data = objects_temp
+        ttc_msg.obstacles = objects_temp
         ttc_pub.publish(ttc_msg)
-        print(ttc_msg)
+        # print(ttc_msg)
         rate.sleep()
