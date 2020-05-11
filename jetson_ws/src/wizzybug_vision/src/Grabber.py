@@ -116,6 +116,10 @@ def start_cameras(width, height, framerate, depth=False, color=True):
     # counter at zero for each camera
     counter = {serial: 0 for serial in grabbers.keys()}
 
+    if len(grabbers) == 0:
+        print("no cameras detected")
+        return
+
     while True:
         for cam_serial, grabber in grabbers.items():
             # get current images
