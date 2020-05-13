@@ -11,7 +11,7 @@
 
    <!-- <node name="process_laserscan" pkg="wizzybug_perception" type="process_laserscan.py" />-->
 
-    <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py"/>
+<!--     <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py"/> -->
 
 
 

@@ -187,7 +187,7 @@ if __name__ == '__main__':
     #
     inputs_container = CallbackItems()
     obj_sub = rospy.Subscriber('wizzy/obstacle_list', obstacleArray, inputs_container.objects_sub_callback)
-    lidar_dist_to_obstacle_subscriber = rospy.Subscriber('/myLidar/lidar_proc', lidar_data, inputs_container.lidar_dist_to_obstacle_callback)
+    lidar_dist_to_obstacle_subscriber = rospy.Subscriber('/wizzy/lidar_proc', lidar_data, inputs_container.lidar_dist_to_obstacle_callback)
     joy_sub = rospy.Subscriber('/cmd_vel', Twist, inputs_container.joy_callback)
     #
     ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)

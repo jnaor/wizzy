@@ -34,7 +34,7 @@
     <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
 
     <!-- enable telep control of wizzy in simulation -->
-    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py"/>    
+    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py" launch-prefix="xterm -e"/>    
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/wizzybug.rviz"/>
 

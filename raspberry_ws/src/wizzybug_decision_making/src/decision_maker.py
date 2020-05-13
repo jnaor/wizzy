@@ -24,7 +24,7 @@ class WizzyA(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.prev_state != 'outcome1':
+        if inputs_container.ttc_state != 'outcome1':
             relay_cmd("off")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state A')
@@ -37,7 +37,7 @@ class WizzyB(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.prev_state == 'outcome1':
+        if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state B')
@@ -51,7 +51,7 @@ class WizzyC(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.prev_state == 'outcome1':
+        if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state C')
@@ -64,7 +64,7 @@ class WizzyClear(smach.State):
 
     def execute(self, userdata):
 
-        if inputs_container.prev_state == 'outcome1':
+        if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
         # if inputs_container.ttc_state != inputs_container.prev_state:
         #     rospy.logwarn('Executing state Clear')
@@ -90,7 +90,7 @@ class callback_items:
         self.yaw = 0.0
         self.ttc = 1.0
         self.azimuth = 0
-        self.lidar_data = lidar_data()
+        # self.lidar_data = lidar_data()
         self.ttc_state = 'outcome4'
         self.prev_state = 'outcome4'
         self.chair_state = ChairState()
@@ -132,13 +132,13 @@ inputs_container = callback_items()
 
 if __name__ == '__main__':
 
-    rospy.init_node('decision_maker')#, log_level = rospy.WARN)
-
+    rospy.init_node('decision_maker', log_level = rospy.DEBUG)
+    relay_cmd("off")
     # Subscribers
 
     imu_subscriber = rospy.Subscriber('/imu/data', Imu, inputs_container.imu_callback)
     ttc_subscriber = rospy.Subscriber('/ttc', ttc, inputs_container.ttc_callback)
-    lidar_data_subscriber = rospy.Subscriber('/myLidar/lidar_proc', lidar_data, inputs_container.lidar_data_callback)
+    # lidar_data_subscriber = rospy.Subscriber('/myLidar/lidar_proc', lidar_data, inputs_container.lidar_data_callback)
 
 
 
