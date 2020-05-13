@@ -32,21 +32,20 @@ labels = {0: 'other', 1: 'wall', 2: 'floor', 3: 'cabinet/shelves',
 class ObstacleDetector(object):
     """ Base class for vision-based object detection """
 
-    def __init__(self, camera_names):
+    # class-wide cv bridge (initialize on first use)
+    bridge = None
 
-        # initialize ros2opencv converter
-        self.bridge = CvBridge()
+    def __init__(self, camera):
 
-        # save camera names
-        self.camera_names = camera_names
+        # initialize ros2opencv converter if not done already
+        if ObstacleDetector.bridge is None:
+            ObstacleDetector.bridge = CvBridge()
 
-        # subscribe to camera readings
-        for camera_name in camera_names:
-            # subscribe to depth
-            rospy.Subscriber("/{}/depth/image_mono16".format(camera_name), Image, self.process_depth)
+        # subscribe to depth
+        rospy.Subscriber("/{}/depth/image_mono16".format(camera['name']), Image, self.process_depth)
 
-            # subscribe to segmented rgb image topic
-            rospy.Subscriber("/{}/segnet/class_mask".format(camera_name), Image, self.segnet_callback)
+        # subscribe to segmented rgb image topic
+        rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
 
         # initialize images
         self.segmentation_image, self.depth_image = None, None
@@ -57,12 +56,9 @@ class ObstacleDetector(object):
         # obstacle publisher
         self.obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
 
-        # TODO: remove
-        self.viewer = Viewer(5)
-
     def process_depth(self, msg):
         # get an opencv image from ROS
-        self.depth_image = self.bridge.imgmsg_to_cv2(msg, "passthrough")
+        self.depth_image = ObstacleDetector.bridge.imgmsg_to_cv2(msg, "passthrough")
 
         # detect obstacles based on depth
         self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
@@ -93,7 +89,7 @@ class ObstacleDetector(object):
 
     def segnet_callback(self, data):
 
-        self.segmentation_image = self.bridge.imgmsg_to_cv2(data)
+        self.segmentation_image = ObstacleDetector.bridge.imgmsg_to_cv2(data)
 
         # use segnet output
         self.label_detections()
@@ -112,61 +108,24 @@ class ObstacleDetector(object):
 
             # this will be the classification of the obstacle
             obstacle['class'] = labels[most_common_class]
-
-
-class Viewer(object):
-    def __init__(self, max_objects):
-
-        # max number for display
-        self.max_objects = max_objects
-
-        # initialize figure
-        self.fig = None
-
-        # initialize handles
-        self.handles = dict()
-
-    def display(self, vis_image, obstacle_list, obstacle_mask):
-        from matplotlib import pylab as plt
-
-        # create figure if it does not already exist
-        if self.fig is None:
-            self.fig, self.ax = plt.subplots(1, self.max_objects)
-
-            # remove ticks
-            for ind in range(self.max_objects):
-
-                # get segment if it exists
-                if ind < len(obstacle_mask):
-                    self.handles[ind] = self.ax[ind].imshow(cv2.bitwise_and(vis_image, vis_image,
-                                                                            mask=obstacle_mask[ind].astype(np.uint8)))
-                else:
-                    self.handles[ind] = self.ax[ind].imshow(np.zeros((480, 640), dtype=np.uint8))
-
-                self.ax[ind].set_xticklabels([])
-                self.ax[ind].set_yticklabels([])
-
-            plt.tight_layout()
-
-        else:
-            for ind in range(self.max_objects):
-                # get segment if it exists
-                if ind < len(obstacle_mask):
-                    self.handles[ind].set_data(cv2.bitwise_and(vis_image, vis_image,
-                                                               mask=obstacle_mask[ind].astype(np.uint8)))
-
-                    self.ax[ind].set_title('depth {}'.format(obstacle_list[ind]["x"]))
-                else:
-                    self.handles[ind].set_data(np.zeros((480, 640), dtype=np.uint8))
-                    self.ax[ind].set_title('')
-
-            self.fig.canvas.draw()
-            plt.pause(0.1)
-
+            
 
 if __name__ == '__main__':
+    import json
+
+    # camera configuration filename
+    CAMERA_CONFIG_FILE = 'camera_config.json'
+
+    # initialize ROS node
     rospy.init_node('wizzybug_vision', log_level=rospy.DEBUG)
 
-    # TODO: read camera names from json or something
-    obstacle_detector = ObstacleDetector(['front_camera'])
+    # read cameras from json
+    try:
+        with open(CAMERA_CONFIG_FILE) as f:
+            cameras = json.load(f)
+    except FileNotFoundError:
+        rospy.logerror('cannot open camera configuration file {}'.format(CAMERA_CONFIG_FILE))
+
+    # start detector per camera
+    detectors = [ObstacleDetector(camera) for camera in cameras]
     rospy.spin()
