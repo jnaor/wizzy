@@ -47,14 +47,17 @@ class ObstacleDetector(object):
         # subscribe to segmented rgb image topic
         rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
 
+        # obstacle publisher
+        self.obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
+
         # initialize images
         self.segmentation_image, self.depth_image = None, None
 
         # initialize obstacle reporting structures
         self.obstacle_list, self.obstacle_mask = None, None
 
-        # obstacle publisher
-        self.obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
+        # save rotation matrix for this camera
+        self.rotation_matrix = np.array(camera['R'])
 
     def process_depth(self, msg):
         # get an opencv image from ROS
