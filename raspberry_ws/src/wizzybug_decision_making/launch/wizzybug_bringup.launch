@@ -9,9 +9,12 @@
 
     <node name="ttc" pkg="wizzybug_decision_making" type="ttc_node.py" />
 
-   <!-- <node name="process_laserscan" pkg="wizzybug_perception" type="process_laserscan.py" />-->
+    <node name="process_laserscan" pkg="wizzybug_lidar" type="process_laserscan.py" />
 
-<!--     <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py"/> -->
+    <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py"/>
+
+    <!-- run vision-based obstacle detector -->
+    <node name="obstacle_detector" pkg="wizzybug_vision" type="wizzybug_vision.py" output="screen"></node>
 
 
 

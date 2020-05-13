@@ -7,6 +7,8 @@ from wizzybug_msgs.msg import ttc, lidar_data
 from wizzybug_msgs.msg import obstacle, obstacleArray
 from geometry_msgs.msg import Twist
 
+
+
 # sys.path.append(os.path.join(os.getcwd(), 'devel/lib/python2.7/dist-packages'))
 # sys.path.append(os.path.join(os.getcwd(), 'devel/lib/python3/dist-packages'))
 
@@ -144,7 +146,7 @@ def calc_time_to_collision(v, w, objects, lidar_dist):
                 ttc_azimuth = 0.0
 
         for obj in objects:
-            obj_poly = Polygon(x = obj.x, y = obj.y, yaw = 0.0, width = obj.width, depth = obj.length)
+            obj_poly = Polygon(x = obj.x.data, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = wizzy_width)
             if wizzy.is_colliding(obj_poly):
                 if ttc > time_step * i:
                     ttc = time_step * i
@@ -158,7 +160,7 @@ class CallbackItems:
     def __init__(self):
         self.v = 0.0
         self.w = 0.0
-        self.lidar_dist = 0.0
+        self.lidar_dist = 100.0
         self.objects = []
         self.ttc_msg = ttc()
 

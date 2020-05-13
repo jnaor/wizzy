@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 import cv2
 
@@ -46,9 +48,6 @@ class ObstacleDetector(object):
             # subscribe to segmented rgb image topic
             rospy.Subscriber("/{}/segnet/class_mask".format(camera_name), Image, self.segnet_callback)
 
-        # initialize publisher
-        self.publisher = rospy.Publisher('wizzy/obstacle_list', obstacleArray, queue_size=10)
-
         # initialize images
         self.segmentation_image, self.depth_image = None, None
 
@@ -56,7 +55,7 @@ class ObstacleDetector(object):
         self.obstacle_list, self.obstacle_mask = None, None
 
         # obstacle publisher
-        self.obstacle_list_pub = rospy.Publisher('/wizzy/vision/obstacle_list', obstacleArray, queue_size=10)
+        self.obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
 
         # TODO: remove
         self.viewer = Viewer(5)
@@ -68,19 +67,27 @@ class ObstacleDetector(object):
         # detect obstacles based on depth
         self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
 
+        # for ind, mask in enumerate(self.obstacle_mask):
+        #     cv2.imshow(str(ind), 255*mask.astype(np.uint8))
+        #
+        # cv2.waitKey(1)
+        # self.viewer.display(self.depth_image, self.obstacle_list, self.obstacle_mask)
+
+        # publish obstacles TODO: should this be here?
+        self.publish_obstacles()
+
     def publish_obstacles(self):
-        print("Detected {} obstacles".format(len(self.obstacle_list)))
         msg_object_array = obstacleArray()
         msg_object_array.header.stamp = rospy.Time.now()
-        for obstacle in self.obstacle_list:
+        for current_obstacle in self.obstacle_list:
             msg_object = obstacle()
-            msg_object.x.data = obstacle['x']
-            msg_object.y.data = obstacle['y']
-            msg_object.z.data = obstacle['z']
-            msg_object.width.data = obstacle['width']
-            msg_object.height.data = obstacle['height']
-            msg_object.length.data = obstacle['length']  # should change to length
-            msg_object.classification.data = obstacle['classification']
+            msg_object.x.data = current_obstacle['x']
+            msg_object.y.data = current_obstacle['y']
+            msg_object.z.data = current_obstacle['z']
+            msg_object.width.data = current_obstacle['width']
+            msg_object.height.data = current_obstacle['height']
+            msg_object.length.data = current_obstacle['length']  # should change to length
+            msg_object.classification.data = current_obstacle['classification']
             msg_object_array.data.append(msg_object)
         self.obstacle_list_pub.publish(msg_object_array)
 
@@ -90,9 +97,6 @@ class ObstacleDetector(object):
 
         # use segnet output
         self.label_detections()
-
-        # publish obstacles TODO: should this be here?
-        self.publish_obstacles()
 
     def label_detections(self):
         # TODO: a more elegant way than a global variable
@@ -157,7 +161,7 @@ class Viewer(object):
                     self.ax[ind].set_title('')
 
             self.fig.canvas.draw()
-            plt.pause(0.01)
+            plt.pause(0.1)
 
 
 if __name__ == '__main__':

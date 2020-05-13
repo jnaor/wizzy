@@ -132,7 +132,7 @@ inputs_container = callback_items()
 
 if __name__ == '__main__':
 
-    rospy.init_node('decision_maker', log_level = rospy.DEBUG)
+    rospy.init_node('decision_maker', log_level = rospy.INFO)
     relay_cmd("off")
     # Subscribers
 

@@ -38,20 +38,26 @@ def calc_attributes(depth_image, bounding_box, distance, fov=[40, 48], percentil
     yaw = ((x2 - x1) / depth_image.shape[1]) * fov[1]
 
     # now get height and width according to depth
-    width = 2 * distance * np.tan(np.deg2rad(yaw / 2))
-    height = 2 * distance * np.tan(np.deg2rad(pitch / 2))
+    width = 2 * distance * np.tan(np.deg2rad(yaw / 2.0))
+    height = 2 * distance * np.tan(np.deg2rad(pitch / 2.0))
     length = 0
 
     # calculate x-location of center (in mm)
-    x = distance * np.tan(np.deg2rad((((y1 + y2) / 2 - depth_image.shape[0] / 2) / depth_image.shape[0]) * fov[0]))
+    x = distance * np.tan(np.deg2rad((((y1 + y2) / 2.0 - depth_image.shape[0] / 2.0) / depth_image.shape[0]) * fov[0]))
     y = distance
     z = 0
 
-    # return. notice the usual coordinates drek
-    return y, -x, z, width, height, length
+    f = 1/1000.0
+
+    # return. notice the usual coordinates drek and mm->m conversion
+    return f*y, -x*f, z*f, f*width, f*height, length*f
 
 
-def segment_depth(D, max_range=2**13, min_size=1000, percentile=10):
+def segment_depth(D, max_range=5000, min_size_ratio=20, percentile=10):
+
+    # minimum area to be considered an obstacle
+    min_size = D.shape[0]*D.shape[1] // min_size_ratio
+
     # to hold result
     obstacle_list, obstacle_mask = list(), list()
 
@@ -61,16 +67,16 @@ def segment_depth(D, max_range=2**13, min_size=1000, percentile=10):
     # kernel for morphological operations
     kernel = np.ones(5, np.uint8)
 
-    # and closing to remove small holes
+    # closing to remove small holes
     hist = cv2.morphologyEx(hist, cv2.MORPH_CLOSE, kernel)
 
     # morphological opening to remove noise
     hist = cv2.morphologyEx(hist, cv2.MORPH_OPEN, kernel)
 
-    # int is enough
+    # after opencv forced us to use a floating point vector for morphological operations
     hist = hist.astype(np.int)
 
-    # remove places with depth zeros
+    # remove places with depth zero
     hist[0] = 0
 
     # clip at max_range
@@ -113,8 +119,8 @@ def segment_depth(D, max_range=2**13, min_size=1000, percentile=10):
         obstacle_mask.append(B)
 
         # get location attributes
-        detection['x'], detection['y'], detection['z'], detection['width'], detection['height'], detection['length'] = calc_attributes(
-            D, bounding_box, distance=start)
+        detection['x'], detection['y'], detection['z'], detection['width'], detection['height'], detection['length'] = \
+            calc_attributes(D, bounding_box, distance=start)
 
         # add to result
         obstacle_list.append(detection)
