@@ -112,19 +112,23 @@ class ObstacleDetector(object):
 
 if __name__ == '__main__':
     import json
-
-    # camera configuration filename
-    CAMERA_CONFIG_FILE = 'camera_config.json'
+    import os
 
     # initialize ROS node
     rospy.init_node('wizzybug_vision', log_level=rospy.DEBUG)
 
+    # get camera configuration filename from ros
+    config_filename = rospy.get_param('camera_config')
+
+    print('found config filename {}'.format(config_filename))
+
     # read cameras from json
     try:
-        with open(CAMERA_CONFIG_FILE) as f:
+        with open(config_filename) as f:
             cameras = json.load(f)
-    except FileNotFoundError:
-        rospy.logerror('cannot open camera configuration file {}'.format(CAMERA_CONFIG_FILE))
+    except IOError:
+        rospy.logerr('cannot open camera configuration file {}. current directory is {}'.format(
+            config_filename, os.getcwd()))
 
     # start detector per camera
     detectors = [ObstacleDetector(camera) for camera in cameras]
