@@ -33,8 +33,23 @@ class ImageConverter:
 
 
 def main(args):
+    # initialize ros node
     rospy.init_node('image_converter', anonymous=True)
-    ic = ImageConverter()
+
+    # get published topics
+    published_topics = dict(rospy.get_published_topics())
+
+    # to hold list of converters
+    converters = list()
+
+    # search for topics containing camera string
+    for topic_name in published_topics.keys():
+
+        # if this is a camera
+        if "_camera" in topic_name:
+            rospy.logdebug('adding image converter for {}'.format(topic_name))
+
+            converters.append(ImageConverter(cam=topic_name))
     try:
         rospy.spin()
     except KeyboardInterrupt:

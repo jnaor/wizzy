@@ -24,9 +24,6 @@
     <!-- convert depth images to realsense-like format -->
     <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>
 
-
-
-
     <!-- bringup decision making -->
     <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
 
