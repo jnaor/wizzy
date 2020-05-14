@@ -15,11 +15,17 @@
   <arg name="tf_prefix_camera4"         default="$(arg camera4)"/>
   <arg name="initial_reset"             default="false"/>
 
+  <arg name="realsense_settings_file_path"            default="$(find wizzybug_vision)/config/realsense_settings.json"/>
+
   <group ns="$(arg camera1)">
     <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
       <arg name="serial_no"             value="$(arg serial_no_camera1)"/>
       <arg name="tf_prefix"         		value="$(arg tf_prefix_camera1)"/>
       <arg name="initial_reset"         value="$(arg initial_reset)"/>
+      <arg name="depth_fps"           default="15"/>
+      <arg name="infra_fps"           default="15"/>
+      <arg name="color_fps"           default="15"/>
+      <arg name="json_file_path"         value="$(arg realsense_settings_file_path)"/>
     </include>
   </group>
 
@@ -28,6 +34,10 @@
       <arg name="serial_no"             value="$(arg serial_no_camera2)"/>
       <arg name="tf_prefix"		          value="$(arg tf_prefix_camera2)"/>
       <arg name="initial_reset"         value="$(arg initial_reset)"/>
+      <arg name="depth_fps"           default="15"/>
+      <arg name="infra_fps"           default="15"/>
+      <arg name="color_fps"           default="15"/>
+      <arg name="json_file_path"         value="$(arg realsense_settings_file_path)"/>
     </include>
   </group>
 
@@ -36,6 +46,10 @@
       <arg name="serial_no"             value="$(arg serial_no_camera3)"/>
       <arg name="tf_prefix"		          value="$(arg tf_prefix_camera3)"/>
       <arg name="initial_reset"         value="$(arg initial_reset)"/>
+      <arg name="depth_fps"           default="15"/>
+      <arg name="infra_fps"           default="15"/>
+      <arg name="color_fps"           default="15"/>
+      <arg name="json_file_path"         value="$(arg realsense_settings_file_path)"/>
     </include>
   </group>
 
@@ -44,6 +58,10 @@
       <arg name="serial_no"             value="$(arg serial_no_camera4)"/>
       <arg name="tf_prefix"		          value="$(arg tf_prefix_camera4)"/>
       <arg name="initial_reset"         value="$(arg initial_reset)"/>
+      <arg name="depth_fps"           default="15"/>
+      <arg name="infra_fps"           default="15"/>
+      <arg name="color_fps"           default="15"/>
+      <arg name="json_file_path"         value="$(arg realsense_settings_file_path)"/>
     </include>
   </group>
 </launch>

@@ -47,7 +47,7 @@ class ObstacleDetector(object):
             ObstacleDetector.bridge = CvBridge()
 
         # subscribe to depth
-        rospy.Subscriber("/{}/depth/image_mono16".format(camera['name']), Image, self.process_depth)
+        rospy.Subscriber("/{}/realsense2_camera/depth/image_mono16".format(camera['name']), Image, self.process_depth)
 
         # subscribe to segmented rgb image topic
         rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
