@@ -69,11 +69,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        back_cam_link:
+        rear_cam_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        back_cam_link_optical:
+        rear_cam_link_optical:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -287,7 +287,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /back_camera/depth/points
+      Topic: /rear_camera/depth/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true

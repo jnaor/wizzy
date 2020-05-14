@@ -241,7 +241,7 @@
         </sensor>
         </gazebo>
 
-    <gazebo reference="back_cam_link">
+    <gazebo reference="rear_cam_link">
         <sensor type="depth" name="camera3">
             <always_on>true</always_on>
             <visualize>false</visualize>
@@ -264,8 +264,8 @@
                 <baseline>0.2</baseline>
                 <alwaysOn>true</alwaysOn>
                 <updateRate>5.0</updateRate>
-                <cameraName>back_camera</cameraName>
-                <frameName>back_cam_link_optical</frameName>
+                <cameraName>rear_camera</cameraName>
+                <frameName>rear_cam_link_optical</frameName>
                 <imageTopicName>color/image_raw</imageTopicName>
                 <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
                 <pointCloudTopicName>depth/points</pointCloudTopicName>

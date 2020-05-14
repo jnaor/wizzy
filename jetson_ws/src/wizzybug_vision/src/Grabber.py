@@ -21,9 +21,6 @@ class Grabber(object):
         # enable device
         self.config.enable_device(cam_serial)
 
-        # # Create colorizer object
-        # self.colorizer = rs.colorizer()
-
         # to mark which streams are to be grabbed
         self.depth, self.color = False, False
 
@@ -45,8 +42,6 @@ class Grabber(object):
         # Start streaming from file
         self.pipeline.start(self.config)
 
-        os.mkdir('recording/')
-
     def grab(self):
         """ return depth and color """
 
@@ -67,13 +62,6 @@ class Grabber(object):
             result["color"] = np.asanyarray(color_frame.get_data())
 
         return result
-
-        # # Colorize depth frame to jet colormap
-        # depth_color_frame = self.colorizer.colorize(depth_frame)
-
-        # # Convert to numpy arrays
-        # return np.asanyarray(depth_frame.get_data()), np.asanyarray(color_frame.get_data()), \
-        #        np.asanyarray(depth_color_frame.get_data())
 
     def stop(self):
         self.pipeline.stop()
@@ -106,39 +94,9 @@ def start_cameras(width, height, framerate, depth=False, color=True):
         # start streams
         grabbers[cam_serial].start(depth=depth, color=color)
 
-        # TODO: remove this
-        os.mkdir(f'recording/{cam_serial}')
-        if depth:
-            os.mkdir(f'recording/{cam_serial}/depth')
-        if color:
-            os.mkdir(f'recording/{cam_serial}/color')
-
-    # counter at zero for each camera
-    counter = {serial: 0 for serial in grabbers.keys()}
-
-    if len(grabbers) == 0:
-        print("no cameras detected")
-        return
-
-    while True:
-        for cam_serial, grabber in grabbers.items():
-            # get current images
-            images = grabber.grab()
-
-            # show images
-            for name, img in images.items():
-                #cv2.imshow(f"serial {cam_serial} stream {name}", img)
-                cv2.imwrite(f"recording/{cam_serial}/{name}/{counter[cam_serial]:4}.png", img)
-                counter[cam_serial] += 1
-
-            #cv2.waitKey(1)
-
 
 if __name__ == '__main__':
     start_cameras(width=640, height=480, framerate=15)
-    os.mkdir("recording")
-    os.mkdir("recording/color")
-    os.mkdir("recording/depth")
 
     print("helllloooo")
 

@@ -30,9 +30,9 @@
     <xacro:property name="right_cam_x" value="-0.2"/>
     <xacro:property name="right_cam_y" value="-0.26"/>
     <xacro:property name="right_cam_z" value="0.16"/>
-    <xacro:property name="back_cam_x" value="-0.48"/>
-    <xacro:property name="back_cam_y" value="0.0"/>
-    <xacro:property name="back_cam_z" value="0.63"/>
+    <xacro:property name="rear_cam_x" value="-0.48"/>
+    <xacro:property name="rear_cam_y" value="0.0"/>
+    <xacro:property name="rear_cam_z" value="0.63"/>
 
     <xacro:property name="rplidar_x" value="0.0"/>
     <xacro:property name="rplidar_y" value="0.1"/>
@@ -322,20 +322,20 @@
 <!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
 <!--    </sensor_d415>-->
 
-<!--                &lt;!&ndash; ################################ back cam ##############################################&ndash;&gt;-->
-    <joint name="back_cam_joint" type="fixed">
+<!--                &lt;!&ndash; ################################ rear cam ##############################################&ndash;&gt;-->
+    <joint name="rear_cam_joint" type="fixed">
         <parent link="base_link"/>
-        <child link="back_cam_link"/>
-        <origin xyz="${back_cam_x} 0 ${back_cam_z}" rpy="0 0 3.14"/>
+        <child link="rear_cam_link"/>
+        <origin xyz="${rear_cam_x} 0 ${rear_cam_z}" rpy="0 0 3.14"/>
     </joint>
-    <link name="back_cam_link"/>
-    <joint name="back_cam_optical_joint" type="fixed">
-        <parent link="back_cam_link"/>
-        <child link="back_cam_link_optical"/>
+    <link name="rear_cam_link"/>
+    <joint name="rear_cam_optical_joint" type="fixed">
+        <parent link="rear_cam_link"/>
+        <child link="rear_cam_link_optical"/>
         <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
     </joint>
-    <link name="back_cam_link_optical"/>
-<!--    <sensor_d415 parent="back_cam_link" name="camera4">-->
+    <link name="rear_cam_link_optical"/>
+<!--    <sensor_d415 parent="rear_cam_link" name="camera4">-->
 <!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
 <!--    </sensor_d415>&ndash;&gt;-->
 

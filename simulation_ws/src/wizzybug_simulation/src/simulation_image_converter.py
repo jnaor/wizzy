@@ -42,7 +42,7 @@ def main(args):
     fic = image_converter()
     ric = image_converter(cam="right_camera")
     lic = image_converter(cam="left_camera")
-    bic = image_converter(cam="back_camera")
+    bic = image_converter(cam="rear_camera")
     try:
         rospy.spin()
     except KeyboardInterrupt:
