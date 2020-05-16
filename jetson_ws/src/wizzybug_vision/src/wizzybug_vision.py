@@ -52,13 +52,26 @@ class ObstacleDetector(object):
         self.cv_bridge = CvBridge()
 
     def init_grabber(self, camera):
+        import threading
         from Grabber import Grabber
+
+        # initialize
         self.grabber = Grabber(camera['name'], camera['width'], camera['height'], camera['framerate'])
 
+        # start
+        self.grabber.start(depth=True)
+
+        # start acquisition thread
+        threading.Thread(target=self.grab())
+
     def grab(self):
-        self.depth_image = self.grabber.grab()
+        while True:
+            self.depth_image = self.grabber.grab()
 
     def process_depth(self):
+
+        if self.depth_image is None:
+            return [], []
 
         # detect obstacles based on depth
         self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image, self.translation, self.rotation)
@@ -151,7 +164,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
 
         for detector in detectors:
-            detector.grab()
+
             detector.process_depth()
 
         # concatenate obstacles from all cameras
