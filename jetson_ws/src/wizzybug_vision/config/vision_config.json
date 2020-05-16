@@ -19,7 +19,8 @@
             ],
             "width": 640,
             "height": 360,
-            "framerate": 15
+            "framerate": 15,
+            "type": "ros"
         },
         {
             "R": [
@@ -40,7 +41,8 @@
             ],
             "width": 640,
             "height": 360,
-            "framerate": 15
+            "framerate": 15,
+            "type": "ros"
         },
         {
             "R": [
@@ -61,7 +63,8 @@
             ],
             "width": 640,
             "height": 360,
-            "framerate": 15
+            "framerate": 15,
+            "type": "ros"
         },
         {
             "R": [
@@ -82,7 +85,8 @@
             ],
             "width": 640,
             "height": 360,
-            "framerate": 15
+            "framerate": 15,
+            "type": "ros"
         }
     ],
     "rate": 10
