@@ -148,7 +148,7 @@ if __name__ == '__main__':
     rospy.init_node('wizzybug_vision', log_level=rospy.DEBUG)
 
     # read camera configuration
-    config_file = rospy.get_param('camera_config')
+    config_file = rospy.get_param('vision_config')
     with open(config_file) as f:
         config = json.load(config_file)
 
