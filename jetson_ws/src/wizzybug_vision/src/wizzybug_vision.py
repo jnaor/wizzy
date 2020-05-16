@@ -150,7 +150,7 @@ if __name__ == '__main__':
     # read camera configuration
     config_file = rospy.get_param('vision_config')
     with open(config_file) as f:
-        config = json.load(config_file)
+        config = json.load(f)
 
     # obstacle publisher
     obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
