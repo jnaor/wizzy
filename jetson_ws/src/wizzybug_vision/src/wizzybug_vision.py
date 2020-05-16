@@ -121,6 +121,14 @@ def publish_obstacles(obstacle_publisher, obstacle_list):
     obstacle_publisher.publish(msg_object_array)
 
 
+
+class ROSObstacleDetector(ObstacleDetector):
+""" obstacle detector that receeives depth images from ROS """
+    def __init__(self, config):
+        # initiaalize base
+        super(ROSObstacleDetector, self).__init__(config)
+
+
 if __name__ == '__main__':
     import json
     import os
@@ -163,3 +171,5 @@ if __name__ == '__main__':
 
         # go to sleep till next request
         rate.sleep()
+
+
