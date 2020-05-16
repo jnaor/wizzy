@@ -6,9 +6,6 @@ import cv2
 from itertools import chain
 
 import rospy
-import tf
-from tf.transformations import quaternion_matrix
-import tf2_py
 
 from segmentation import segment_depth
 from cv_bridge import CvBridge, CvBridgeError
@@ -37,17 +34,10 @@ labels = {0: 'other', 1: 'wall', 2: 'floor', 3: 'cabinet/shelves',
 class ObstacleDetector(object):
     """ Base class for vision-based object detection """
 
-    # class-wide cv bridge (initialize on first use)
-    bridge = None
+    def __init__(self, camera):
 
-    def __init__(self, camera, base_cam):
-
-        # initialize ros2opencv converter if not done already
-        if ObstacleDetector.bridge is None:
-            ObstacleDetector.bridge = CvBridge()
-
-        # subscribe to depth
-        rospy.Subscriber("/{}/realsense2_camera/depth/image_mono16".format(camera['name']), Image, self.process_depth)
+        # use function to allow overloading of image grabber (e.g. via ROS)
+        self.grabber = self.init_grabber(camera)
 
         # subscribe to segmented rgb image topic
         rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
@@ -58,18 +48,17 @@ class ObstacleDetector(object):
         # initialize obstacle reporting structures
         self.obstacle_list, self.obstacle_mask = None, None
 
-        # listen for camera pose
-        listener = tf.TransformListener()
+        # initialize ros2opencv converter
+        self.cv_bridge = CvBridge()
 
-        # save transformation from base camera
-        self.translation, rotation_quaternion = listener.lookupTransform('/{}'.format(base_cam), '/{}'.format(camera),
-                                                                   rospy.Time(0))
-        # convert to matrix
-        self.rotation = quaternion_matrix(rotation_quaternion)
+    def init_grabber(self, camera):
+        from Grabber import Grabber
+        self.grabber = Grabber(camera['name'], camera['width'], camera['height'], camera['framerate'])
 
-    def process_depth(self, msg):
-        # get an opencv image from ROS
-        self.depth_image = ObstacleDetector.bridge.imgmsg_to_cv2(msg, "passthrough")
+    def grab(self):
+        self.depth_image = self.grabber.grab()
+
+    def process_depth(self):
 
         # detect obstacles based on depth
         self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image, self.translation, self.rotation)
@@ -80,12 +69,9 @@ class ObstacleDetector(object):
         # cv2.waitKey(1)
         # self.viewer.display(self.depth_image, self.obstacle_list, self.obstacle_mask)
 
-        # publish obstacles TODO: should this be here?
-        self.publish_obstacles()
-
     def segnet_callback(self, data):
 
-        self.segmentation_image = ObstacleDetector.bridge.imgmsg_to_cv2(data)
+        self.segmentation_image = ObstacleDetector.cv_bridge.imgmsg_to_cv2(data)
 
         # use segnet output
         self.label_detections()
@@ -104,7 +90,27 @@ class ObstacleDetector(object):
 
             # this will be the classification of the obstacle
             obstacle['class'] = labels[most_common_class]
-            
+
+
+class ROSObstacleDetector(ObstacleDetector):
+
+    """ overloaded function to allow grabbing via subscribing to a ROS message"""
+    def init_grabber(self, camera):
+
+        # subscribe to depth
+        rospy.Subscriber("/{}/depth/image_mono16".format(camera['name']), Image, self.save_depth)
+
+        # no actual grabber for this overloaded class
+        return None
+
+    def save_depth(self, msg):
+        # create an opencv image from ROS
+        self.depth_image = self.cv_bridge.imgmsg_to_cv2(msg, "passthrough")
+
+    def grab(self):
+        pass
+
+
 def publish_obstacles(obstacle_publisher, obstacle_list):
     msg_object_array = obstacleArray()
     msg_object_array.header.stamp = rospy.Time.now()
@@ -121,14 +127,6 @@ def publish_obstacles(obstacle_publisher, obstacle_list):
     obstacle_publisher.publish(msg_object_array)
 
 
-
-class ROSObstacleDetector(ObstacleDetector):
-""" obstacle detector that receeives depth images from ROS """
-    def __init__(self, config):
-        # initiaalize base
-        super(ROSObstacleDetector, self).__init__(config)
-
-
 if __name__ == '__main__':
     import json
     import os
@@ -136,31 +134,25 @@ if __name__ == '__main__':
     # initialize ROS node
     rospy.init_node('wizzybug_vision', log_level=rospy.DEBUG)
 
-    # to hold list of camera names
-    cameras = list()
-
-    # get published topics
-    published_topics = dict(rospy.get_published_topics())
-
-    # search for topics containing camera string
-    for topic_name in published_topics.keys():
-
-        rospy.logdebug('adding obstacle detector for {}'.format(topic_name))
-
-        # if this is a camera
-        if "_camera" in topic_name:
-            cameras.append(topic_name)
-
-    # run at 10 hertz TODO: parameter
-    rate = rospy.Rate(10)
+    # read camera configuration
+    config_file = rospy.get_param('camera_config')
+    with open(config_file) as f:
+        config = json.load(config_file)
 
     # obstacle publisher
     obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
 
     # start detector per camera
-    detectors = [ObstacleDetector(camera, base_cam=cameras[0]) for camera in cameras]
+    detectors = [ObstacleDetector(camera) for camera in config['cameras']]
+
+    # run at hz specified in config
+    rate = rospy.Rate(config['rate'])
 
     while not rospy.is_shutdown():
+
+        for detector in detectors:
+            detector.grab()
+            detector.process_depth()
 
         # concatenate obstacles from all cameras
         combined = [detector.obstacle_list for detector in detectors]
