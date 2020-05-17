@@ -124,6 +124,15 @@ class ROSObstacleDetector(ObstacleDetector):
         pass
 
 
+class ObstacleDetectorFactory(object):
+    def get_detector(self, camera):
+        if camera['type'] == 'ros':
+            return ROSObstacleDetector(camera)
+
+        else:
+            return ObstacleDetector(camera)
+
+
 def publish_obstacles(obstacle_publisher, obstacle_list):
     msg_object_array = obstacleArray()
     msg_object_array.header.stamp = rospy.Time.now()
@@ -156,7 +165,7 @@ if __name__ == '__main__':
     obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
 
     # start detector per camera
-    detectors = [ObstacleDetector(camera) for camera in config['cameras']]
+    detectors = [ObstacleDetectorFactory().get_detector(camera) for camera in config['cameras']]
 
     # run at hz specified in config
     rate = rospy.Rate(config['rate'])
