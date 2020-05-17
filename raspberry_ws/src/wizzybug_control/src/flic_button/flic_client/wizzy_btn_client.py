@@ -5,9 +5,13 @@ Wizzy Button Client
 ===================
 Based on file test_client.py
 This program attempts to connect to all previously verified Flic buttons by this server.
+Requires PYTHON 3 ! (flick library is py3)
 """
 
 import fliclib
+
+import rospy
+from std_msgs.msg import String
 
 import logging
 log = logging.getLogger(__name__)
@@ -32,6 +36,7 @@ def button_cb (channel, click_type, was_queued, time_diff) :
         print ("*** Twice !")
     elif click_type.name == "ButtonHold" :
         print ("*** Hold !")
+    pub.publish(click_type.name)
         
 def on_connection_status_changed_cb(channel, connection_status, disconnect_reason) :
     print(channel.bd_addr + " " + str(connection_status) + \
@@ -40,6 +45,11 @@ def on_connection_status_changed_cb(channel, connection_status, disconnect_reaso
     
 if __name__ == "__main__" :
    log.error ("*** Init flick client")
+   
+    # Initialize publisher 
+   rospy.init_node('flic_button', log_level=rospy.DEBUG)
+   pub = rospy.Publisher('/wizzy/flic_btn', String, queue_size=10)   
+   
    client = fliclib.FlicClient("localhost")
    # Initialize buttons with the pre-paired buttons in the bin directory, wizzy_buttons.db file
    client.get_info(init_buttons)
