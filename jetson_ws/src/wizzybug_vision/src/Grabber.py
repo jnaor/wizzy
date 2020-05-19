@@ -76,7 +76,7 @@ class FileGrabber(Grabber):
         rs.config.enable_device_from_file(self.config, filename)
 
 
-def start_cameras(width, height, framerate, depth=False, color=True):
+def start_cameras(width, height, framerate, depth=True, color=False):
     # realsense context
     realsense_ctx = rs.context()
 
