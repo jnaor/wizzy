@@ -8,9 +8,9 @@ import os
 
 class Grabber(object):
 
-    def __init__(self, cam_serial, width, height, framerate):
+    def __init__(self, cam_serial, name, width, height, framerate):
         # save parameters
-        self.cam_serial, self.width, self.height, self.framerate = cam_serial, width, height, framerate
+        self.cam_serial, self.name, self.width, self.height, self.framerate = cam_serial, name, width, height, framerate
         
         # create pipeline
         self.pipeline = rs.pipeline()

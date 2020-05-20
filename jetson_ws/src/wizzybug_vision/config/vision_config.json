@@ -12,7 +12,7 @@
                 ]
             ],
             "name": "front_camera",
-            "serial": 1,
+            "serial": "851112060198",
             "t": [
                 0,
                 0
@@ -34,7 +34,7 @@
                 ]
             ],
             "name": "left_camera",
-            "serial": 2,
+            "serial": "851112062252",
             "t": [
                 0,
                 0
@@ -56,7 +56,7 @@
                 ]
             ],
             "name": "rear_camera",
-            "serial": 3,
+            "serial": "851112062250",
             "t": [
                 0,
                 0
@@ -78,7 +78,7 @@
                 ]
             ],
             "name": "right_camera",
-            "serial": 4,
+            "serial": "851112062252",
             "t": [
                 0,
                 0

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import time
 import numpy as np
 import cv2
 
@@ -51,12 +52,14 @@ class ObstacleDetector(object):
         # initialize ros2opencv converter
         self.cv_bridge = CvBridge()
 
+        rospy.loginfo('started camera {}'.format(camera['serial']))
+
     def init_grabber(self, camera):
         import threading
         from Grabber import Grabber
 
         # initialize
-        self.grabber = Grabber(camera['name'], camera['width'], camera['height'], camera['framerate'])
+        self.grabber = Grabber(camera['serial'], camera['name'], camera['width'], camera['height'], camera['framerate'])
 
         # start
         self.grabber.start(depth=True)
@@ -65,8 +68,12 @@ class ObstacleDetector(object):
         threading.Thread(target=self.grab())
 
     def grab(self):
+        # grab
+        grab = self.grabber.grab()
+
         while True:
-            self.depth_image = self.grabber.grab()
+            self.depth_image, self.color_image = grab['depth'], grab['color']
+            time.sleep(0.01)
 
     def process_depth(self):
 
