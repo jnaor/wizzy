@@ -44,7 +44,10 @@ class ObstacleDetector(object):
         rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
 
         # initialize images
-        self.segmentation_image, self.depth_image = None, None
+        self.color_image, self.depth_image = None, None
+
+        # to hold segmentation image from jetson inference
+        self.segmentation_image = None
 
         # initialize obstacle reporting structures
         self.obstacle_list, self.obstacle_mask = None, None
@@ -55,25 +58,21 @@ class ObstacleDetector(object):
         rospy.loginfo('started camera {}'.format(camera['serial']))
 
     def init_grabber(self, camera):
-        import threading
         from Grabber import Grabber
 
         # initialize
-        self.grabber = Grabber(camera['serial'], camera['name'], camera['width'], camera['height'], camera['framerate'])
+        self.grabber = Grabber(camera['serial'], camera['name'], camera['width'],
+                               camera['height'], camera['framerate'])
 
         # start
         self.grabber.start(depth=True)
-
-        # start acquisition thread
-        threading.Thread(target=self.grab())
 
     def grab(self):
         # grab
         grab = self.grabber.grab()
 
-        while True:
-            self.depth_image, self.color_image = grab['depth'], grab['color']
-            time.sleep(0.01)
+        # hold in internal structures
+        self.depth_image, self.color_image = grab['depth'], grab['color']
 
     def process_depth(self):
 
@@ -81,13 +80,22 @@ class ObstacleDetector(object):
             return [], []
 
         # detect obstacles based on depth
-        self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image, self.translation, self.rotation)
+        self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
 
-        # for ind, mask in enumerate(self.obstacle_mask):
-        #     cv2.imshow(str(ind), 255*mask.astype(np.uint8))
-        #
-        # cv2.waitKey(1)
-        # self.viewer.display(self.depth_image, self.obstacle_list, self.obstacle_mask)
+        # adjust detections to camera pose
+        # self.translation, self.rotation
+
+        # 
+        for detection in obstacle_list:
+
+            # calculate with camera pose
+            loc = np.matmul(self.rotation, np.array([[detection['x']],
+                                                     [detection['y']],
+                                                     [detection['z']]]))
+
+            detection['x'], detection['y'], detection['z'] = loc[0], loc[1], loc[2]
+
+
 
     def segnet_callback(self, data):
 
@@ -124,6 +132,7 @@ class ROSObstacleDetector(ObstacleDetector):
         return None
 
     def save_depth(self, msg):
+        """ callback activated when ros depth image message received """
         # create an opencv image from ROS
         self.depth_image = self.cv_bridge.imgmsg_to_cv2(msg, "passthrough")
 
@@ -132,7 +141,8 @@ class ROSObstacleDetector(ObstacleDetector):
 
 
 class ObstacleDetectorFactory(object):
-    def get_detector(self, camera):
+    @staticmethod
+    def get_detector(camera):
         if camera['type'] == 'ros':
             return ROSObstacleDetector(camera)
 
@@ -182,10 +192,16 @@ if __name__ == '__main__':
     # run at hz specified in config
     rate = rospy.Rate(config['rate'])
 
+    # as long as ros is alive
     while not rospy.is_shutdown():
 
+        # for each of the detectors
         for detector in detectors:
 
+            # grab
+            detector.grab()
+
+            # and process
             detector.process_depth()
 
         # concatenate obstacles from all cameras

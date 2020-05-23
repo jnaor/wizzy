@@ -53,7 +53,7 @@ def calc_attributes(depth_image, bounding_box, distance, fov=[40, 48], percentil
     return f*y, -x*f, z*f, f*width, f*height, length*f
 
 
-def segment_depth(D, translation, rotation, max_range=5000, min_size_ratio=20):
+def segment_depth(D, max_range=5000, min_size_ratio=20):
 
     # minimum area to be considered an obstacle
     min_size = D.shape[0]*D.shape[1] // min_size_ratio
@@ -119,13 +119,8 @@ def segment_depth(D, translation, rotation, max_range=5000, min_size_ratio=20):
         obstacle_mask.append(B)
 
         # get location attributes
-        x, y, z, detection['width'], detection['height'], detection['length'] = \
+        detection['x'], detection['y'], detection['z'], detection['width'], detection['height'], detection['length'] = \
             calc_attributes(D, bounding_box, distance=start)
-
-        # calculate with camera pose
-        loc = np.matmul(rotation, np.array([[x], [y], [z]]))
-
-        detection['x'], detection['y'], detection['z'] = loc[0], loc[1], loc[2]
 
         # add to result
         obstacle_list.append(detection)

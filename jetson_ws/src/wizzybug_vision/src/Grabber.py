@@ -24,7 +24,7 @@ class Grabber(object):
         # to mark which streams are to be grabbed
         self.depth, self.color = False, False
 
-    def start(self, depth=True, color=True, record_filename=None):
+    def start(self, depth=True, color=True):
         # remember what we're streaming
         self.depth, self.color = depth, color
 
@@ -35,9 +35,6 @@ class Grabber(object):
         if color:
             self.config.enable_stream(rs.stream.color, self.width, self.height,
                                       rs.format.rgb8, self.framerate)
-
-        if record_filename is not None:
-            self.config.enable_record_to_file(record_filename)
 
         # Start streaming from file
         self.pipeline.start(self.config)
