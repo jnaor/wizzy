@@ -187,7 +187,12 @@ if __name__ == '__main__':
     obstacle_list_pub = rospy.Publisher('/wizzy/obstacle_list', obstacleArray, queue_size=10)
 
     # start detector per camera
-    detectors = [ObstacleDetectorFactory().get_detector(camera) for camera in config['cameras']]
+    detectors = list()
+    for camera in config['cameras']:
+        try:
+            detectors.append(ObstacleDetectorFactory().get_detector(camera))
+        except RuntimeError:
+            rospy.logwarn('cannot open {} camera. running without it'.format(camera['name']))
 
     # run at hz specified in config
     rate = rospy.Rate(config['rate'])
@@ -208,8 +213,9 @@ if __name__ == '__main__':
         combined = [detector.obstacle_list for detector in detectors]
         obstacle_list = [obstacle for obstacle in chain.from_iterable(combined)]
 
-        # publish
-        publish_obstacles(obstacle_list_pub, obstacle_list)
+        # publish if not empty
+        if len(obstacle_list) > 0:
+            publish_obstacles(obstacle_list_pub, obstacle_list)
 
         # go to sleep till next request
         rate.sleep()
