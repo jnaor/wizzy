@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     for direction_idx in range(6):
         current_marker = Marker()
-        current_marker.header.frame_id = 'map'
+        current_marker.header.frame_id = 'base_footprint'
         current_marker.type = Marker.CUBE
         current_marker.color = ColorRGBA(1, 1, 1, 0.1)
         current_marker.scale = Vector3(0.5, 0.5, 0.5)
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     for direction_idx in range(6):
         for led_idx in range(4):
             current_marker = Marker()
-            current_marker.header.frame_id = 'map'
+            current_marker.header.frame_id = 'base_footprint'
             current_marker.type = Marker.SPHERE
             current_marker.color.a = 0.1
             current_marker.scale = Vector3(0.5, 0.5, 0.5)
@@ -152,9 +152,9 @@ if __name__ == "__main__":
         current_thread.start() 
 
     handler = CallbackHandler(motor_list, section_list)
-    section_subscriber = rospy.Subscriber('/hmi_commands', ChairState, handler.activation_callback)
-    motors_publisher = rospy.Publisher('hmi_motors', MarkerArray, queue_size = 10)
-    leds_publisher = rospy.Publisher('hmi_leds', MarkerArray, queue_size = 10)
+    section_subscriber = rospy.Subscriber('/chair_state', ChairState, handler.activation_callback)
+    motors_publisher = rospy.Publisher('hmi_motors_array', MarkerArray, queue_size = 10)
+    leds_publisher = rospy.Publisher('hmi_leds_array', MarkerArray, queue_size = 10)
 
     try:
         while not rospy.is_shutdown():
