@@ -24,7 +24,7 @@ def index_to_mode(idx):
 if __name__ == "__main__":
 
     rospy.init_node('hmi_tester')
-    chair_state_pub = rospy.Publisher('/hmi_commands', ChairState, queue_size=10)
+    chair_state_pub = rospy.Publisher('/chair_state', ChairState, queue_size=10)
     chair_state = ChairState()
     rate = rospy.Rate(0.15)
     count = -2    

@@ -32,5 +32,7 @@
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/wizzybug.rviz"/>
 
+    <node name="marker_pub" pkg="simulated_hmi" type="wizzy_simulated_hmi.py"/>
+
 
 </launch>
