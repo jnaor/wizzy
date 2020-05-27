@@ -38,12 +38,13 @@ class ObstacleDetector(object):
     def __init__(self, camera):
 
         # use function to allow overloading of image grabber (e.g. via ROS)
-        self.grabber = self.init_grabber(camera)
+        self.init_grabber(camera)
 
         # subscribe to segmented rgb image topic
         rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
 
         # initialize images
+
         self.color_image, self.depth_image = None, None
 
         # to hold segmentation image from jetson inference
@@ -72,7 +73,8 @@ class ObstacleDetector(object):
         grab = self.grabber.grab()
 
         # hold in internal structures
-        self.depth_image, self.color_image = grab['depth'], grab['color']
+        if 'depth' in grab.keys(): self.depth_image = grab['depth']
+        if 'color' in grab.keys(): self.color_image = grab['color']
 
     def process_depth(self):
 
@@ -191,8 +193,9 @@ if __name__ == '__main__':
     for camera in config['cameras']:
         try:
             detectors.append(ObstacleDetectorFactory().get_detector(camera))
-        except RuntimeError:
-            rospy.logwarn('cannot open {} camera. running without it'.format(camera['name']))
+        except RuntimeError as runtime_error:
+            rospy.logwarn(runtime_error)
+            rospy.logwarn('cannot open {}. running without it'.format(camera['name']))
 
     # run at hz specified in config
     rate = rospy.Rate(config['rate'])

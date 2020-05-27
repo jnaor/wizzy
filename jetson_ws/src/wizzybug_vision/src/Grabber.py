@@ -8,12 +8,15 @@ import os
 
 class Grabber(object):
 
+    # realsense "context"
+    realsense_ctx = rs.context()
+
     def __init__(self, cam_serial, name, width, height, framerate):
         # save parameters
         self.cam_serial, self.name, self.width, self.height, self.framerate = cam_serial, name, width, height, framerate
         
         # create pipeline
-        self.pipeline = rs.pipeline()
+        self.pipeline = rs.pipeline(Grabber.realsense_ctx)
 
         # create a config object
         self.config = rs.config()
@@ -24,7 +27,7 @@ class Grabber(object):
         # to mark which streams are to be grabbed
         self.depth, self.color = False, False
 
-    def start(self, depth=True, color=True):
+    def start(self, depth=False, color=False):
         # remember what we're streaming
         self.depth, self.color = depth, color
 
@@ -34,7 +37,7 @@ class Grabber(object):
         
         if color:
             self.config.enable_stream(rs.stream.color, self.width, self.height,
-                                      rs.format.rgb8, self.framerate)
+                                      rs.format.bgr8, self.framerate)
 
         # Start streaming from file
         self.pipeline.start(self.config)
