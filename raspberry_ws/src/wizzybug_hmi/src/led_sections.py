@@ -24,6 +24,19 @@ class LedSection:
         self.set_state_params('idle')
         
         self.is_active = False
+        #self.heartbeat()
+
+    def heartbeat(self):
+        for current_color in range(3):
+            strip_color = [0,0,0]
+            strip_color[current_color] = 50
+            self.set_section_color(strip_color[0],strip_color[1],strip_color[2])
+            self.led_strip.show()
+            time.sleep(0.2)
+
+        self.set_section_color(0,0,0)
+        self.led_strip.show()
+        time.sleep(0.1)
 
     def set_section_color(self, red, green, blue):
         for i in range(LedSection.LEDS_PER_SECTION):
