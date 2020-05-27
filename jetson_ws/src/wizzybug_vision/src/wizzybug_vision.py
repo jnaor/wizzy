@@ -88,7 +88,7 @@ class ObstacleDetector(object):
         # self.translation, self.rotation
 
         # 
-        for detection in obstacle_list:
+        for detection in self.obstacle_list:
 
             # calculate with camera pose
             loc = np.matmul(self.rotation, np.array([[detection['x']],
