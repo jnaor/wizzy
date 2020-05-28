@@ -56,6 +56,9 @@ class ObstacleDetector(object):
         # initialize ros2opencv converter
         self.cv_bridge = CvBridge()
 
+        # rotation matrix to apply on result
+        self.rotation = np.array(camera['R'])
+
         rospy.loginfo('started camera {}'.format(camera['serial']))
 
     def init_grabber(self, camera):
@@ -78,24 +81,25 @@ class ObstacleDetector(object):
 
     def process_depth(self):
 
-        if self.depth_image is None:
-            return [], []
+        # default to no detections
+        self.obstacle_list, self.obstacle_mask = [], []
 
+        if self.depth_image is None:
+            return
+            
         # detect obstacles based on depth
         self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
 
-        # adjust detections to camera pose
-        # self.translation, self.rotation
-
-        # 
         for detection in self.obstacle_list:
 
-            # calculate with camera pose
-            loc = np.matmul(self.rotation, np.array([[detection['x']],
-                                                     [detection['y']],
-                                                     [detection['z']]]))
+            # prepare vector for multplication by rotation matrix
+            xy = [ [detection['x']], [detection['y']] ]
 
-            detection['x'], detection['y'], detection['z'] = loc[0], loc[1], loc[2]
+            # calculate with camera pose
+            loc = np.matmul(self.rotation, xy)                                               
+
+            # update results
+            detection['x'], detection['y'] = loc[0], loc[1]
 
 
 
@@ -111,7 +115,7 @@ class ObstacleDetector(object):
         global labels
 
         # for each detection
-        for obstacle, mask in zip(self.obstacle_list, self.obstacle_mask):
+        for curr_obstacle, mask in zip(self.obstacle_list, self.obstacle_mask):
             # mask segmentation image
             segmented_mask = cv2.bitwise_and(self.segmentation_image, mask)
 
@@ -119,7 +123,7 @@ class ObstacleDetector(object):
             most_common_class = mode(segmented_mask.flatten())
 
             # this will be the classification of the obstacle
-            obstacle['class'] = labels[most_common_class]
+            curr_obstacle['class'] = labels[most_common_class]
 
 
 class ROSObstacleDetector(ObstacleDetector):
@@ -175,12 +179,11 @@ if __name__ == '__main__':
     # initialize ROS node
     rospy.init_node('wizzybug_vision', log_level=rospy.DEBUG)
 
-    # read camera configuration
-    try:
-        config_file = rospy.get_param('vision_config')
-    except KeyError:
-        # assume we're running from wizzybug_vision src folder
-        config_file = "../config/vision_config.json"
+    print(rospy.get_param_names())
+
+    # read camera configuration. default to local if no parameter set by ros
+    config_file = rospy.get_param('vision_config', '../config/vision_config.json')
+    rospy.loginfo('opening configuration file {}'.format(config_file))
 
     with open(config_file) as f:
         config = json.load(f)
@@ -214,7 +217,8 @@ if __name__ == '__main__':
 
         # concatenate obstacles from all cameras
         combined = [detector.obstacle_list for detector in detectors]
-        obstacle_list = [obstacle for obstacle in chain.from_iterable(combined)]
+
+        obstacle_list = [curr_obstacle for curr_obstacle in chain.from_iterable(combined)]
 
         # publish if not empty
         if len(obstacle_list) > 0:
