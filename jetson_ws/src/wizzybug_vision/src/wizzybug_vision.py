@@ -73,11 +73,14 @@ class ObstacleDetector(object):
 
     def grab(self):
         # grab
-        grab = self.grabber.grab()
+        image = self.grabber.grab()
 
         # hold in internal structures
-        if 'depth' in grab.keys(): self.depth_image = grab['depth']
-        if 'color' in grab.keys(): self.color_image = grab['color']
+        if 'depth' in image.keys(): self.depth_image = image['depth']
+        if 'color' in image.keys(): self.color_image = image['color']
+
+        cv2.imshow(str(self.grabber.cam_serial), 10*self.depth_image)
+        cv2.waitKey(1)
 
     def process_depth(self):
 
