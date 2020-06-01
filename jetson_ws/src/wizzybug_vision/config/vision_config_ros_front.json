@@ -1,0 +1,27 @@
+{
+    "cameras": [
+        {
+            "R": [
+                [
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1
+                ]
+            ],
+            "name": "front_camera",
+            "serial": 1,
+            "t": [
+                0,
+                0
+            ],
+            "width": 640,
+            "height": 360,
+            "framerate": 15,
+            "type": "ros"
+        }
+    ],
+    "rate": 10
+}

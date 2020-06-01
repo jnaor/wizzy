@@ -5,6 +5,8 @@ import logging
 import json
 
 from skimage.measure import label, regionprops
+from sklearn.cluster import MeanShift, estimate_bandwidth
+
 from matplotlib import pylab as plt
 import matplotlib.patches as mpatches
 
@@ -51,6 +53,86 @@ def calc_attributes(depth_image, bounding_box, distance, fov=[40, 48], percentil
 
     # return. notice the usual coordinates drek and mm->m conversion
     return f*y, -x*f, z*f, f*width, f*height, length*f
+
+
+def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num_decimations=3):
+
+    # to hold result
+    obstacle_list, obstacle_mask = list(), list()
+
+    # to hold decimated image
+    C = None
+
+    # decimate
+    for ind in range(num_decimations):
+        if C is None:
+            C = cv2.pyrDown(D)
+        else:
+            C = cv2.pyrDown(C)
+
+    # vectorize
+    X = C.flatten()
+
+    # mean-shift likes it's data this way
+    X = X.reshape(-1, 1)
+
+    # estimate band-width for mean-shift
+    bandwidth = estimate_bandwidth(X, quantile=0.2, n_samples=500)
+
+    # clustering
+    ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+    ms.fit(X)
+
+    # number of detected clusters
+    num_clusters = len(np.unique(ms.labels_))
+
+    # for each cluster
+    for label in range(num_clusters):
+
+        # distance for this cluster
+        distance = ms.cluster_centers_[label][0]
+
+        # ignore distance 0 and far objects
+        if distance < min_range or distance > max_range:
+            continue
+
+        # mask for current cluster
+        B = (ms.labels_ == label).reshape(C.shape)
+
+        # if area too small disregard this
+        if(np.count_nonzero(B) < B.shape[0]*B.shape[1]*min_area_percentage):
+            continue
+
+        # find bounding values
+        nonzero_indices = np.where(B)
+        bb_y_min, bb_y_max, _, _ = cv2.minMaxLoc(nonzero_indices[0])
+        bb_x_min, bb_x_max, _, _  = cv2.minMaxLoc(nonzero_indices[1])
+
+        # bounding box in original image
+        bounding_box = np.array([bb_x_min, bb_y_min, bb_x_max, bb_y_max]) * 2**num_decimations
+
+        # to hold results for this object
+        detection = dict()
+
+        # no classification yet
+        detection['classification'] = 'unlabeled'
+
+        # save mask for debug purposes
+        obstacle_mask.append(B)
+
+        # get location attributes
+        detection['x'], detection['y'], detection['z'], detection['width'], detection['height'], detection['length'] = \
+            calc_attributes(D, bounding_box, distance=distance)
+
+        # add to result
+        obstacle_list.append(detection)
+
+    # for ind, mask in enumerate(obstacle_mask):
+    #     cv2.imshow(str(ind), 255*mask.astype(np.uint8))
+    #
+    # cv2.waitKey(1)
+
+    return obstacle_list, obstacle_mask
 
 
 def segment_depth(D, max_range=5000, min_size_ratio=20):

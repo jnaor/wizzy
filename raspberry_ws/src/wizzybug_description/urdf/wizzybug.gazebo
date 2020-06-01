@@ -111,7 +111,7 @@
                 <horizontal_fov>1.03</horizontal_fov>
                 <image>
                     <width>640</width>
-                    <height>480</height>
+                    <height>360</height>
                     <format>L8</format>
                 </image>
                 <depth_camera>
@@ -157,7 +157,7 @@
                 <horizontal_fov>1.03</horizontal_fov>
                 <image>
                     <width>640</width>
-                    <height>480</height>
+                    <height>360</height>
                     <format>L8</format>
                 </image>
                 <depth_camera>
@@ -203,7 +203,7 @@
                 <horizontal_fov>1.03</horizontal_fov>
                 <image>
                     <width>640</width>
-                    <height>480</height>
+                    <height>360</height>
                     <format>L8</format>
                 </image>
                 <depth_camera>
@@ -249,7 +249,7 @@
                 <horizontal_fov>1.03</horizontal_fov>
                 <image>
                     <width>640</width>
-                    <height>480</height>
+                    <height>360</height>
                     <format>L8</format>
                 </image>
                 <depth_camera>

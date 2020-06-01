@@ -8,7 +8,7 @@ from itertools import chain
 
 import rospy
 
-from segmentation import segment_depth
+from segmentation import segment_depth, cluster_depth
 from cv_bridge import CvBridge, CvBridgeError
 
 # inputs are images
@@ -91,12 +91,14 @@ class ObstacleDetector(object):
             return
             
         # detect obstacles based on depth
-        self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
+        # self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
+        self.obstacle_list, self.obstacle_mask = cluster_depth(self.depth_image)
+
 
         for detection in self.obstacle_list:
 
             # prepare vector for multplication by rotation matrix
-            xy = [ [detection['x']], [detection['y']] ]
+            xy = [[detection['x']], [detection['y']]]
 
             # calculate with camera pose
             loc = np.matmul(self.rotation, xy)                                               
@@ -181,8 +183,6 @@ if __name__ == '__main__':
 
     # initialize ROS node
     rospy.init_node('wizzybug_vision', log_level=rospy.DEBUG)
-
-    print(rospy.get_param_names())
 
     # read camera configuration. default to local if no parameter set by ros
     config_file = rospy.get_param('vision_config', '../config/vision_config.json')
