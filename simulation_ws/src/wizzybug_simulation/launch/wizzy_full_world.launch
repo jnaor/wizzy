@@ -25,7 +25,7 @@
     <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>
 
     <!-- configure image grabbers in wizzybug vision to use images from simulation -->
-    <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config_ros.json' />
+    <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config_ros_left.json' />
 
     <!-- bringup decision making -->
     <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
