@@ -1,0 +1,27 @@
+{
+    "cameras": [
+        {
+            "R": [
+                [
+                    0,
+                    -1
+                ],
+                [
+                    1,
+                    0
+                ]
+            ],
+            "name": "left_camera",
+            "serial": 2,
+            "t": [
+                0,
+                0
+            ],
+            "width": 640,
+            "height": 360,
+            "framerate": 15,
+            "type": "ros"
+        }
+    ],
+    "rate": 10
+}

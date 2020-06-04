@@ -79,6 +79,10 @@ def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num
     # estimate band-width for mean-shift
     bandwidth = estimate_bandwidth(X, quantile=0.2, n_samples=500)
 
+    # handle degenerate case
+    if bandwidth <= 0:
+        bandwidth = 100
+
     # clustering
     ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
     ms.fit(X)
