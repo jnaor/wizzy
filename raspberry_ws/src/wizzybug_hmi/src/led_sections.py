@@ -33,10 +33,10 @@ class LedSection:
             self.set_section_color(strip_color[0],strip_color[1],strip_color[2])
             self.led_strip.show()
             time.sleep(0.2)
-
-        self.set_section_color(0,0,0)
-        self.led_strip.show()
-        time.sleep(0.1)
+            self.set_section_color(0,0,0)
+            self.led_strip.show()
+            time.sleep(0.1)
+            
 
     def set_section_color(self, red, green, blue):
         for i in range(LedSection.LEDS_PER_SECTION):
@@ -241,7 +241,10 @@ if __name__ == "__main__":
                     LedSection(4, pixels), 
                     LedSection(5, pixels)]  
     section_list[desired_section].set_mode('wizzy_clear')
-    section_threads = [threading.Thread(target = sec.loop_sequence, daemon=True) for sec in section_list]
+
+    section_threads = [threading.Thread(target = sec.loop_sequence) for sec in section_list]
+    for current_thread in section_threads:
+        current_thread.daemon=True
     section_threads[desired_section].start()
    
     now = time.time() - 5
@@ -253,7 +256,7 @@ if __name__ == "__main__":
                 now = time.time()
                 section_list[desired_section].begin_sequence()
 
-    except KeyboardInterrupt: # Quit program cleanly
+    finally: # Quit program cleanly
         for section in section_list:        
             section.turn_off()        
         pixels.show()
