@@ -27,7 +27,7 @@
 > auth_algs=1  
 > wpa=2  
 > wpa_passphrase=wizzywizzy  
-> wpa_key_mgmt=WPA-PSK 
+> wpa_key_mgmt=WPA-PSK  
 > wpa_pairwise=TKIP  
 > rsn_pairwise=CCMP  
 
@@ -41,20 +41,33 @@
 
 
 ### Add the following lines to /etc/network/interfaces:
-> auto eth0  
-> iface eth0 inet static  
+>  auto eth0  
+>  iface eth0 inet static  
 > 		address 0.0.0.0  
 > 		netmask 0.0.0.0  
 >  
-> auto br0  
-> iface br0 inet static  
+>  auto br0  
+>  iface br0 inet static  
 > 		address 10.0.0.10  
 > 		netmast 255.255.255.0  
 > 		bridge_ports eth0  
 > 		bridge_stp off  
 > 		bridge_fd 0  
 > 		bridge_maxwait 0  
+> 		post-up /etc/network/if-up.d/hostapd.start
 
+### Save and exit.
+
+### Create the file post-up /etc/network/if-up.d/hostapd.start:
+> 		rfkill unblock wlan
+> 		ip addr flush dev wlan0
+>     ifconfig br0 down  
+> 		ifconfig br0 up  
+> 		ifconfig wlan0 down  
+> 		ifconfig wlan0 up  
+> 		/etc/init.d/hostapd stop  
+> 		/etc/init.d/hostapd start  
+  
 ### Save and exit.
 :+1:
 ## Done, Lets give it a try
