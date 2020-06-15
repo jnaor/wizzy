@@ -9,7 +9,7 @@ def clamp(val, min_val, max_val):
 
 class VibrationMotor:
 
-    DT = 0.01
+    DT = 0.02
 
     def __init__(self, m_id, pin_num, gpio_object):
         self.motor_id = m_id
@@ -43,7 +43,7 @@ class VibrationMotor:
         self.is_active = False
         self.gpio.set_PWM_dutycycle(self.pin, 0) 
 
-    def begin_sequence(self):
+    def reset_sequence(self):
         #print ('began sequence, motor:', self.motor_id)        
         self.set_state_params('attack')
         self.execution = 0
@@ -55,43 +55,43 @@ class VibrationMotor:
         self.last_iteration = time.time()
         self.is_active = True
 
-    def loop_sequence(self):
-        while True:
-            if self.is_active:
+    def iterate_sequence(self):
+        #while True:
+        if self.is_active:
+            now = time.time()
+            state_diff = now-self.last_state_change
+            iteration_diff = now-self.last_iteration
+
+            if state_diff > self.ramp_time:  # change to next state
+                self.set_state_params(self.next_state)
+                self.last_state_change = now
+
+            else:   # Iterate next step
+                self.current_power += self.jump_value * iteration_diff
+                self.current_power = clamp(self.current_power, 0, 255)
+                self.gpio.set_PWM_dutycycle(self.pin, self.current_power)
+                self.last_iteration = now
+
+            if self.repetition == self.pulses[self.pulse_num].repetitions:
+                time.sleep(self.pulses[self.pulse_num].sequence_delay)
                 now = time.time()
-                state_diff = now-self.last_state_change
-                iteration_diff = now-self.last_iteration
+                # Compensate for lost time while sleeping:
+                self.last_state_change = now
+                self.last_iteration = now
+                self.pulse_num += 1
+                self.repetition = 0
 
-                if state_diff > self.ramp_time:  # change to next state
-                    self.set_state_params(self.next_state)
-                    self.last_state_change = now
+            if self.pulse_num == self.number_of_pulses:
+                self.execution += 1
+                self.pulse_num = 0
+            
+            # Stop after some (2) iterations:
+            if self.execution == self.max_executions:
+                self.turn_off()          
 
-                else:   # Iterate next step
-                    self.current_power += self.jump_value * iteration_diff
-                    self.current_power = clamp(self.current_power, 0, 255)
-                    self.gpio.set_PWM_dutycycle(self.pin, self.current_power)
-                    self.last_iteration = now
+            print('state:', state_diff, 'iter:', iteration_diff, 'jump:', self.jump_value, 'power:', self.current_power, 'pulse:', self.pulse_num, 'rep:', self.repetition, 'exec:', self.execution)
 
-                if self.repetition == self.pulses[self.pulse_num].repetitions:
-                    time.sleep(self.pulses[self.pulse_num].sequence_delay)
-                    now = time.time()
-                    # Compensate for lost time while sleeping:
-                    self.last_state_change = now
-                    self.last_iteration = now
-                    self.pulse_num += 1
-                    self.repetition = 0
-
-                if self.pulse_num == self.number_of_pulses:
-                    self.execution += 1
-                    self.pulse_num = 0
-                
-                # Stop after some (2) iterations:
-                if self.execution == self.max_executions:
-                    self.turn_off()          
-
-            #print('state:', state_diff, 'iter:', iteration_diff, 'jump:', self.jump_value, 'power:', self.current_power, 'pulse:', self.pulse_num, 'rep:', self.repetition, 'exec:', self.execution)
-
-            time.sleep(VibrationMotor.DT) 
+            #time.sleep(VibrationMotor.DT)
 
     def set_state_params(self, state):
         pulse = self.pulses[self.pulse_num]
@@ -221,26 +221,34 @@ if __name__ == "__main__":
 
     desired_motor = 0  # [0-5]
     
-    motor_list = [VibrationMotor(1, 21, gpio)]
-    motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list] 
-    for current_thread in motor_threads:
-        current_thread.daemon=True
+    motor_list = [VibrationMotor(1, 20, gpio)]
+    #motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list] 
+    #for current_thread in motor_threads:
+        #current_thread.daemon=True
 
-    motor_threads[desired_motor].start()
+    #motor_threads[desired_motor].start()
    
-    motor_list[desired_motor].set_mode('wizzy_clear')
+    #motor_list[desired_motor].set_mode('wizzy_clear')
     
     now = time.time() - 10
+
     try:
+        for motor in motor_list:
+            motor.reset_sequence()
         while True:
+            for motor in motor_list:
+                motor.iterate_sequence()
+            time.sleep(VibrationMotor.DT)
             
             if time.time() - now > 10:
                 now = time.time()
-                motor_list[0].begin_sequence()
+                for motor in motor_list:
+                    motor.reset_sequence()
 
     finally: # Quit program cleanly
+        time.sleep(0.1)
         for motor in motor_list:        
             motor.turn_off()        
 
-        time.sleep(1)
+        
     

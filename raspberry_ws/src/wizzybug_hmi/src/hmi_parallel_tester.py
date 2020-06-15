@@ -6,33 +6,17 @@ import board
 import neopixel
 from vibration_motors import VibrationMotor
 from led_sections import LedSection
-
-def led_heartbeat(led_strip):
-    for current_color in range(3):
-        led_color = [0, 0, 0]
-        led_color[current_color] = 100
-        for current_led in range(24):
-            led_strip[current_led] = led_color
-            if current_led == 0:
-                previous_led = 23
-            else:
-                previous_led = current_led-1
-            led_strip[previous_led] = [0, 0, 0]            
-            led_strip.show()
-            time.sleep(0.03)
-
-    for current_led in range(24):
-        led_strip[current_led] = [0, 0, 0]
-        led_strip.show() 
              
 
 if __name__ == "__main__":
+    DT = 0.02
+
     # LED inits
-    pixel_pin = board.D18
+    pixel_pin = board.D21
     num_pixels = 24
     pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.5, auto_write=False,
                                pixel_order=neopixel.GRB)
-    #led_heartbeat(pixels);
+
     desired_section = 0  # [0-5]    
     section_list = [LedSection(0, pixels), 
                     LedSection(1, pixels), 
@@ -40,36 +24,46 @@ if __name__ == "__main__":
                     LedSection(3, pixels), 
                     LedSection(4, pixels), 
                     LedSection(5, pixels)]  
-    section_list[desired_section].set_mode('wizzy_clear')
-    section_threads = [threading.Thread(target = sec.loop_sequence) for sec in section_list]
-    for current_thread in section_threads:
-        current_thread.daemon=True
-    section_threads[desired_section].start()
     
     # Motor inits:
     gpio = pigpio.pi()
     desired_motor = 0  # [0-5]    
-    motor_list = [VibrationMotor(1, 21, gpio)]
-    motor_list[desired_motor].set_mode('wizzy_clear')
-    motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list] 
-    for current_thread in motor_threads:
-        current_thread.daemon=True
-    motor_threads[desired_motor].start()
+    motor_list = [VibrationMotor(1, 20, gpio)]
        
     now = time.time() - 7
     try:
+        print(1)
+        for motor in motor_list:
+                    motor.reset_sequence()
+        print(2)
+        for section in section_list:
+                    section.reset_sequence()   
+        print(3)
+        
         while True:
+            for motor in motor_list:
+                motor.iterate_sequence()
+            print(4)
+            for section in section_list:
+                section.iterate_sequence()
             pixels.show()
+            time.sleep(DT)
+            print(5)
+
             if time.time() - now > 7:
+                print(6)
                 now = time.time()
-                motor_list[desired_motor].begin_sequence()
-                section_list[desired_section].begin_sequence()
+                for motor in motor_list:
+                    motor.reset_sequence()
+                for section in section_list:
+                    section.reset_sequence()
 
     finally: # Quit program cleanly
+        time.sleep(0.1)
         for motor in motor_list:        
             motor.turn_off()        
         for section in section_list:        
             section.turn_off()        
         pixels.show()
-        time.sleep(1)
+        
 

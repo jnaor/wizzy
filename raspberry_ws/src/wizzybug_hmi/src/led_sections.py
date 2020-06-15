@@ -61,7 +61,7 @@ class LedSection:
         self.set_section_brightness(0)
         self.set_mode('wizzy_clear')
 
-    def begin_sequence(self):                
+    def reset_sequence(self):                
         self.set_state_params('attack')
         self.execution = 0
         
@@ -70,30 +70,30 @@ class LedSection:
         self.last_iteration = time.time()
         self.is_active = True
 
-    def loop_sequence(self):
-        while True:
-            if self.is_active:
-                now = time.time()
-                state_diff = now-self.last_state_change
-                iteration_diff = now-self.last_iteration
+    def iterate_sequence(self):
+        #while True:
+        if self.is_active:
+            now = time.time()
+            state_diff = now-self.last_state_change
+            iteration_diff = now-self.last_iteration
 
-                if state_diff > self.ramp_time:  # change to next state
-                    self.set_state_params(self.next_state)
-                    self.last_state_change = now
+            if state_diff > self.ramp_time:  # change to next state
+                self.set_state_params(self.next_state)
+                self.last_state_change = now
 
-                else:   # Iterate next step
-                    self.current_brightness += self.jump_value * iteration_diff
-                    self.current_brightness = clamp(self.current_brightness, 0, 255)
-                    self.set_section_brightness(self.current_brightness)
-                    self.last_iteration = now
-                
-                # Stop after some (2) iterations:
-                if self.execution == self.max_executions:
-                    self.turn_off()
+            else:   # Iterate next step
+                self.current_brightness += self.jump_value * iteration_diff
+                self.current_brightness = clamp(self.current_brightness, 0, 255)
+                self.set_section_brightness(self.current_brightness)
+                self.last_iteration = now
+            
+            # Stop after some (2) iterations:
+            if self.execution == self.max_executions:
+                self.turn_off()
                 
                 #print('state_time:', state_diff, 'iter_time:', iteration_diff, 'jump:', self.jump_value, 'bright:', self.current_brightness)
 
-            time.sleep(LedSection.DT)
+            #time.sleep(LedSection.DT)
 
     def set_state_params(self, state):
         if state == 'attack':
@@ -229,38 +229,44 @@ if __name__ == "__main__":
     # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
     ORDER = neopixel.GRB
 
-    pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.5, auto_write=False,
-                               pixel_order=ORDER)
+    pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.5, auto_write=False, pixel_order=ORDER)
 
     desired_section = 0  # [0-5]
     
     section_list = [LedSection(0, pixels), 
-                    LedSection(1, pixels), 
-                    LedSection(2, pixels), 
-                    LedSection(3, pixels), 
+                    LedSection(1, pixels),
+                    LedSection(2, pixels),
+                    LedSection(3, pixels),
                     LedSection(4, pixels), 
-                    LedSection(5, pixels)]  
-    section_list[desired_section].set_mode('wizzy_clear')
+                    LedSection(5, pixels)]
+ 
+    #section_list[desired_section].set_mode('wizzy_clear')
 
-    section_threads = [threading.Thread(target = sec.loop_sequence) for sec in section_list]
-    for current_thread in section_threads:
-        current_thread.daemon=True
-    section_threads[desired_section].start()
+    #section_threads = [threading.Thread(target = sec.loop_sequence) for sec in section_list]
+    #for current_thread in section_threads:
+        #current_thread.daemon=True
+    #section_threads[desired_section].start()
    
     now = time.time() - 5
     try:
+        for section in section_list:
+                    section.reset_sequence()
         while True:
-            
+            for section in section_list:
+                section.iterate_sequence()
+            time.sleep(LedSection.DT)
             pixels.show()
+            
             if time.time() - now > 5:
                 now = time.time()
-                section_list[desired_section].begin_sequence()
+                for section in section_list:
+                    section.reset_sequence()
 
     finally: # Quit program cleanly
+        time.sleep(0.1)
         for section in section_list:        
             section.turn_off()        
         pixels.show()
-        time.sleep(1)
 
 
     
