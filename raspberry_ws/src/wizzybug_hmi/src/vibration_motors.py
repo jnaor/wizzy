@@ -2,7 +2,7 @@
 import time
 import threading
 from struct import pack, unpack
-import pigpio
+import RPi.GPIO as gpio
 
 def clamp(val, min_val, max_val):
     return max(min(val, max_val), min_val)
@@ -11,11 +11,14 @@ class VibrationMotor:
 
     DT = 0.02
 
-    def __init__(self, m_id, pin_num, gpio_object):
+    def __init__(self, m_id, pin_num):
         self.motor_id = m_id
         self.pin = pin_num
-        self.gpio = gpio_object
-        self.gpio.set_mode(pin_num, pigpio.OUTPUT)
+
+        gpio.setmode(gpio.BCM)
+        gpio.setup(self.pin, gpio.OUT)
+        self.gpio = gpio.PWM(self.pin, 100)
+        self.gpio.start(0.0)
 
         self.execution = 0
         self.repetition = 0
@@ -31,17 +34,17 @@ class VibrationMotor:
         #self.heartbeat()
 
     def heartbeat(self):
-        self.gpio.set_PWM_dutycycle(self.pin, 200)
+        self.gpio.ChangeDutyCycle(80.0)
         time.sleep(0.2)
-        self.gpio.set_PWM_dutycycle(self.pin, 0)
+        self.gpio.ChangeDutyCycle(0.0)
         time.sleep(0.2)
-        self.gpio.set_PWM_dutycycle(self.pin, 200)
+        self.gpio.ChangeDutyCycle(80.0)
         time.sleep(0.2)
         self.turn_off()
 
     def turn_off(self):
         self.is_active = False
-        self.gpio.set_PWM_dutycycle(self.pin, 0) 
+        self.gpio.ChangeDutyCycle(0.0) 
 
     def reset_sequence(self):
         #print ('began sequence, motor:', self.motor_id)        
@@ -68,8 +71,8 @@ class VibrationMotor:
 
             else:   # Iterate next step
                 self.current_power += self.jump_value * iteration_diff
-                self.current_power = clamp(self.current_power, 0, 255)
-                self.gpio.set_PWM_dutycycle(self.pin, self.current_power)
+                self.current_power = clamp(self.current_power, 0.0, 100.0)
+                self.gpio.ChangeDutyCycle(self.current_power)
                 self.last_iteration = now
 
             if self.repetition == self.pulses[self.pulse_num].repetitions:
@@ -89,7 +92,7 @@ class VibrationMotor:
             if self.execution == self.max_executions:
                 self.turn_off()          
 
-            print('state:', state_diff, 'iter:', iteration_diff, 'jump:', self.jump_value, 'power:', self.current_power, 'pulse:', self.pulse_num, 'rep:', self.repetition, 'exec:', self.execution)
+            #print('state:', state_diff, 'iter:', iteration_diff, 'jump:', self.jump_value, 'power:', self.current_power, 'pulse:', self.pulse_num, 'rep:', self.repetition, 'exec:', self.execution)
 
             #time.sleep(VibrationMotor.DT)
 
@@ -145,7 +148,7 @@ class VibrationMotor:
         elif mode == 'wizzy_A':
             self.current_mode = 'wizzy_A'
             # First pulse definition:
-            self.pulses[0].power = 255
+            self.pulses[0].power = 100
             self.pulses[0].attack = 0.2
             self.pulses[0].sustain = 0.2
             self.pulses[0].release = 0.2
@@ -154,7 +157,7 @@ class VibrationMotor:
             self.pulses[0].repetitions = 2
 
             # Second pulse definition:
-            self.pulses[1].power = 255
+            self.pulses[1].power = 100
             self.pulses[1].attack = 0.2
             self.pulses[1].sustain = 0.2
             self.pulses[1].release = 0.2
@@ -165,7 +168,7 @@ class VibrationMotor:
         elif mode == 'wizzy_B':
             self.current_mode = 'wizzy_B'
             # First pulse definition:
-            self.pulses[0].power = 255
+            self.pulses[0].power = 100
             self.pulses[0].attack = 0.2
             self.pulses[0].sustain = 0.2
             self.pulses[0].release = 0.2
@@ -174,7 +177,7 @@ class VibrationMotor:
             self.pulses[0].repetitions = 2
 
             # Second pulse definition:
-            self.pulses[1].power = 255
+            self.pulses[1].power = 100
             self.pulses[1].attack = 0.2
             self.pulses[1].sustain = 0.2
             self.pulses[1].release = 0.2
@@ -185,7 +188,7 @@ class VibrationMotor:
         elif mode == 'wizzy_C':
             self.current_mode = 'wizzy_C'
             # First pulse definition:
-            self.pulses[0].power = 255
+            self.pulses[0].power = 100
             self.pulses[0].attack = 0.2
             self.pulses[0].sustain = 0.2
             self.pulses[0].release = 0.2
@@ -194,7 +197,7 @@ class VibrationMotor:
             self.pulses[0].repetitions = 2
 
             # Second pulse definition:
-            self.pulses[1].power = 255
+            self.pulses[1].power = 100
             self.pulses[1].attack = 0.2
             self.pulses[1].sustain = 0.2
             self.pulses[1].release = 0.2
@@ -207,7 +210,7 @@ class VibrationMotor:
 
 class PulseDefinition:
     def __init__(self):
-        self.power = 255  # full power
+        self.power = 100  # full power
         self.attack = 0  # Seconds
         self.sustain = 0  # Seconds
         self.release = 0  # Seconds
@@ -217,11 +220,9 @@ class PulseDefinition:
 
 if __name__ == "__main__":
 
-    gpio = pigpio.pi()
-
     desired_motor = 0  # [0-5]
     
-    motor_list = [VibrationMotor(1, 20, gpio)]
+    motor_list = [VibrationMotor(1, 20)]
     #motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list] 
     #for current_thread in motor_threads:
         #current_thread.daemon=True
@@ -248,7 +249,8 @@ if __name__ == "__main__":
     finally: # Quit program cleanly
         time.sleep(0.1)
         for motor in motor_list:        
-            motor.turn_off()        
+            motor.turn_off()  
+            motor.gpio.stop()      
 
         
     

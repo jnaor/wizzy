@@ -43,6 +43,8 @@ class LedSection:
             self.led_strip[self.section_id * LedSection.LEDS_PER_SECTION + i] = (red, green, blue)
 
     def set_section_brightness(self, brightness):
+        if brightness < 20:
+            brightness = 0  # added deadzone
         normalize_factor = brightness / 255.0
         adjusted_r = int(self.r * normalize_factor)
         adjusted_g = int(self.g * normalize_factor)
@@ -220,7 +222,7 @@ if __name__ == "__main__":
 
     # Choose an open pin connected to the Data In of the NeoPixel strip, i.e. board.D18
     # NeoPixels must be connected to D10, D12, D18 or D21 to work.
-    pixel_pin = board.D18
+    pixel_pin = board.D21
 
     # The number of NeoPixels
     num_pixels = 24
