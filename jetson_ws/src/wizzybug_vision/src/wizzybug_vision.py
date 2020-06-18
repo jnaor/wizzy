@@ -79,8 +79,8 @@ class ObstacleDetector(object):
         if 'depth' in image.keys(): self.depth_image = image['depth']
         if 'color' in image.keys(): self.color_image = image['color']
 
-        cv2.imshow(str(self.grabber.cam_serial), 10*self.depth_image)
-        cv2.waitKey(1)
+        # cv2.imshow(str(self.grabber.cam_serial), 10*self.depth_image)
+        # cv2.waitKey(1)
 
     def process_depth(self):
 
