@@ -12,6 +12,8 @@ import matplotlib.patches as mpatches
 
 from scipy.stats import mode
 
+# percentile to take as distance estimation for cluster
+CLUSTER_PERCENTILE = 5
 
 colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 0, 255),
                        (128, 0, 0), (0, 128, 0), (0, 0, 128),
@@ -93,11 +95,8 @@ def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num
     # for each cluster
     for label in range(num_clusters):
 
-        # distance for this cluster
-        distance = ms.cluster_centers_[label][0]
-
         # ignore distance 0 and far objects
-        if distance < min_range or distance > max_range:
+        if ms.cluster_centers_[label][0] < min_range or ms.cluster_centers_[label][0] > max_range:
             continue
 
         # mask for current cluster
@@ -106,6 +105,9 @@ def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num
         # if area too small disregard this
         if(np.count_nonzero(B) < B.shape[0]*B.shape[1]*min_area_percentage):
             continue
+
+        # distance to closest element (take a percentile to avoid noise)
+        distance = np.percentile(C[B], CLUSTER_PERCENTILE, interpolation='nearest')
 
         # find bounding values
         nonzero_indices = np.where(B)

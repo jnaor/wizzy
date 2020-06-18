@@ -31,7 +31,7 @@ class ActionHandler:
         mode = chr(data[0])        
         new_mode = self.char_to_mode(mode)
         self.sections[idx].set_mode(new_mode)
-        self.sections[idx].begin_sequence()
+        self.sections[idx].reset_sequence()
 
         #print(new_mode, idx, self.sections[idx].is_active)         
 
@@ -49,7 +49,7 @@ class ActionHandler:
 if __name__ == "__main__":
     # Choose an open pin connected to the Data In of the NeoPixel strip, i.e. board.D18
     # NeoPixels must be connected to D10, D12, D18 or D21 to work.
-    pixel_pin = board.D18
+    pixel_pin = board.D21
 
     # The number of NeoPixels
     num_pixels = 24
@@ -69,17 +69,16 @@ if __name__ == "__main__":
                     LedSection(3, pixels), 
                     LedSection(4, pixels), 
                     LedSection(5, pixels)]  
-    
-    section_threads = [threading.Thread(target = sec.loop_sequence, daemon=True) for sec in section_list]
 
-    for curr_thread in section_threads:
-        curr_thread.start() 
     
     handler = ActionHandler(section_list)
     try:
         while True:
-            handler.receive_input()
+            handler.receive_input()   
+            for section in section_list:
+                section.iterate_sequence()         
             pixels.show()
+            time.sleep(delta_time)
 
     except KeyboardInterrupt: # Quit program cleanly
         for section in section_list:        

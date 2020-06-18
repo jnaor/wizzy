@@ -33,16 +33,18 @@ class LedSection:
             self.set_section_color(strip_color[0],strip_color[1],strip_color[2])
             self.led_strip.show()
             time.sleep(0.2)
-
-        self.set_section_color(0,0,0)
-        self.led_strip.show()
-        time.sleep(0.1)
+            self.set_section_color(0,0,0)
+            self.led_strip.show()
+            time.sleep(0.1)
+            
 
     def set_section_color(self, red, green, blue):
         for i in range(LedSection.LEDS_PER_SECTION):
             self.led_strip[self.section_id * LedSection.LEDS_PER_SECTION + i] = (red, green, blue)
 
     def set_section_brightness(self, brightness):
+        if brightness < 20:
+            brightness = 0  # added deadzone
         normalize_factor = brightness / 255.0
         adjusted_r = int(self.r * normalize_factor)
         adjusted_g = int(self.g * normalize_factor)
@@ -61,7 +63,7 @@ class LedSection:
         self.set_section_brightness(0)
         self.set_mode('wizzy_clear')
 
-    def begin_sequence(self):                
+    def reset_sequence(self):                
         self.set_state_params('attack')
         self.execution = 0
         
@@ -70,30 +72,30 @@ class LedSection:
         self.last_iteration = time.time()
         self.is_active = True
 
-    def loop_sequence(self):
-        while True:
-            if self.is_active:
-                now = time.time()
-                state_diff = now-self.last_state_change
-                iteration_diff = now-self.last_iteration
+    def iterate_sequence(self):
+        #while True:
+        if self.is_active:
+            now = time.time()
+            state_diff = now-self.last_state_change
+            iteration_diff = now-self.last_iteration
 
-                if state_diff > self.ramp_time:  # change to next state
-                    self.set_state_params(self.next_state)
-                    self.last_state_change = now
+            if state_diff > self.ramp_time:  # change to next state
+                self.set_state_params(self.next_state)
+                self.last_state_change = now
 
-                else:   # Iterate next step
-                    self.current_brightness += self.jump_value * iteration_diff
-                    self.current_brightness = clamp(self.current_brightness, 0, 255)
-                    self.set_section_brightness(self.current_brightness)
-                    self.last_iteration = now
-                
-                # Stop after some (2) iterations:
-                if self.execution == self.max_executions:
-                    self.turn_off()
+            else:   # Iterate next step
+                self.current_brightness += self.jump_value * iteration_diff
+                self.current_brightness = clamp(self.current_brightness, 0, 255)
+                self.set_section_brightness(self.current_brightness)
+                self.last_iteration = now
+            
+            # Stop after some (2) iterations:
+            if self.execution == self.max_executions:
+                self.turn_off()
                 
                 #print('state_time:', state_diff, 'iter_time:', iteration_diff, 'jump:', self.jump_value, 'bright:', self.current_brightness)
 
-            time.sleep(LedSection.DT)
+            #time.sleep(LedSection.DT)
 
     def set_state_params(self, state):
         if state == 'attack':
@@ -220,7 +222,7 @@ if __name__ == "__main__":
 
     # Choose an open pin connected to the Data In of the NeoPixel strip, i.e. board.D18
     # NeoPixels must be connected to D10, D12, D18 or D21 to work.
-    pixel_pin = board.D18
+    pixel_pin = board.D21
 
     # The number of NeoPixels
     num_pixels = 24
@@ -229,35 +231,44 @@ if __name__ == "__main__":
     # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
     ORDER = neopixel.GRB
 
-    pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.5, auto_write=False,
-                               pixel_order=ORDER)
+    pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.5, auto_write=False, pixel_order=ORDER)
 
     desired_section = 0  # [0-5]
     
     section_list = [LedSection(0, pixels), 
-                    LedSection(1, pixels), 
-                    LedSection(2, pixels), 
-                    LedSection(3, pixels), 
+                    LedSection(1, pixels),
+                    LedSection(2, pixels),
+                    LedSection(3, pixels),
                     LedSection(4, pixels), 
-                    LedSection(5, pixels)]  
-    section_list[desired_section].set_mode('wizzy_clear')
-    section_threads = [threading.Thread(target = sec.loop_sequence, daemon=True) for sec in section_list]
-    section_threads[desired_section].start()
+                    LedSection(5, pixels)]
+ 
+    #section_list[desired_section].set_mode('wizzy_clear')
+
+    #section_threads = [threading.Thread(target = sec.loop_sequence) for sec in section_list]
+    #for current_thread in section_threads:
+        #current_thread.daemon=True
+    #section_threads[desired_section].start()
    
     now = time.time() - 5
     try:
+        for section in section_list:
+                    section.reset_sequence()
         while True:
-            
+            for section in section_list:
+                section.iterate_sequence()
+            time.sleep(LedSection.DT)
             pixels.show()
+            
             if time.time() - now > 5:
                 now = time.time()
-                section_list[desired_section].begin_sequence()
+                for section in section_list:
+                    section.reset_sequence()
 
-    except KeyboardInterrupt: # Quit program cleanly
+    finally: # Quit program cleanly
+        time.sleep(0.1)
         for section in section_list:        
             section.turn_off()        
         pixels.show()
-        time.sleep(1)
 
 
     

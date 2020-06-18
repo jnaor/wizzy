@@ -15,6 +15,6 @@
 
     <!-- run vision-based obstacle detector --> 
     <node name="obstacle_detector" pkg="wizzybug_vision" type="wizzybug_vision.py" output="screen"></node>
-    <!-- <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config.json' /> -->
+<!--     <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config.json' /> -->
 
 </launch>

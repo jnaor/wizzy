@@ -4,7 +4,6 @@ import time
 import rospy
 import threading
 from vibration_motors import VibrationMotor
-import pigpio
 from std_msgs.msg import *
 from wizzybug_msgs.msg import *
 from math import sqrt, atan2
@@ -13,9 +12,8 @@ class CallbackHandler:
 
     MIN_DIST = 1.0
 
-    def __init__(self, motors, threads):
+    def __init__(self, motors):
         self.motors = motors
-        self.threads = threads
 
     def activation_callback(self, data):
         direction_type = 2
@@ -29,7 +27,7 @@ class CallbackHandler:
         
         else:
             indices = [self.radians_to_index(data.ttc_msg.ttc_azimuth)]
-
+        indices = [0]
         # Check for active motors:
         for idx in indices:
             if self.motors[idx].is_active:
@@ -42,7 +40,7 @@ class CallbackHandler:
         for idx in indices:
             new_mode = data.state.data
             self.motors[idx].set_mode(new_mode)
-            self.motors[idx].begin_sequence()
+            self.motors[idx].reset_sequence()
             print('motor node',idx, new_mode, self.motors[idx].is_active)
 
 
@@ -71,40 +69,34 @@ if __name__ == "__main__":
 
     rospy.init_node('wizzy_motors')
 
-    gpio = pigpio.pi()
-
     delta_time = 0.01
-    
-    motor_list = [VibrationMotor(0, 25, gpio),
-                  VibrationMotor(1, 8, gpio),
-                  VibrationMotor(2, 7, gpio),
-                  VibrationMotor(3, 11, gpio),
-                  VibrationMotor(4, 9, gpio),
-                  VibrationMotor(5, 10, gpio)]
 
-    #motor_list = [VibrationMotor(0, 26, gpio),
+    motor_list = [VibrationMotor(0, 20)]
      #             VibrationMotor(1, 26, gpio),
       #            VibrationMotor(2, 26, gpio),
        #           VibrationMotor(3, 26, gpio),
         #          VibrationMotor(4, 26, gpio),
          #         VibrationMotor(5, 26, gpio)]
 
-    motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list]
-    for current_thread in motor_threads:
-        current_thread.daemon=True
-        current_thread.start()
+    #motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list]
+    #for current_thread in motor_threads:
+     #   current_thread.daemon=True
+      #  current_thread.start()
 
-    handler = CallbackHandler(motor_list, motor_threads)
+    handler = CallbackHandler(motor_list)
 
     motor_subscriber = rospy.Subscriber('/hmi_commands', ChairState, handler.activation_callback)
 
     try:        
         while not rospy.is_shutdown():
+            for motor in motor_list:        
+                motor.iterate_sequence() 
             time.sleep(delta_time)
 
     except KeyboardInterrupt: # Quit program cleanly
-        for mot in motor_list:
-            mot.turn_off()       
+        for motor in motor_list:        
+            motor.turn_off() 
+            motor.gpio.stop()    
         time.sleep(1)
     
     except Exception as ex:
