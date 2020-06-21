@@ -1,0 +1,28 @@
+{
+    "cameras": [
+        {
+            "R": [
+                [
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1
+                ]
+            ],
+            "cam_height_cm": "27",
+            "name": "front_camera",
+            "serial": "851112060198",
+            "t": [
+                0,
+                0
+            ],
+            "width": 640,
+            "height": 360,
+            "framerate": 15,
+            "type": "direct"
+        }
+    ],
+    "rate": 10
+}
