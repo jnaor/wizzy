@@ -11,6 +11,7 @@
                     0
                 ]
             ],
+            "cam_height_cm": "28",
             "name": "left_camera",
             "serial": 2,
             "t": [

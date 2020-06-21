@@ -3,7 +3,7 @@
     <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch"/> -->
 
     <node name="obstacle_detector" pkg="wizzybug_vision" type="wizzybug_vision.py" output="screen"></node>
-<!--     <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config_ros.json' /> -->
+    <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config.json' /> 
 
     <!-- <node name="image_converter" pkg="wizzybug_perception" type="image_converter.py"></node> -->
     

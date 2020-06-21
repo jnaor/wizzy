@@ -11,6 +11,7 @@
                     1
                 ]
             ],
+            "cam_height_cm": "27",
             "name": "front_camera",
             "serial": "851112060198",
             "t": [
@@ -33,6 +34,7 @@
                     0
                 ]
             ],
+            "cam_height_cm": "28",
             "name": "left_camera",
             "serial": "851112060220",
             "t": [
@@ -55,6 +57,7 @@
                     -1
                 ]
             ],
+            "cam_height_cm": "75",
             "name": "rear_camera",
             "serial": "851112062250",
             "t": [
@@ -77,6 +80,7 @@
                     0
                 ]
             ],
+            "cam_height_cm": "28",
             "name": "right_camera",
             "serial": "851112062252",
             "t": [

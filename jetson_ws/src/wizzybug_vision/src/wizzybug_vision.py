@@ -37,14 +37,13 @@ class ObstacleDetector(object):
 
     def __init__(self, camera):
 
-        # use function to allow overloading of image grabber (e.g. via ROS)
+        # use function to allow overloading of image grabber (e.g. from gazebo)
         self.init_grabber(camera)
 
         # subscribe to segmented rgb image topic
         rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
 
         # initialize images
-
         self.color_image, self.depth_image = None, None
 
         # to hold segmentation image from jetson inference
@@ -58,6 +57,9 @@ class ObstacleDetector(object):
 
         # rotation matrix to apply on result
         self.rotation = np.array(camera['R'])
+
+        # camera height TODO: get from ROS
+        self.cam_height_cm = camera['cam_height_cm']
 
         rospy.loginfo('started camera {}'.format(camera['serial']))
 
@@ -79,8 +81,8 @@ class ObstacleDetector(object):
         if 'depth' in image.keys(): self.depth_image = image['depth']
         if 'color' in image.keys(): self.color_image = image['color']
 
-        cv2.imshow(str(self.grabber.cam_serial), 10*self.depth_image)
-        cv2.waitKey(1)
+        # cv2.imshow(str(self.grabber.cam_serial), 10*self.depth_image)
+        # cv2.waitKey(1)
 
     def process_depth(self):
 
@@ -89,7 +91,18 @@ class ObstacleDetector(object):
 
         if self.depth_image is None:
             return
-            
+
+        # TODO: get rid of this. in cm
+        HEIGHT_TO_IGNORE = 4
+
+        # blacken out bottom of image to get rid of floor TODO: actual calculation
+        num_black_rows = 50
+
+        # need this since for some reason depth image is not writeable
+        D = self.depth_image.copy()
+
+        D[-num_black_rows:, :] = 0
+
         # detect obstacles based on depth
         # self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
         self.obstacle_list, self.obstacle_mask = cluster_depth(self.depth_image)
