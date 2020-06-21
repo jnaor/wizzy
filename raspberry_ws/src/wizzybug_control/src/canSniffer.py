@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import can
 import os
 import struct
@@ -53,7 +54,7 @@ def can_recv(iface):
 
 	    if x*y == 0:
            	continue
-
+        
         # normalize according to measured joystick characteristics
         xn, yn = min(abs(x), MAX_VALUE) * sign(x), min(abs(y), MAX_VALUE) * sign(y)
 
@@ -87,8 +88,8 @@ def enable_iface(iface, bitrate):
     os.system('sudo /sbin/ip link set {} up type can bitrate {}'.format(iface, bitrate))
 
 def find_bitrate(iface):
-    disable_iface(iface)
-    enable_iface(iface, BITRATE)
+#    disable_iface(iface)
+#    enable_iface(iface, BITRATE)
     can_recv(iface)
 
 if __name__== "__main__":
