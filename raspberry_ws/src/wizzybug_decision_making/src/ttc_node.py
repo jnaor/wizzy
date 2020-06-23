@@ -146,7 +146,13 @@ def calc_time_to_collision(v, w, objects, lidar_dist):
                 ttc_azimuth = 0.0
 
         for obj in objects:
-            obj_poly = Polygon(x = obj.x.data, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = wizzy_width)
+            if obj.width.data < w_threshold and obj.length.data < w_threshold:
+                continue
+            if obj.width.data < w_threshold:
+                obj.width.data = wizzy_width
+            if obj.length.data < w_threshold:
+                obj.length.data = wizzy_width
+            obj_poly = Polygon(x = obj.x.data, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = obj.length.data)
             if wizzy.is_colliding(obj_poly):
                 if ttc > time_step * i:
                     ttc = time_step * i

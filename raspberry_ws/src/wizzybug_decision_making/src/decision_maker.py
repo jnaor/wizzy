@@ -26,8 +26,8 @@ class WizzyA(smach.State):
 
         if inputs_container.ttc_state != 'outcome1':
             relay_cmd("off")
-        # if inputs_container.ttc_state != inputs_container.prev_state:
-        #     rospy.logwarn('Executing state A')
+        if inputs_container.ttc_state != inputs_container.prev_state:
+            rospy.logdebug('Executing state A')
         return inputs_container.ttc_state
 
 
@@ -39,8 +39,8 @@ class WizzyB(smach.State):
 
         if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
-        # if inputs_container.ttc_state != inputs_container.prev_state:
-        #     rospy.logwarn('Executing state B')
+        if inputs_container.ttc_state != inputs_container.prev_state:
+            rospy.logdebug('Executing state B')
         return inputs_container.ttc_state
 
 
@@ -53,8 +53,8 @@ class WizzyC(smach.State):
 
         if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
-        # if inputs_container.ttc_state != inputs_container.prev_state:
-        #     rospy.logwarn('Executing state C')
+        if inputs_container.ttc_state != inputs_container.prev_state:
+            rospy.logdebug('Executing state C')
         return inputs_container.ttc_state
 
 
@@ -66,8 +66,8 @@ class WizzyClear(smach.State):
 
         if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
-        # if inputs_container.ttc_state != inputs_container.prev_state:
-        #     rospy.logwarn('Executing state Clear')
+        if inputs_container.ttc_state != inputs_container.prev_state:
+            rospy.logdebug('Executing state Clear')
         return inputs_container.ttc_state
 
 # class WizzyShutdown(smach.State):
@@ -113,17 +113,17 @@ class callback_items:
         self.chair_state.ttc_msg = data
         if self.ttc < DANGER_TTC:
             self.ttc_state = 'outcome1'
-            self.chair_state.state = 'WizzyA'
+            self.chair_state.state.data = 'WizzyA'
         elif DANGER_TTC < self.ttc < WARNING_TTC:
             self.ttc_state = 'outcome2'
-            self.chair_state.state = 'WizzyB'
+            self.chair_state.state.data = 'WizzyB'
         elif WARNING_TTC < self.ttc < CLEARANCE_TTC:
             self.ttc_state = 'outcome3'
-            self.chair_state.state = 'WizzyC'
+            self.chair_state.state.data = 'WizzyC'
         elif self.ttc > CLEARANCE_TTC:
             self.ttc_state = 'outcome4'
-            self.chair_state.state = 'WizzyClear'
-
+            self.chair_state.state.data= 'WizzyClear'
+        self.state_publisher.publish(self.chair_state)
 
     def lidar_data_callback(self, data):
         self.lidar_data = data
@@ -132,7 +132,7 @@ inputs_container = callback_items()
 
 if __name__ == '__main__':
 
-    rospy.init_node('decision_maker', log_level = rospy.INFO)
+    rospy.init_node('decision_maker', log_level = rospy.DEBUG)
     relay_cmd("off")
     # Subscribers
 
