@@ -108,6 +108,8 @@ def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num
 
         # distance to closest element (take a percentile to avoid noise)
         distance = np.percentile(C[B], CLUSTER_PERCENTILE, interpolation='nearest')
+        if distance == 0:
+            continue
 
         # find bounding values
         nonzero_indices = np.where(B)
