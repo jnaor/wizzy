@@ -110,16 +110,17 @@ class ObstacleDetector(object):
 
         for detection in self.obstacle_list:
 
-            # prepare vector for multplication by rotation matrix
+            # prepare vectors for multiplication by rotation matrix
             xy = [[detection['x']], [detection['y']]]
+            wl = [[detection['width']], [detection['length']]]
 
             # calculate with camera pose
-            loc = np.matmul(self.rotation, xy)                                               
+            loc = np.matmul(self.rotation, xy)
+            dim = np.matmul(self.rotation, wl)
 
             # update results
             detection['x'], detection['y'] = loc[0], loc[1]
-
-
+            detection['width'], detection['length'] = abs(dim[0]), abs(dim[1])
 
     def segnet_callback(self, data):
 

@@ -24,11 +24,11 @@
     <!-- convert depth images to realsense-like format -->
     <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>
 
-    <!-- configure image grabbers in wizzybug vision to use images from simulation -->
-    <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config_ros_front.json' />
-
     <!-- bringup decision making -->
     <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
+
+    <!-- configure image grabbers in wizzybug vision to use images from simulation -->
+    <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config_ros_left.json' />
 
     <!-- enable telep control of wizzy in simulation -->
     <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py" launch-prefix="xterm -e"/>    
