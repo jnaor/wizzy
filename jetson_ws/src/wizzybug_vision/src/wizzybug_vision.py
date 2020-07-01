@@ -8,7 +8,7 @@ from itertools import chain
 
 import rospy
 
-from segmentation import segment_depth, cluster_depth
+from segmentation import segment_depth
 from cv_bridge import CvBridge, CvBridgeError
 
 # inputs are images
@@ -106,8 +106,7 @@ class ObstacleDetector(object):
 
         # detect obstacles based on depth
         # self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
-        self.obstacle_list, self.obstacle_mask = cluster_depth(self.depth_image)
-
+        self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
 
         for detection in self.obstacle_list:
 
