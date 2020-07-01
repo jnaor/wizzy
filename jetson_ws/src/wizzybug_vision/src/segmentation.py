@@ -59,6 +59,10 @@ def calc_attributes(depth_image, bounding_box, distance, fov=[40, 48], percentil
 
 def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num_decimations=3):
 
+    # if by some off-chance depth image is not one channel then make it so
+    if len(D.shape) > 2:
+        D = cv2.cvtColor(D, cv2.COLOR_BGR2GRAY)
+
     # to hold result
     obstacle_list, obstacle_mask = list(), list()
 
@@ -72,8 +76,11 @@ def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num
         else:
             C = cv2.pyrDown(C)
 
-    # vectorize
-    X = C.flatten()
+    # indices of valid depth
+    valid_depth_indices = C.nonzero()
+
+    # get rid of zeros
+    X = C[valid_depth_indices]
 
     # mean-shift likes it's data this way
     X = X.reshape(-1, 1)
@@ -99,8 +106,9 @@ def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num
         if ms.cluster_centers_[label][0] < min_range or ms.cluster_centers_[label][0] > max_range:
             continue
 
-        # mask for current cluster
-        B = (ms.labels_ == label).reshape(C.shape)
+        # mask for this label
+        B = np.zeros_like(C).astype(np.bool)
+        B[valid_depth_indices[0][ms.labels_ == label], valid_depth_indices[1][ms.labels_ == label]] = True
 
         # if area too small disregard this
         if(np.count_nonzero(B) < B.shape[0]*B.shape[1]*min_area_percentage):
@@ -233,6 +241,14 @@ def label_detections(obstacle_list, obstacle_mask, segmentation_image):
 
         obstacle['class'] = labels[most_common_class]
 
+if __name__ == '__main__':
+
+    D = cv2.imread('grab.png', cv2.IMREAD_ANYDEPTH)
+
+    # obstacle_list, obstacle_mask = cluster_depth(D)
+    obstacle_list, obstacle_mask = segment_depth(D)
+
+    drek = 6
 
 # if __name__ == '__main__':
 
