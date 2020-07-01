@@ -44,15 +44,17 @@ def callback_Button(msg):
     Message received from the user via the Flic button
     """
     if msg.data == "ButtonSingleClick" :
+        print ("on")
         sendCmdToRelay("on")
     elif msg.data == "ButtonDoubleClick" :
         sendCmdToRelay("off")        
-    
+        print ("off")    
+
 def listener():
     rospy.init_node('usb_relay_listener', anonymous=True)
     
     # DM command topic
-    rospy.Subscriber("usb_relay_command", String, callback)
+    rospy.Subscriber("usb_relay_command", String, callback_DM)
     
     # Flic button command topic
     rospy.Subscriber("/wizzy/flic_btn",   String, callback_Button)
