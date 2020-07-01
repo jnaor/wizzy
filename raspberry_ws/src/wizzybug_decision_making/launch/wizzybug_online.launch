@@ -1,0 +1,6 @@
+<launch>
+
+ <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
+ <node name="can_sniffer" pkg="wizzybug_control" type="canSniffer.py"/>
+
+</launch>
