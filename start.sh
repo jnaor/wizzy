@@ -11,4 +11,6 @@ echo "Remote command error code:"
 echo $?
 echo "Initialization Done"
 
+# start flic client
+python3 $FLIC_DIR/flic_client/wizzy_btn_client.py
 

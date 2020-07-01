@@ -8,6 +8,7 @@ This program attempts to connect to all previously verified Flic buttons by this
 Requires PYTHON 3 ! (flick library is py3)
 """
 
+import time
 import fliclib
 
 import rospy
@@ -50,7 +51,17 @@ if __name__ == "__main__" :
    rospy.init_node('flic_button', log_level=rospy.DEBUG)
    pub = rospy.Publisher('/wizzy/flic_btn', String, queue_size=10)   
    
-   client = fliclib.FlicClient("localhost")
+   # initialize flic client to None
+   client = None
+   while client is None:
+       try: 
+           client = fliclib.FlicClient("localhost")
+           rospy.loginfo('FLIC connection established')
+       except ConnectionRefusedError:
+           rospy.logwarn("can't find FLIC server; will keep trying")
+           client = None
+           time.sleep(3)
+
    # Initialize buttons with the pre-paired buttons in the bin directory, wizzy_buttons.db file
    client.get_info(init_buttons)
    client.handle_events()
