@@ -16,9 +16,8 @@ class VibrationMotor:
 
         self.execution = 0
         self.repetition = 0
-        self.max_executions = 2
         self.pulse_num = 0
-        self.number_of_pulses = 2
+        self.number_of_pulses = 1
         self.pulses = []
         for pulse in range(self.number_of_pulses):
             self.pulses.append(PulseDefinition())
@@ -112,83 +111,95 @@ class VibrationMotor:
             self.current_mode = 'wizzy_clear'
     
             # First pulse definition:
-            self.pulses[0].power = 255
+            self.pulses[0].power = 1
             self.pulses[0].attack = 0.1
             self.pulses[0].sustain = 0.1
             self.pulses[0].release = 0.1
             self.pulses[0].pulse_delay = 0.1
-            self.pulses[0].sequence_delay = 0.5
-            self.pulses[0].repetitions = 3
+            self.pulses[0].sequence_delay = 0.1
+            self.pulses[0].repetitions = 1
 
-            # Second pulse definition:
-            self.pulses[1].power = 255
-            self.pulses[1].attack = 0.2
-            self.pulses[1].sustain = 0.2
-            self.pulses[1].release = 0.2
-            self.pulses[1].pulse_delay = 0.2
-            self.pulses[1].sequence_delay = 1.0
-            self.pulses[1].repetitions = 2  
+            if self.number_of_pulses > 1:
+                self.pulses[1].power = 200
+                self.pulses[1].attack = 0.05
+                self.pulses[1].sustain = 0.1
+                self.pulses[1].release = 0.05
+                self.pulses[1].pulse_delay = 0.1
+                self.pulses[1].sequence_delay = 0.2
+                self.pulses[1].repetitions = 1
+
+            self.max_executions = 1
 ###########################################################################################          
 
         elif mode == 'wizzy_A':
             self.current_mode = 'wizzy_A'
             # First pulse definition:
-            self.pulses[0].power = 255
-            self.pulses[0].attack = 0.2
-            self.pulses[0].sustain = 0.2
-            self.pulses[0].release = 0.2
-            self.pulses[0].pulse_delay = 0.2
-            self.pulses[0].sequence_delay = 0.2
-            self.pulses[0].repetitions = 2
+            self.pulses[0].power = 100
+            self.pulses[0].attack = 0.100
+            self.pulses[0].sustain = 0.300
+            self.pulses[0].release = 0.100
+            self.pulses[0].pulse_delay = 0.1
+            self.pulses[0].sequence_delay = 0.1
+            self.pulses[0].repetitions = 1
 
             # Second pulse definition:
-            self.pulses[1].power = 255
-            self.pulses[1].attack = 0.2
-            self.pulses[1].sustain = 0.2
-            self.pulses[1].release = 0.2
-            self.pulses[1].pulse_delay = 0.2
-            self.pulses[1].sequence_delay = 0.2
-            self.pulses[1].repetitions = 2 
+            if self.number_of_pulses > 1:
+                self.pulses[1].power = 200
+                self.pulses[1].attack = 0.05
+                self.pulses[1].sustain = 0.1
+                self.pulses[1].release = 0.05
+                self.pulses[1].pulse_delay = 0.1
+                self.pulses[1].sequence_delay = 0.2
+                self.pulses[1].repetitions = 1
+
+            self.max_executions = 1
 
         elif mode == 'wizzy_B':
             self.current_mode = 'wizzy_B'
             # First pulse definition:
-            self.pulses[0].power = 255
-            self.pulses[0].attack = 0.2
-            self.pulses[0].sustain = 0.2
-            self.pulses[0].release = 0.2
-            self.pulses[0].pulse_delay = 0.2
-            self.pulses[0].sequence_delay = 0.2
+            self.pulses[0].power = 150
+            self.pulses[0].attack = 0.050
+            self.pulses[0].sustain = 0.250
+            self.pulses[0].release = 0.050
+            self.pulses[0].pulse_delay = 0.150
+            self.pulses[0].sequence_delay = 0.1
             self.pulses[0].repetitions = 2
 
             # Second pulse definition:
-            self.pulses[1].power = 255
-            self.pulses[1].attack = 0.2
-            self.pulses[1].sustain = 0.2
-            self.pulses[1].release = 0.2
-            self.pulses[1].pulse_delay = 0.2
-            self.pulses[1].sequence_delay = 0.2
-            self.pulses[1].repetitions = 2 
+            if self.number_of_pulses > 1:
+                self.pulses[1].power = 200
+                self.pulses[1].attack = 0.05
+                self.pulses[1].sustain = 0.1
+                self.pulses[1].release = 0.05
+                self.pulses[1].pulse_delay = 0.1
+                self.pulses[1].sequence_delay = 0.2
+                self.pulses[1].repetitions = 1
+
+            self.max_executions = 1
 
         elif mode == 'wizzy_C':
             self.current_mode = 'wizzy_C'
             # First pulse definition:
-            self.pulses[0].power = 255
-            self.pulses[0].attack = 0.2
-            self.pulses[0].sustain = 0.2
-            self.pulses[0].release = 0.2
-            self.pulses[0].pulse_delay = 0.2
-            self.pulses[0].sequence_delay = 0.2
-            self.pulses[0].repetitions = 2
+            self.pulses[0].power = 200
+            self.pulses[0].attack = 0.050
+            self.pulses[0].sustain = 0.150
+            self.pulses[0].release = 0.050
+            self.pulses[0].pulse_delay = 0.100
+            self.pulses[0].sequence_delay = 0.1
+            self.pulses[0].repetitions = 5
 
             # Second pulse definition:
-            self.pulses[1].power = 255
-            self.pulses[1].attack = 0.2
-            self.pulses[1].sustain = 0.2
-            self.pulses[1].release = 0.2
-            self.pulses[1].pulse_delay = 0.2
-            self.pulses[1].sequence_delay = 0.2
-            self.pulses[1].repetitions = 2 
+            if self.number_of_pulses > 1:
+                self.pulses[1].power = 200
+                self.pulses[1].attack = 0.05
+                self.pulses[1].sustain = 0.1
+                self.pulses[1].release = 0.05
+                self.pulses[1].pulse_delay = 0.1
+                self.pulses[1].sequence_delay = 0.2
+                self.pulses[1].repetitions = 1
+
+            self.max_executions = 1
+             
         else:
             pass  # Non - existent mode!
 
