@@ -8,7 +8,7 @@ from itertools import chain
 
 import rospy
 
-from segmentation import segment_depth, cluster_depth
+from segmentation import segment_depth
 from cv_bridge import CvBridge, CvBridgeError
 
 # inputs are images
@@ -41,7 +41,7 @@ class ObstacleDetector(object):
         self.init_grabber(camera)
 
         # subscribe to segmented rgb image topic
-        rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
+        # rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
 
         # initialize images
         self.color_image, self.depth_image = None, None
@@ -105,21 +105,21 @@ class ObstacleDetector(object):
 
         # detect obstacles based on depth
         # self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
-        self.obstacle_list, self.obstacle_mask = cluster_depth(self.depth_image)
-
+        self.obstacle_list, self.obstacle_mask = segment_depth(self.depth_image)
 
         for detection in self.obstacle_list:
 
-            # prepare vector for multplication by rotation matrix
+            # prepare vectors for multiplication by rotation matrix
             xy = [[detection['x']], [detection['y']]]
+            wl = [[detection['width']], [detection['length']]]
 
             # calculate with camera pose
-            loc = np.matmul(self.rotation, xy)                                               
+            loc = np.matmul(self.rotation, xy)
+            dim = np.matmul(self.rotation, wl)
 
             # update results
             detection['x'], detection['y'] = loc[0], loc[1]
-
-
+            detection['width'], detection['length'] = abs(dim[0]), abs(dim[1])
 
     def segnet_callback(self, data):
 
@@ -209,6 +209,7 @@ if __name__ == '__main__':
 
     # start detector per camera
     detectors = list()
+
     for camera in config['cameras']:
         try:
             detectors.append(ObstacleDetectorFactory().get_detector(camera))
