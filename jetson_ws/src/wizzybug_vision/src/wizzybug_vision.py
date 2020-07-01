@@ -67,7 +67,6 @@ class ObstacleDetector(object):
         from Grabber import Grabber
 
         # initialize
-        print('camera serial is '.format(camera['serial']))
         self.grabber = Grabber(camera['serial'], camera['name'], camera['width'],
                                camera['height'], camera['framerate'])
 
@@ -213,7 +212,6 @@ if __name__ == '__main__':
 
     for camera in config['cameras']:
         try:
-            print('trying to open camera {} serial {}'.format(camera['name'], camera['serial']))
             detectors.append(ObstacleDetectorFactory().get_detector(camera))
         except RuntimeError as runtime_error:
             rospy.logwarn(runtime_error)

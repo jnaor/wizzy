@@ -122,9 +122,6 @@ def cluster_depth(D, min_range=30, max_range=5500, min_area_percentage=0.2, num_
         if distance < min_range:
             continue
 
-        print(distance)
-
-
         # find bounding values
         nonzero_indices = np.where(B)
         bb_y_min, bb_y_max, _, _ = cv2.minMaxLoc(nonzero_indices[0])
