@@ -18,7 +18,6 @@ class LedSection:
         self.led_strip = strip
         self.section_id = s_id  # 'id' is a built-in fucntion 
         self.execution = 0
-        self.max_executions = 2
 
         self.set_mode('wizzy_clear')
         self.set_state_params('idle')
@@ -114,56 +113,62 @@ class LedSection:
 ########################################################################################
         if mode == 'wizzy_clear':
             self.current_mode = 'wizzy_clear'
-            self.attack = 0.2
+            self.attack = 0.1
             self.decay = 0.1
-            self.sustain = 0.5
-            self.release = 0.2
-            self.attack_level = 150
+            self.sustain = 0.2
+            self.release = 0.1
+            self.attack_level = 100
             self.sustain_level = 50
             self.r = int(100)
             self.g = int(100)
             self.b = int(100)
             self.delay = 1
+            self.max_executions = 1
+
 ########################################################################################
 
         elif mode == 'wizzy_A':
             self.current_mode = 'wizzy_A'
-            self.attack = 0.3
-            self.decay = 0.3
-            self.sustain = 0.3
-            self.release = 0.1
-            self.attack_level = 150
+            self.attack = 0.050
+            self.decay = 0.020
+            self.sustain = 0.100
+            self.release = 0.330
+            self.attack_level = 100
             self.sustain_level = 50
-            self.r = int(0)
-            self.g = int(100)
-            self.b = int(50)
-            self.delay = 1
+            self.r = int(50)
+            self.g = int(250)
+            self.b = int(0)
+            self.delay = 100
+            self.max_executions = 1
 
         elif mode == 'wizzy_B':
             self.current_mode = 'wizzy_B'
-            self.attack = 0.2
-            self.decay = 0.2
-            self.sustain = 0.2
-            self.release = 0.4
+            self.attack = 0.030
+            self.decay = 0.020
+            self.sustain = 0.200
+            self.release = 0.100
             self.attack_level = 150
             self.sustain_level = 50
             self.r = int(255)
-            self.g = int(126)
+            self.g = int(100)
             self.b = int(0)
-            self.delay = 1
+            self.delay = 0.150
+            self.max_executions = 2
 
         elif mode == 'wizzy_C':
             self.current_mode = 'wizzy_C'
-            self.attack = 0.1
-            self.decay = 0.1
-            self.sustain = 0.7
-            self.release = 0.1
+            self.attack = 0.030
+            self.decay = 0.020
+            self.sustain = 0.150
+            self.release = 0.033
             self.attack_level = 200
-            self.sustain_level = 100
+            self.sustain_level = 50
             self.r = int(100)
             self.g = int(0)
             self.b = int(0)
             self.delay = 1
+            self.max_executions = 5
+
         else:
             pass  # Non - existent mode! 
 
