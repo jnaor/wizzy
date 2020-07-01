@@ -41,7 +41,7 @@ class ObstacleDetector(object):
         self.init_grabber(camera)
 
         # subscribe to segmented rgb image topic
-        rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
+        # rospy.Subscriber("/{}/segnet/class_mask".format(camera['name']), Image, self.segnet_callback)
 
         # initialize images
         self.color_image, self.depth_image = None, None
@@ -67,6 +67,7 @@ class ObstacleDetector(object):
         from Grabber import Grabber
 
         # initialize
+        print('camera serial is '.format(camera['serial']))
         self.grabber = Grabber(camera['serial'], camera['name'], camera['width'],
                                camera['height'], camera['framerate'])
 
@@ -210,8 +211,10 @@ if __name__ == '__main__':
 
     # start detector per camera
     detectors = list()
+
     for camera in config['cameras']:
         try:
+            print('trying to open camera {} serial {}'.format(camera['name'], camera['serial']))
             detectors.append(ObstacleDetectorFactory().get_detector(camera))
         except RuntimeError as runtime_error:
             rospy.logwarn(runtime_error)

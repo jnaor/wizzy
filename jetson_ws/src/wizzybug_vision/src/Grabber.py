@@ -96,7 +96,13 @@ def start_cameras(width, height, framerate, depth=True, color=False):
 
 
 if __name__ == '__main__':
-    start_cameras(width=640, height=480, framerate=15)
+
+    grabber = Grabber('851112060198', 'front', 640, 360, 15)
+
+    grabber.start(depth=True)
+
+    img = grabber.grab()["depth"]
+    cv2.imwrite("grab.png", img)
 
     print("helllloooo")
 

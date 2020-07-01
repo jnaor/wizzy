@@ -57,7 +57,7 @@ def calc_attributes(depth_image, bounding_box, distance, fov=[40, 48], percentil
     return f*y, -x*f, z*f, f*width, f*height, length*f
 
 
-def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num_decimations=3):
+def cluster_depth(D, min_range=30, max_range=5500, min_area_percentage=0.2, num_decimations=3):
 
     # to hold result
     obstacle_list, obstacle_mask = list(), list()
@@ -106,10 +106,16 @@ def cluster_depth(D, min_range=10, max_range=5500, min_area_percentage=0.05, num
         if(np.count_nonzero(B) < B.shape[0]*B.shape[1]*min_area_percentage):
             continue
 
+        cv2.imshow("B", 255*B.astype(np.uint8))
+        cv2.waitKey(1)
+
         # distance to closest element (take a percentile to avoid noise)
         distance = np.percentile(C[B], CLUSTER_PERCENTILE, interpolation='nearest')
-        if distance == 0:
+        if distance < min_range:
             continue
+
+        print(distance)
+
 
         # find bounding values
         nonzero_indices = np.where(B)
