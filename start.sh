@@ -1,5 +1,7 @@
-echo "Starting ROS core"
-roscore &
+echo "start.sh running" > log.txt
+
+echo "wizzy bringup"
+roslaunch wizzybug_decision_making wizzybug_online.launch &
 
 JETSON_IP=10.0.0.20
 WIZZY_HOME=/home/wizzy/Documents/repo/wizzy
@@ -12,5 +14,7 @@ echo $?
 echo "Initialization Done"
 
 # start flic client
-python3 $FLIC_DIR/flic_client/wizzy_btn_client.py
+echo "Starting FLIC button client"
+FLIC_DIR=/home/wizzy-aux/wizzy/raspberry_ws/src/wizzybug_control/src/flic_button
+python3 $FLIC_DIR/flic_client/wizzy_btn_client.py &
 
