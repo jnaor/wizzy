@@ -32,15 +32,17 @@ def init_buttons(items):
 def button_cb (channel, click_type, was_queued, time_diff) : 
     log.debug(channel.bd_addr + " " + str(click_type))
     if click_type.name == "ButtonSingleClick" :
-        print ("*** Once !")
+        rospy.loginfo ("*** Received Once Flic Button Event - Sending ON command to USB Relay")
+        pub.publish("on")
     elif click_type.name == "ButtonDoubleClick" :
-        print ("*** Twice !")
+        rospy.loginfo ("*** Received Twice Flic Button Event - Sending OFF command to USB Relay")
+        pub.publish("off")
     elif click_type.name == "ButtonHold" :
-        print ("*** Hold !")
-    pub.publish(click_type.name)
+        rospy.logdebug ("*** Received Hold Flic Button Event - Doing nothing")
+
         
 def on_connection_status_changed_cb(channel, connection_status, disconnect_reason) :
-    print(channel.bd_addr + " " + str(connection_status) + \
+    rospy.loginfo(channel.bd_addr + " " + str(connection_status) + \
           (" " + str(disconnect_reason) if connection_status == fliclib.ConnectionStatus.Disconnected else ""))
     
     
@@ -49,7 +51,7 @@ if __name__ == "__main__" :
    
     # Initialize publisher 
    rospy.init_node('flic_button', log_level=rospy.DEBUG)
-   pub = rospy.Publisher('/wizzy/flic_btn', String, queue_size=10)   
+   pub = rospy.Publisher('usb_relay_command', String, queue_size=10)   
    
    # initialize flic client to None
    client = None

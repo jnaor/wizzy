@@ -28,7 +28,7 @@ def sendCmdToRelay(cmdStr) :
     #Close the port
     serPort.close()    
 
-def callback_DM(msg):
+def callback(msg):
     """
     Message received from the DM. The msg.data matches the string
     expected by the USB Relay driver (either "on" or "off" string,
@@ -39,25 +39,25 @@ def callback_DM(msg):
     sendCmdToRelay(msg.data)
      
 
-def callback_Button(msg):
-    """
-    Message received from the user via the Flic button
-    """
-    if msg.data == "ButtonSingleClick" :
-        print ("on")
-        sendCmdToRelay("on")
-    elif msg.data == "ButtonDoubleClick" :
-        sendCmdToRelay("off")        
-        print ("off")    
+#def callback_Button(msg):
+#    """
+#    Message received from the user via the Flic button
+#    """
+#    if msg.data == "ButtonSingleClick" :
+#        print ("on")
+#        sendCmdToRelay("on")
+#    elif msg.data == "ButtonDoubleClick" :
+#        sendCmdToRelay("off")        
+#        print ("off")    
 
 def listener():
     rospy.init_node('usb_relay_listener', anonymous=True)
     
     # DM command topic
-    rospy.Subscriber("usb_relay_command", String, callback_DM)
+    rospy.Subscriber("usb_relay_command", String, callback)
     
     # Flic button command topic
-    rospy.Subscriber("/wizzy/flic_btn",   String, callback_Button)
+#    rospy.Subscriber("/wizzy/flic_btn",   String, callback_Button)
     
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()

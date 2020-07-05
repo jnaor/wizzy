@@ -23,11 +23,17 @@ def play_bell():
 
 
 def sound_cb(msg):
+    """
+    Ring the bell only when USB Relay receives an "on" command,
+    that stops the Wizzy.
+    """    
     rospy.loginfo('play_sound received message {}'.format(msg))    
-    if "ButtonSingleClick" in str(msg):
-        rospy.loginfo("*** Ringing the bell")
+    if "on" in str(msg):
+        rospy.loginfo("*** Got USB Relay ON : Ringing the bell")
         play_bell()
 
 # Subscribe
-rospy.Subscriber('/wizzy/flic_btn', String, sound_cb)
+#rospy.Subscriber('/wizzy/flic_btn', String, sound_cb)
+rospy.Subscriber("usb_relay_command", String, sound_cb)
+
 rospy.spin()
