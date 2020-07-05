@@ -7,11 +7,11 @@
 
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
 
-    <node name="ttc" pkg="wizzybug_decision_making" type="ttc_node.py" output = "screen"/>
+    <node name="ttc" pkg="wizzybug_decision_making" type="ttc_node.py"/>
 
     <node name="process_laserscan" pkg="wizzybug_lidar" type="process_laserscan.py" />
 
-    <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py" />
+    <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py" output="screen" />
 
 
 </launch>

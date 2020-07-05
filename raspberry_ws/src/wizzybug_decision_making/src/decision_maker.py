@@ -16,7 +16,7 @@ RELAYNUM = "0"  # Support only one relay
 DANGER_TTC = 1.0
 WARNING_TTC = 3.0
 CLEARANCE_TTC = 5.0
-
+STATE_HOLD = 0.1
 
 class WizzyA(smach.State):
     def __init__(self):
@@ -26,8 +26,11 @@ class WizzyA(smach.State):
 
         if inputs_container.ttc_state != 'outcome1':
             relay_cmd("off")
+#	else:
+#           relay_cmd("off")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state A')
+#        rospy.sleep(STATE_HOLD)
         return inputs_container.ttc_state
 
 
@@ -39,8 +42,11 @@ class WizzyB(smach.State):
 
         if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
+#        else:
+#            relay_cmd("off")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state B')
+#        rospy.sleep(STATE_HOLD)
         return inputs_container.ttc_state
 
 
@@ -53,8 +59,11 @@ class WizzyC(smach.State):
 
         if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
+#        else:
+#            relay_cmd("off")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state C')
+        rospy.sleep(STATE_HOLD)
         return inputs_container.ttc_state
 
 
@@ -66,8 +75,11 @@ class WizzyClear(smach.State):
 
         if inputs_container.ttc_state == 'outcome1':
             relay_cmd("on")
+#        else:
+#            relay_cmd("off")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state Clear')
+#        rospy.sleep(STATE_HOLD)
         return inputs_container.ttc_state
 
 # class WizzyShutdown(smach.State):
@@ -77,6 +89,7 @@ def relay_cmd(relay_cmd_str):
     str_cmd = "relay " + relay_cmd_str + " " + RELAYNUM + "\n\r"
     try:
         inputs_container.serial_port.write(str.encode(str_cmd))
+        rospy.loginfo('Relay CMD:' + str_cmd)
     except:
         pass
     # relevant for sim only
@@ -124,6 +137,7 @@ class callback_items:
             self.ttc_state = 'outcome4'
             self.chair_state.state.data= 'WizzyClear'
         self.state_publisher.publish(self.chair_state)
+        rospy.sleep(STATE_HOLD)
 
     def lidar_data_callback(self, data):
         self.lidar_data = data
@@ -132,14 +146,14 @@ inputs_container = callback_items()
 
 if __name__ == '__main__':
 
-    rospy.init_node('decision_maker', log_level = rospy.DEBUG)
+    rospy.init_node('decision_maker', log_level = rospy.INFO)
     relay_cmd("off")
     # Subscribers
 
     imu_subscriber = rospy.Subscriber('/imu/data', Imu, inputs_container.imu_callback)
     ttc_subscriber = rospy.Subscriber('/ttc', ttc, inputs_container.ttc_callback)
     # lidar_data_subscriber = rospy.Subscriber('/myLidar/lidar_proc', lidar_data, inputs_container.lidar_data_callback)
-
+    smach.set_loggers(rospy.logdebug, rospy.logwarn, rospy.logdebug, rospy.logerr)
 
 
     # State machine

@@ -149,12 +149,12 @@ def calc_time_to_collision(v, w, objects, lidar_dist):
             if obj.width.data < w_threshold and obj.length.data < w_threshold:
                 continue
             if obj.width.data < w_threshold:
-                obj.width.data = wizzy_width
+                obj.width.data = wizzy_width/10
             if obj.length.data < w_threshold:
-                obj.length.data = wizzy_width
-            obj_poly = Polygon(x = obj.x.data, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = obj.length.data)
+                obj.length.data = wizzy_width/10
+            obj_poly = Polygon(x = obj.x.data+wizzy_length/3, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = obj.length.data)
             if wizzy.is_colliding(obj_poly):
-                print(obj.x.data, obj.y.data)
+#                print(obj.x.data, obj.y.data)
                 if ttc > time_step * i:
                     ttc = time_step * i
                     ttc_azimuth = np.arctan2(obj.y.data, obj.x.data)
