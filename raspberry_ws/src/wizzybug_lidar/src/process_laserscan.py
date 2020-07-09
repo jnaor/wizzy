@@ -16,11 +16,15 @@ from sklearn.linear_model import RANSACRegressor
     """
 class LidarProcess :
 
-    # meters ahead used for ground plane estimate
-    GROUND_PLANE_ESTIMATION_DISTANCE = 0.5
-
     # score threshold for ground plane estimation
     GROUND_PLANE_ESTIMATION_THRESHOLD = 1
+
+    # there's some noise in front of the sensor; estimate ground based on measurements
+    # taken after a certain distance
+    GROUND_PLANE_ESTIMATION_MIN_DISTANCE = 0.2
+
+    # max distance for ground plane estimation
+    GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.5
 
     def __init__ (self, min_obstacle_height, min_pitfall_depth):
 
@@ -64,7 +68,10 @@ class LidarProcess :
             return
 
         # locations assumed to be the ground
-        ground_x, ground_z = x[(x > 0) & (x < 0.5)], z[(x > 0) & (x < 0.5)]
+        ground_x, ground_z = x[(x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
+                               (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE)], \
+                             z[(x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
+                               (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE)]
 
         # estimate ground line using RANSAC
         ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
@@ -77,7 +84,7 @@ class LidarProcess :
 
         # keep ransac score
         ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
-        rospy.logdebug('ransac score is {}'.format(ransac_score))
+        # rospy.logdebug('ransac score is {}'.format(ransac_score))
 
         # if readings do not fit a line then report error
         if ransac_score > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
@@ -101,30 +108,35 @@ class LidarProcess :
         # transform readings
         T = np.matmul(R, np.vstack((x, z)))
 
+        # subtract ground height
+        T[1, :] += ld.lidar_height
+
         # where are there obstacles
-        obstacle_loc = T[1, :] > self.min_obstacle_height
+        obstacle_loc = np.bitwise_and(T[1, :] > self.min_obstacle_height,
+                                      T[0, :] > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE)
 
         # x's where there is an obstacle
         obstacle_x = T[0, :][obstacle_loc]
 
-        # TODO: get rid of the second condition here (probably the result of the chair interfering with the readings,
-        #  but this hasn't been checked)
-        try:
-            ld.dist_to_obstacle = min(obstacle_x[np.abs(obstacle_x) > LidarProcess.GROUND_PLANE_ESTIMATION_DISTANCE])
-        except ValueError:
-            ld.dist_to_obstacle = msg.range_max
+        # if none found
+        if len(obstacle_x) == 0 :
+            obstacle_x = [np.inf]
+
+        # report distance to obstacle
+        ld.dist_to_obstacle = min(min(obstacle_x), msg.range_max)
 
         # where are there pitfalls
-        pitfall_loc = T[1, :] < -self.min_pitfall_depth
+        pitfall_loc = np.bitwise_and(T[1, :] < -self.min_pitfall_depth,
+                                     T[0, :] > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE)
 
         # x's where there is a pitfall
         pitfall_x = T[0, :][pitfall_loc]
 
-        # TODO: same goes for distance to pitfall
-        try:
-            ld.dist_to_pitfall = min(pitfall_x[np.abs(pitfall_x) > LidarProcess.GROUND_PLANE_ESTIMATION_DISTANCE])
-        except ValueError:
-            ld.dist_to_pitfall = msg.range_max
+        # if none found
+        if len(pitfall_x) == 0 :
+            pitfall_x = [np.inf]
+
+        ld.dist_to_pitfall = min(min(pitfall_x), msg.range_max)
 
         # How far can we see the floor
         ld.visible_floor_distance = np.max(x)
@@ -166,7 +178,7 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.05)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1)
     rospy.spin()
     
 
