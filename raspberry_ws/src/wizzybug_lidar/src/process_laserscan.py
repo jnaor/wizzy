@@ -29,7 +29,10 @@ class LidarProcess :
 
         # initialize publisher 
         self.lidar_proc = rospy.Publisher('/wizzy/lidar_proc', lidar_data, queue_size=10)       
-        
+
+        # Debug - Show the laser scan we ar working on         
+        self.lidar_proc_raw = rospy.Publisher('/wizzy/lidar_proc_raw', LaserScan, queue_size=10)       
+
         # Subscribe 
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
         
@@ -44,12 +47,9 @@ class LidarProcess :
         # get angle ranges from message
         angles = np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)
 
-        # save also in degrees because it's more convenient sometimes
-        angles_deg = np.rad2deg(angles)
-
         # polar to Cartesian coordinates change. Notice x, z flipping (because angle is measured towards the z axis,
         # and not towards x axis)
-        z, x = polar2cart(msg.ranges, np.arange(msg.angle_min, msg.angle_max, msg.angle_increment))
+        z, x = polar2cart(msg.ranges[:-1], angles)
         x = -x
 
         # restrict to places where we have finite readings
@@ -69,6 +69,7 @@ class LidarProcess :
 
         # if readings do not fit a line then report error
         if np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z)) > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
+            rospy.logwarn('unable to detect ground')
             ld.dist_to_obstacle = 0
             ld.dist_to_pitfall = 0
             ld.visible_floor_distance = 0
