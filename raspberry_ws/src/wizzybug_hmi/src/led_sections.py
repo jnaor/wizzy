@@ -1,6 +1,5 @@
 # Simple test for NeoPixels on Raspberry Pi
 import time
-import threading
 import socket
 from struct import pack, unpack
 import struct
@@ -23,14 +22,19 @@ class LedSection:
         self.set_state_params('idle')
         
         self.is_active = False
-        self.heartbeat()
+        #self.heartbeat()
 
     def heartbeat(self):
         for current_color in range(3):
             strip_color = [0,0,0]
             strip_color[current_color] = 50
             self.set_section_color(strip_color[0],strip_color[1],strip_color[2])
+
+            print('before show')
             self.led_strip.show()
+
+            print('now testing led section {} with color {}'.format(self.section_id, strip_color))
+
             time.sleep(0.2)
             self.set_section_color(0,0,0)
             self.led_strip.show()
@@ -198,6 +202,7 @@ class CommHandler:
         self.ip = '127.0.0.1'
         self.port = 22922
         self.open_socket(purpose)
+        print('created')
 
     def open_socket(self, purpose='OUTGOING'):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

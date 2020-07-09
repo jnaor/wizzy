@@ -47,6 +47,11 @@ class ActionHandler:
 
 
 if __name__ == "__main__":
+    import time
+
+    with open('/home/wizzy-aux/Desktop/drek.txt', 'w') as f:
+        f.write('whatever you do marty do not go to 2020 {}'.format(time.time()))
+
     # Choose an open pin connected to the Data In of the NeoPixel strip, i.e. board.D18
     # NeoPixels must be connected to D10, D12, D18 or D21 to work.
     pixel_pin = board.D21
@@ -69,7 +74,15 @@ if __name__ == "__main__":
                     LedSection(3, pixels), 
                     LedSection(4, pixels), 
                     LedSection(5, pixels)]  
-
+    
+    for curr_sec in section_list:
+        curr_sec.set_section_color(100,100,100)
+    pixels.show()
+    time.sleep(1.0)
+    for curr_sec in section_list:
+        curr_sec.turn_off()
+    pixels.show()
+        
     
     handler = ActionHandler(section_list)
     try:
@@ -77,7 +90,7 @@ if __name__ == "__main__":
             handler.receive_input()   
             for section in section_list:
                 section.iterate_sequence()         
-            pixels.show()
+            #pixels.show()
             time.sleep(delta_time)
 
     except KeyboardInterrupt: # Quit program cleanly
