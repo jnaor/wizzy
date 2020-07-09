@@ -47,9 +47,14 @@ class LidarProcess :
         # get angle ranges from message
         angles = np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)
 
+        # patch warning: for some reason the simulation and physical units return messages of different sizes
+        min_length = min(len(angles), len(range_readings))
+        range_readings = range_readings[:min_length]
+        angles = angles[:min_length]
+
         # polar to Cartesian coordinates change. Notice x, z flipping (because angle is measured towards the z axis,
         # and not towards x axis)
-        z, x = polar2cart(msg.ranges[:-1], angles)
+        z, x = polar2cart(range_readings, angles)
         x = -x
 
         # restrict to places where we have finite readings
@@ -67,17 +72,24 @@ class LidarProcess :
         # estimate ground line using RANSAC
         ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
 
+        # estimate line at all x
+        l = ransac.predict(x.reshape(-1, 1))
+
+        # show
+        # show_line_fit(ransac, ground_x, ground_z, l)
+
+        # keep ransac score
+        ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
+        rospy.logdebug('ransac score is {}'.format(ransac_score))
+
         # if readings do not fit a line then report error
-        if np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z)) > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
-            rospy.logwarn('unable to detect ground')
+        if ransac_score > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
+            rospy.logwarn('unable to detect ground. score is {}'.format(ransac_score))
             ld.dist_to_obstacle = 0
             ld.dist_to_pitfall = 0
             ld.visible_floor_distance = 0
             self.lidar_proc.publish(ld)
             return
-
-        # estimate line at all x
-        l = ransac.predict(x.reshape(-1, 1))
 
         # record lidar height (minus sign because the lidar is above the floor)
         ld.lidar_height = -ransac.predict([[0]])[0]
@@ -119,6 +131,26 @@ def polar2cart(rho, phi):
     y = rho * np.sin(phi)
     return(x, y)
 
+def show_line_fit(ransac, X, y, y_ransac):
+
+    from matplotlib import pylab as plt
+
+    inlier_mask = ransac.inlier_mask_
+    outlier_mask = np.logical_not(inlier_mask)
+
+    lw = 2
+    plt.clf()
+    plt.scatter(X[inlier_mask], y[inlier_mask], color='yellowgreen', marker='.',
+                label='Inliers')
+    plt.scatter(X[outlier_mask], y[outlier_mask], color='cornflowerblue', marker='.',
+                label='Outliers')
+    # plt.plot(X, y, color='navy', linewidth=lw, label='Linear regressor')
+    # plt.plot(X, y_ransac, color='cornflowerblue', linewidth=lw,
+    #          label='RANSAC regressor')
+    # plt.legend(loc='lower right')
+    # plt.xlabel("Input")
+    # plt.ylabel("Response")
+    plt.show(0.2)
     
 if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
