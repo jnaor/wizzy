@@ -56,7 +56,7 @@ class LidarProcess :
         # polar to Cartesian coordinates change. Notice x, z flipping (because angle is measured towards the z axis,
         # and not towards x axis)
         z, x = polar2cart(range_readings, angles)
-        x = -x
+        # x = -x
 
         # restrict to places where we have finite readings
         finite_indices = np.isfinite(x) & np.isfinite(z)
@@ -66,6 +66,10 @@ class LidarProcess :
         if len(x) * len(z) == 0:
             rospy.logerr("invalid laser scan readings")
             return
+
+#        from matplotlib import pylab as plt
+#        plt.scatter(x, z)
+#        plt.show()
 
         # locations assumed to be the ground
         ground_x, ground_z = x[(x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
