@@ -103,7 +103,7 @@ class LidarProcess :
         ld.lidar_height = -ransac.predict([[0]])[0]
 
         # floor angle
-        inclination = np.pi - np.arctan2(l[-1]-l[0], x[-1]-x[0])
+        inclination = np.arctan2(l[-1]-l[0], x[-1]-x[0])
         ld.floor_inclination_degrees = np.rad2deg(inclination)
 
         # rotation matrix to make ground level
