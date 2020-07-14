@@ -3,6 +3,7 @@
 import rospy
 from std_msgs.msg import String
 
+import os
 import socket
 
 HOST = "127.0.0.1"
@@ -16,11 +17,15 @@ rospy.loginfo("Initializing audio")
 rospy.init_node('play_sound', anonymous=True)
 
 # read camera configuration. default to local if no parameter set by ros
-bell_sound_file = rospy.get_param('bell_sound', '../sound/ding_dong.mp3')
+bell_sound_file = rospy.get_param('bell_sound', 'sound/ding_dong.mp3')
+
+# get absolute path
+bell_sound_file = os.path.abspath(bell_sound_file)
 rospy.loginfo('using bell sound file {}'.format(bell_sound_file))
 
 def play_bell():
-    sock.sendall(b'ding_dong')
+    print("sending")
+    sock.sendall(bell_sound_file.encode())
 
 def sound_cb(msg):
     """
