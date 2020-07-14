@@ -6,6 +6,9 @@ chmod +x /dev/ttyACM0
 # init LED controller
 # python3 $WIZZY_HOME/raspberry_ws/src/wizzybug_hmi/src/wizzy_led_controller.py & 
 
+# initialize sound server
+python3 $WIZZY_HOME/raspberry_ws/src/wizzybug_hmi/src/sound_server.py &
+
 # FLIC button 
 FLIC_DIR=$WIZZY_HOME/raspberry_ws/src/wizzybug_control/src/flic_button
 
