@@ -17,7 +17,7 @@ from sklearn.linear_model import RANSACRegressor
 class LidarProcess :
 
     # score threshold for ground plane estimation
-    GROUND_PLANE_ESTIMATION_THRESHOLD = 1
+    GROUND_PLANE_ESTIMATION_THRESHOLD = 5
 
     # there's some noise in front of the sensor; estimate ground based on measurements
     # taken after a certain distance
@@ -36,6 +36,9 @@ class LidarProcess :
 
         # Subscribe 
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
+
+        # simulation-specific correction
+        self.simulated_radar = rospy.get_param('simulated_lidar', False)
         
     def scan_cb(self, msg):           
 
@@ -56,7 +59,9 @@ class LidarProcess :
         # polar to Cartesian coordinates change. Notice x, z flipping (because angle is measured towards the z axis,
         # and not towards x axis)
         z, x = polar2cart(range_readings, angles)
-        # x = -x
+
+        if self.simulated_radar:
+            x = -x
 
         # restrict to places where we have finite readings
         finite_indices = np.isfinite(x) & np.isfinite(z)
@@ -103,7 +108,7 @@ class LidarProcess :
         ld.lidar_height = -ransac.predict([[0]])[0]
 
         # floor angle
-        inclination = np.arctan2(l[-1]-l[0], x[-1]-x[0])
+        inclination = np.arctan((l[0]-l[-1])/(x[-1]-x[0]))
         ld.floor_inclination_degrees = np.rad2deg(inclination)
 
         # rotation matrix to make ground level

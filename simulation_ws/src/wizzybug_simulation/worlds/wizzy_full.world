@@ -63,7 +63,7 @@
     </light>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>-3.41252 -6.46559 4.84649 0 0.50901 1.01812</pose>
+        <pose frame=''>-1.95858 -5.01988 3.60102 0 0.539986 1.08968</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
@@ -209,10 +209,10 @@
       <pose frame=''>0.019039 2.14722 0 0 -0 0</pose>
     </model>
     <state world_name='default'>
-      <sim_time>414 602000000</sim_time>
-      <real_time>207 673872174</real_time>
-      <wall_time>1590993177 974035519</wall_time>
-      <iterations>207121</iterations>
+      <sim_time>826 738000000</sim_time>
+      <real_time>32 956634397</real_time>
+      <wall_time>1594812780 607185575</wall_time>
+      <iterations>32824</iterations>
       <model name='asphalt_plane'>
         <pose frame=''>0.019039 -0.010494 0 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -224,10 +224,10 @@
         </link>
       </model>
       <model name='fire_hydrant'>
-        <pose frame=''>-2 0 0 0 -0 0</pose>
+        <pose frame=''>-4 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose frame=''>-2 0 0 0 -0 0</pose>
+          <pose frame=''>-4 0 0 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -264,22 +264,22 @@
         </link>
       </model>
       <model name='unit_box'>
-        <pose frame=''>1.97149 0.016789 0.55 0 -0 8.4e-05</pose>
+        <pose frame=''>3.99998 2e-06 0.549995 1e-05 -0 8.9e-05</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose frame=''>1.97149 0.016789 0.55 0 -0 8.4e-05</pose>
+          <pose frame=''>3.99998 2e-06 0.549995 1e-05 -0 8.9e-05</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-4.03279 0.968386 5.01025 1.20488 -1.35791 -3.14084</acceleration>
-          <wrench>-4.03279 0.968386 5.01025 0 -0 0</wrench>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -9.8 0 -0 0</wrench>
         </link>
       </model>
       <model name='unit_cylinder'>
-        <pose frame=''>0.013331 1.99398 0.549992 1e-06 -3e-06 -0.000307</pose>
+        <pose frame=''>0.013389 1.99404 0.549991 -2e-06 -1e-06 -0.000183</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose frame=''>0.013331 1.99398 0.549992 1e-06 -3e-06 -0.000307</pose>
+          <pose frame=''>0.013389 1.99404 0.549991 -2e-06 -1e-06 -0.000183</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 -0 -0 -0</acceleration>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
           <wrench>0 0 -9.8 0 -0 0</wrench>
         </link>
       </model>
