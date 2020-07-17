@@ -1,0 +1,11 @@
+<launch>
+    <arg name="test" default='false' />
+
+    <!-- LEDs -->
+    <node name="hmi_leds" pkg="wizzybug_hmi" type="wizzy_led_node.py" output="screen"/>
+
+    <!-- Test -->
+    <node name="hmi_test" pkg="wizzybug_hmi" type="test.py" if="$(arg test)" />
+ 
+
+</launch>
