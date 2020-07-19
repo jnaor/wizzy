@@ -66,7 +66,7 @@ if __name__ == "__main__":
     pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.5, auto_write=False,
                                pixel_order=ORDER)
 
-    delta_time = 0.01
+    delta_time = LedSection.DT
     
     section_list = [LedSection(0, pixels), 
                     LedSection(1, pixels), 
@@ -85,12 +85,21 @@ if __name__ == "__main__":
         
     
     handler = ActionHandler(section_list)
+    counter=0
     try:
         while True:
-            handler.receive_input()   
+            handler.receive_input()
+            any_active = False   
             for section in section_list:
-                section.iterate_sequence()         
-            #pixels.show()
+                section.iterate_sequence()
+                if section.is_active:
+                    any_active = True
+
+            if any_active:
+                #print(counter)
+                counter+=1
+                pixels.show()
+
             time.sleep(delta_time)
 
     except KeyboardInterrupt: # Quit program cleanly

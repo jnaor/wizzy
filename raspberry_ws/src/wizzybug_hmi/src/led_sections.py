@@ -65,6 +65,7 @@ class LedSection:
         self.is_active = False
         self.set_section_brightness(0)
         self.set_mode('wizzy_clear')
+        #print('##################### turned off ################')
 
     def reset_sequence(self):                
         self.set_state_params('attack')
@@ -91,14 +92,11 @@ class LedSection:
                 self.current_brightness = clamp(self.current_brightness, 0, 255)
                 self.set_section_brightness(self.current_brightness)
                 self.last_iteration = now
-            
-            # Stop after some (2) iterations:
-            if self.execution == self.max_executions:
-                self.turn_off()
-                
-                #print('state_time:', state_diff, 'iter_time:', iteration_diff, 'jump:', self.jump_value, 'bright:', self.current_brightness)
 
-            #time.sleep(LedSection.DT)
+            #print(state_diff, iteration_diff, self.ramp_time, self.next_state)
+            # Stop after some (2) iterations:
+            if self.execution >= self.max_executions:
+                self.turn_off()
 
     def set_state_params(self, state):
         if state == 'attack':
@@ -140,7 +138,7 @@ class LedSection:
             self.r = int(100)
             self.g = int(100)
             self.b = int(100)
-            self.delay = 1
+            self.delay = 0.001
             self.max_executions = 1
 
 ########################################################################################
@@ -156,7 +154,7 @@ class LedSection:
             self.r = int(50)
             self.g = int(250)
             self.b = int(0)
-            self.delay = 100
+            self.delay = 0.01
             self.max_executions = 1
 
         elif mode == 'wizzy_B':
@@ -184,7 +182,7 @@ class LedSection:
             self.r = int(100)
             self.g = int(0)
             self.b = int(0)
-            self.delay = 1
+            self.delay = 0.01
             self.max_executions = 5
 
         else:
@@ -202,7 +200,7 @@ class CommHandler:
         self.ip = '127.0.0.1'
         self.port = 22922
         self.open_socket(purpose)
-        print('created')
+        print('udp passed')
 
     def open_socket(self, purpose='OUTGOING'):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -251,6 +249,7 @@ if __name__ == "__main__":
                     LedSection(3, pixels),
                     LedSection(4, pixels), 
                     LedSection(5, pixels)]
+
  
     #section_list[desired_section].set_mode('wizzy_clear')
 
@@ -262,12 +261,20 @@ if __name__ == "__main__":
     now = time.time() - 5
     try:
         for section in section_list:
-                    section.reset_sequence()
+            section.reset_sequence()
+
         while True:
+            any_active = False
             for section in section_list:
                 section.iterate_sequence()
+                if section.is_active:
+                    any_active = True
+
+            if any_active:
+                print('active')
+                pixels.show()
+
             time.sleep(LedSection.DT)
-            pixels.show()
             
             if time.time() - now > 5:
                 now = time.time()

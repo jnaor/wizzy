@@ -24,11 +24,12 @@ def index_to_mode(idx):
 if __name__ == "__main__":
 
     rospy.init_node('hmi_tester')
-    chair_state_pub = rospy.Publisher('/hmi_commands', ChairState, queue_size=10)
+    chair_state_pub = rospy.Publisher('/hmi_commands', ChairState, queue_size=50)
+    time.sleep(1)  # For letting the publisher subscribe in the server
     chair_state = ChairState()
-    rate = rospy.Rate(0.15)
-    count = -2    
-    time.sleep(1)
+
+    rate = rospy.Rate(0.2)
+    count = -2     
 
     while not rospy.is_shutdown():
         chair_state.ttc_msg.ttc_azimuth = count * 1.047

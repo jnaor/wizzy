@@ -3,14 +3,14 @@
     <!-- LEDs -->
     <node name="hmi_leds" pkg="wizzybug_hmi" type="wizzy_led_node.py" output="screen"/>
 
-    <!-- Audio -->
+    <!-- Audio >
     <node name="play_sound" pkg="wizzybug_hmi" type="play_sound.py" output="screen"/>
     <param name='bell_sound' value='$(find wizzybug_hmi)/sound/ding_dong.mp3' /> 
 
     <!-- Haptic -->
     <node name="hmi_motors" pkg="wizzybug_hmi" type="wizzy_motor_node.py" output="screen"/>
 
-    <!-- Test -->
+    < Test -->
     <!-- <node name="hmi_test" pkg="wizzybug_hmi" type="test.py"/> -->
 
 </launch>
