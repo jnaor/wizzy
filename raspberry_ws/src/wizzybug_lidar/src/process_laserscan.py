@@ -26,6 +26,9 @@ class LidarProcess :
     # max distance for ground plane estimation
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.5
 
+    # maximum difference between successive floor z measurements
+    MAX_FLOOR_Z_DIFF = 0.05
+
     def __init__ (self, min_obstacle_height, min_pitfall_depth):
 
         # save parameters
@@ -60,8 +63,12 @@ class LidarProcess :
         # and not towards x axis)
         z, x = polar2cart(range_readings, angles)
 
+        # TODO: ugly patch!!
         if self.simulated_radar:
             x = -x
+
+        else:
+            z = -z
 
         # restrict to places where we have finite readings
         finite_indices = np.isfinite(x) & np.isfinite(z)
@@ -147,8 +154,11 @@ class LidarProcess :
 
         ld.dist_to_pitfall = min(min(pitfall_x), msg.range_max)
 
+        # difference between successive z measurements
+        diff = np.abs(np.diff(T[1]))
+
         # How far can we see the floor
-        ld.visible_floor_distance = np.max(x)
+        ld.visible_floor_distance = x[min(np.where(diff > LidarProcess.MAX_FLOOR_Z_DIFF))[0]]
 
         # publish results
         self.lidar_proc.publish(ld)
