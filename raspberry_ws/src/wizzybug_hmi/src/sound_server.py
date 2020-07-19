@@ -3,11 +3,8 @@ import os
 import sys
 import socket
 
-# does not work for some reason
-# import vlc
-
-# TODO: pre-load file
-from playsound import playsound
+from pydub import AudioSegment
+from pydub.playback import play
 
 # standard loopback interface address (localhost)
 HOST = '127.0.0.1'
@@ -18,19 +15,18 @@ if len(sys.argv) != 2:
     exit(1)
 
 # initalize sound player dict
-#sound_player = dict()
+sounds = dict()
 
 # for each sound file
-#for sound_file in sys.argv[1:-1]:
-#    # get the filename only from the initial file path.
-#    filename = os.path.basename(sound_file)
+for sound_file in sys.argv[1:-1]:
+   # get the filename only from the initial file path.
+   filename = os.path.basename(sound_file)
 
-#    # get filename and extension separately.
-#    (sound, ext) = os.path.splitext(filename)
+   # get filename and extension separately.
+   (sound_message, ext) = os.path.splitext(filename)
 
-#    # player for this sound. doesn't work 
-#    # sound_player[sound] = vlc.MediaPlayer(sound_file)
-#    sound_player[sound] = sound_file
+   # player for this sound. doesn't work
+   sounds[sound_message] = AudioSegment.from_file(sound_file)
 
 ## start listening
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -46,16 +42,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 break
 
             # play received sound
-            sound = data.decode()
-            print(f'received {sound}')
+            sound_message = data.decode()
+            print(f'received {sound_message}')
             
-#            if sound not in sound_player.values():
-#                print(sound_player.values())
-#                continue
-
-            # sound_player[sound].play()
-            if not os.path.exists(sound):
-                print(f'no such file {sound}')
+            if sound_message not in sounds.values():
+                print(sounds.values())
                 continue
 
-            playsound(sound)
+            # play sounds from saved sounds dictionary
+            play(sounds[sound_message])
+
