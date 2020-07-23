@@ -154,10 +154,10 @@ def cluster_depth(D, min_range=30, max_range=5500, min_area_percentage=0.2, num_
     return obstacle_list, obstacle_mask
 
 
-def segment_depth(D, max_range=5000, min_size_ratio=20):
+def segment_depth(D, max_range=5000, min_size_ratio=1/50):
 
     # minimum area to be considered an obstacle
-    min_size = D.shape[0]*D.shape[1] // min_size_ratio
+    min_size = D.shape[0]*D.shape[1] * min_size_ratio
 
     # to hold result
     obstacle_list, obstacle_mask = list(), list()
@@ -168,18 +168,6 @@ def segment_depth(D, max_range=5000, min_size_ratio=20):
     # calculate histogram
     # hist = cv2.calcHist([D], [0], None, [2**16], [0, 2**16])
     hist = cv2.calcHist([D8], [0], None, [256], [0, 256]).astype(np.int)
-
-    # # kernel for morphological operations
-    # kernel = np.ones(5, np.uint8)
-    #
-    # # closing to remove small holes
-    # hist = cv2.morphologyEx(hist, cv2.MORPH_CLOSE, kernel)
-    #
-    # # morphological opening to remove noise
-    # hist = cv2.morphologyEx(hist, cv2.MORPH_OPEN, kernel)
-    #
-    # # after opencv forced us to use a floating point vector for morphological operations
-    # hist = hist.astype(np.int)
 
     # remove places with depth zero
     hist[0] = 0
@@ -201,7 +189,6 @@ def segment_depth(D, max_range=5000, min_size_ratio=20):
 
         # disregard very small regions
         if np.sum(hist[start:end]) < min_size:
-            print('disregarding {} because it is smaller than {}'.format(np.sum(hist[start:end]), min_size))
             continue
 
         # pixels in this region

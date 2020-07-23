@@ -1,5 +1,5 @@
 {
-    "cameras": [
+    "cams": [
         {
             "R": [
                 [
@@ -12,7 +12,7 @@
                 ]
             ],
             "cam_height_cm": "27",
-            "name": "front_camera",
+            "name": "front_cam",
             "serial": 1,
             "t": [
                 0,
@@ -35,7 +35,7 @@
                 ]
             ],
             "cam_height_cm": "28",
-            "name": "left_camera",
+            "name": "left_cam",
             "serial": 2,
             "t": [
                 0,
@@ -58,7 +58,7 @@
                 ]
             ],
             "cam_height_cm": "75",
-            "name": "rear_camera",
+            "name": "rear_cam",
             "serial": 3,
             "t": [
                 0,
@@ -81,7 +81,7 @@
                 ]
             ],
             "cam_height_cm": "28",
-            "name": "right_camera",
+            "name": "right_cam",
             "serial": 4,
             "t": [
                 0,

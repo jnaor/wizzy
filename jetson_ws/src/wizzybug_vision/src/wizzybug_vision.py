@@ -150,10 +150,10 @@ class Camera(object):
             rospy.logerr('cannot read position of {} on bug'.format(self.name))
 
         # get rotation part of pose
-        self.code = quaternion_matrix(rotation_quat)
+        self.pose = quaternion_matrix(rotation_quat)
 
         # add translation
-        self.code[:3, 3] = translation
+        self.pose[:3, 3] = translation
 
     def grab(self):
         pass
