@@ -126,7 +126,7 @@
                 <baseline>0.2</baseline>
                 <alwaysOn>true</alwaysOn>
                 <updateRate>5.0</updateRate>
-                <cameraName>front_camera</cameraName>
+                <cameraName>front_cam</cameraName>
                 <frameName>front_cam_link_optical</frameName>
                 <imageTopicName>color/image_raw</imageTopicName>
                 <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
@@ -172,7 +172,7 @@
                 <baseline>0.2</baseline>
                 <alwaysOn>true</alwaysOn>
                 <updateRate>5.0</updateRate>
-                <cameraName>right_camera</cameraName>
+                <cameraName>right_cam</cameraName>
                 <frameName>right_cam_link_optical</frameName>
                 <imageTopicName>color/image_raw</imageTopicName>
                 <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
@@ -218,7 +218,7 @@
                 <baseline>0.2</baseline>
                 <alwaysOn>true</alwaysOn>
                 <updateRate>5.0</updateRate>
-                <cameraName>left_camera</cameraName>
+                <cameraName>left_cam</cameraName>
                 <frameName>left_cam_link_optical</frameName>
                 <imageTopicName>color/image_raw</imageTopicName>
                 <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
@@ -264,7 +264,7 @@
                 <baseline>0.2</baseline>
                 <alwaysOn>true</alwaysOn>
                 <updateRate>5.0</updateRate>
-                <cameraName>rear_camera</cameraName>
+                <cameraName>rear_cam</cameraName>
                 <frameName>rear_cam_link_optical</frameName>
                 <imageTopicName>color/image_raw</imageTopicName>
                 <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>

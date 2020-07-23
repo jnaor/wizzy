@@ -162,26 +162,30 @@ def segment_depth(D, max_range=5000, min_size_ratio=20):
     # to hold result
     obstacle_list, obstacle_mask = list(), list()
 
+    # convert image to 8-bit
+    D8 = (D.astype(np.float) / 256).astype(np.uint8)
+
     # calculate histogram
-    hist = cv2.calcHist([D], [0], None, [2**16], [0, 2**16])
+    # hist = cv2.calcHist([D], [0], None, [2**16], [0, 2**16])
+    hist = cv2.calcHist([D8], [0], None, [256], [0, 256]).astype(np.int)
 
-    # kernel for morphological operations
-    kernel = np.ones(5, np.uint8)
-
-    # closing to remove small holes
-    hist = cv2.morphologyEx(hist, cv2.MORPH_CLOSE, kernel)
-
-    # morphological opening to remove noise
-    hist = cv2.morphologyEx(hist, cv2.MORPH_OPEN, kernel)
-
-    # after opencv forced us to use a floating point vector for morphological operations
-    hist = hist.astype(np.int)
+    # # kernel for morphological operations
+    # kernel = np.ones(5, np.uint8)
+    #
+    # # closing to remove small holes
+    # hist = cv2.morphologyEx(hist, cv2.MORPH_CLOSE, kernel)
+    #
+    # # morphological opening to remove noise
+    # hist = cv2.morphologyEx(hist, cv2.MORPH_OPEN, kernel)
+    #
+    # # after opencv forced us to use a floating point vector for morphological operations
+    # hist = hist.astype(np.int)
 
     # remove places with depth zero
     hist[0] = 0
 
     # clip at max_range
-    hist[max_range:] = 0
+    hist[max_range//256:] = 0
 
     # connected components for places where histogram is nonzero
     nz = label(hist > 0)
@@ -197,10 +201,11 @@ def segment_depth(D, max_range=5000, min_size_ratio=20):
 
         # disregard very small regions
         if np.sum(hist[start:end]) < min_size:
+            print('disregarding {} because it is smaller than {}'.format(np.sum(hist[start:end]), min_size))
             continue
 
         # pixels in this region
-        B = np.bitwise_and(D >= start, D < end)
+        B = np.bitwise_and(D8 >= start, D8 < end)
 
         # find bounding values
         nonzero_indices = np.where(B)
@@ -219,9 +224,9 @@ def segment_depth(D, max_range=5000, min_size_ratio=20):
         # save mask for debug purposes
         obstacle_mask.append(B)
 
-        # get location attributes
+        # get location attributes. notice compensating for the 16->8 bit converion earlier in distancw
         detection['x'], detection['y'], detection['z'], detection['width'], detection['height'], detection['length'] = \
-            calc_attributes(D, bounding_box, distance=start)
+            calc_attributes(D, bounding_box, distance=256*start)
 
         # add to result
         obstacle_list.append(detection)
