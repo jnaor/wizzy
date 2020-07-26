@@ -17,7 +17,7 @@ from sklearn.linear_model import RANSACRegressor
 class LidarProcess :
 
     # score threshold for ground plane estimation
-    GROUND_PLANE_ESTIMATION_THRESHOLD = 5
+    GROUND_PLANE_ESTIMATION_THRESHOLD = 10
 
     # there's some noise in front of the sensor; estimate ground based on measurements
     # taken after a certain distance
@@ -89,6 +89,14 @@ class LidarProcess :
                              z[(x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
                                (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE)]
 
+        if min(len(ground_x), len(ground_z)) == 0:
+            rospy.logwarn('unable to detect ground readings')
+            ld.dist_to_obstacle = 0
+            ld.dist_to_pitfall = 0
+            ld.visible_floor_distance = 0
+            self.lidar_proc.publish(ld)
+            return
+
         # estimate ground line using RANSAC
         ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
 
@@ -157,8 +165,15 @@ class LidarProcess :
         # difference between successive z measurements
         diff = np.abs(np.diff(T[1]))
 
+        # detect gap in z
+        z_gap = min(np.where(diff > LidarProcess.MAX_FLOOR_Z_DIFF))
+
         # How far can we see the floor
-        ld.visible_floor_distance = x[min(np.where(diff > LidarProcess.MAX_FLOOR_Z_DIFF))[0]]
+        if len(z_gap) == 0:
+            ld.visible_floor_distance = msg.range_max
+            rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
+        else:
+            ld.visible_floor_distance = x[z_gap[0]]
 
         # publish results
         self.lidar_proc.publish(ld)
