@@ -91,10 +91,6 @@ class LidarProcess :
 
         if min(len(ground_x), len(ground_z)) == 0:
             rospy.logwarn('unable to detect ground readings')
-            ld.dist_to_obstacle = 0
-            ld.dist_to_pitfall = 0
-            ld.visible_floor_distance = 0
-            self.lidar_proc.publish(ld)
             return
 
         # estimate ground line using RANSAC
@@ -113,10 +109,6 @@ class LidarProcess :
         # if readings do not fit a line then report error
         if ransac_score > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
             rospy.logwarn('unable to detect ground. score is {}'.format(ransac_score))
-            ld.dist_to_obstacle = 0
-            ld.dist_to_pitfall = 0
-            ld.visible_floor_distance = 0
-            self.lidar_proc.publish(ld)
             return
 
         # record lidar height (minus sign because the lidar is above the floor)
@@ -150,17 +142,17 @@ class LidarProcess :
         ld.dist_to_obstacle = min(min(obstacle_x), msg.range_max)
 
         # where are there pitfalls
-        pitfall_loc = np.bitwise_and(T[1, :] < -self.min_pitfall_depth,
-                                     T[0, :] > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE)
+        # pitfall_loc = np.bitwise_and(T[1, :] < -self.min_pitfall_depth,
+        #                             T[0, :] > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE)
 
         # x's where there is a pitfall
-        pitfall_x = T[0, :][pitfall_loc]
+        #pitfall_x = T[0, :][pitfall_loc]
 
         # if none found
-        if len(pitfall_x) == 0 :
-            pitfall_x = [np.inf]
+        #if len(pitfall_x) == 0 :
+        #    pitfall_x = [np.inf]
 
-        ld.dist_to_pitfall = min(min(pitfall_x), msg.range_max)
+        # ld.dist_to_pitfall = min(min(pitfall_x), msg.range_max)
 
         # difference between successive z measurements
         diff = np.abs(np.diff(T[1]))

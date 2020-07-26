@@ -132,8 +132,8 @@ class Polygon:
 def calc_time_to_collision(v, w, objects, lidar_dist):
 
 
-    wizzy = Polygon(width=wizzy_width, depth=wizzy_length)
-    lidar_obj = Polygon(x=lidar_dist, width=wizzy_width, depth=wizzy_length)
+    wizzy = Polygon(x=-wizzy_length/3, width=wizzy_width, depth=wizzy_length)
+    lidar_obj = Polygon(x=lidar_dist, width=wizzy_width, depth=wizzy_length/5)
     ttc = t_horizon
     ttc_azimuth = 0.0
     for i in range(int(t_horizon / time_step)):
@@ -152,7 +152,7 @@ def calc_time_to_collision(v, w, objects, lidar_dist):
                 obj.width.data = wizzy_width/10
             if obj.length.data < w_threshold:
                 obj.length.data = wizzy_width/10
-            obj_poly = Polygon(x = obj.x.data+wizzy_length/3, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = obj.length.data)
+            obj_poly = Polygon(x = obj.x.data, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = obj.length.data)
             if wizzy.is_colliding(obj_poly):
 #                print(obj.x.data, obj.y.data)
                 if ttc > time_step * i:
@@ -172,7 +172,8 @@ class CallbackItems:
         self.ttc_msg = ttc()
 
     def lidar_dist_to_obstacle_callback(self, data):
-        self.lidar_dist = min([data.dist_to_pitfall, data.dist_to_obstacle])
+        #self.lidar_dist = min([data.dist_to_pitfall, data.dist_to_obstacle])
+        self.lidar_dist = data.visible_floor_distance
 
     def joy_callback(self, data):
         self.v = data.linear.x

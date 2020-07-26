@@ -16,21 +16,16 @@ RELAYNUM = "0"  # Support only one relay
 DANGER_TTC = 1.0
 WARNING_TTC = 3.0
 CLEARANCE_TTC = 5.0
-STATE_HOLD = 0.1
+STATE_HOLD = 0.05
 
 class WizzyA(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['outcome1', 'outcome2', 'outcome3', 'outcome4'])
 
     def execute(self, userdata):
-
-        if inputs_container.ttc_state != 'outcome1':
-            relay_cmd("off")
-#	else:
-#           relay_cmd("off")
+        relay_cmd("on")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state A')
-#        rospy.sleep(STATE_HOLD)
         return inputs_container.ttc_state
 
 
@@ -39,14 +34,9 @@ class WizzyB(smach.State):
         smach.State.__init__(self, outcomes=['outcome1', 'outcome2', 'outcome3', 'outcome4'])
 
     def execute(self, userdata):
-
-        if inputs_container.ttc_state == 'outcome1':
-            relay_cmd("on")
-#        else:
-#            relay_cmd("off")
+        relay_cmd("off")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state B')
-#        rospy.sleep(STATE_HOLD)
         return inputs_container.ttc_state
 
 
@@ -56,11 +46,7 @@ class WizzyC(smach.State):
         smach.State.__init__(self, outcomes=['outcome1', 'outcome2', 'outcome3', 'outcome4'])
 
     def execute(self, userdata):
-
-        if inputs_container.ttc_state == 'outcome1':
-            relay_cmd("on")
-#        else:
-#            relay_cmd("off")
+        relay_cmd("off")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state C')
         rospy.sleep(STATE_HOLD)
@@ -72,28 +58,25 @@ class WizzyClear(smach.State):
         smach.State.__init__(self, outcomes=['outcome1', 'outcome2', 'outcome3', 'outcome4'])
 
     def execute(self, userdata):
-
-        if inputs_container.ttc_state == 'outcome1':
-            relay_cmd("on")
-#        else:
-#            relay_cmd("off")
+        relay_cmd("off")
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state Clear')
-#        rospy.sleep(STATE_HOLD)
         return inputs_container.ttc_state
 
 # class WizzyShutdown(smach.State):
 
 
 def relay_cmd(relay_cmd_str):
-    str_cmd = "relay " + relay_cmd_str + " " + RELAYNUM + "\n\r"
-    try:
-        inputs_container.serial_port.write(str.encode(str_cmd))
-        rospy.loginfo('Relay CMD:' + str_cmd)
-    except:
-        pass
-    # relevant for sim only
-    inputs_container.relay_publisher.publish(relay_cmd_str)
+    if inputs_container.relay_state != relay_cmd_str:
+        str_cmd = "relay " + relay_cmd_str + " " + RELAYNUM + "\n\r"
+        try:
+            inputs_container.serial_port.write(str.encode(str_cmd))
+            rospy.loginfo('Relay CMD:' + str_cmd)
+        except:
+            pass
+        # relevant for sim only
+        inputs_container.relay_publisher.publish(relay_cmd_str)
+        inputs_container.relay_state = relay_cmd_str
 
 class callback_items:
 
@@ -107,6 +90,7 @@ class callback_items:
         self.ttc_state = 'outcome4'
         self.prev_state = 'outcome4'
         self.chair_state = ChairState()
+        self.relay_state = "off"
         self.state_publisher = rospy.Publisher('chair_state', ChairState, queue_size=10)
         # relevant for sim only
         self.relay_publisher = rospy.Publisher('usb_relay_command', String,queue_size=10)
