@@ -5,7 +5,7 @@
 
     <!-- Audio -->
     <node name="play_sound" pkg="wizzybug_hmi" type="play_sound.py" />
-    <param name='bell_sound' value='$(find wizzybug_hmi)/sound/ding_dong.mp3' /> 
+    <param name='bell_sound' value='$(find wizzybug_hmi)/sound/Alert.wav' /> 
 
     <!-- Haptic -->
     <node name="hmi_motors" pkg="wizzybug_hmi" type="wizzy_motor_node.py" />
