@@ -9,7 +9,7 @@ def clamp(val, min_val, max_val):
 
 class VibrationMotor:
 
-    DT = 0.02
+    DT = 0.01
 
     def __init__(self, m_id, pin_num):
         self.motor_id = m_id
@@ -17,7 +17,7 @@ class VibrationMotor:
 
         gpio.setmode(gpio.BCM)
         gpio.setup(self.pin, gpio.OUT)
-        self.gpio = gpio.PWM(self.pin, 100)
+        self.gpio = gpio.PWM(self.pin, 400)
         self.gpio.start(0.0)
 
         self.execution = 0
@@ -127,10 +127,10 @@ class VibrationMotor:
             self.current_mode = 'wizzy_clear'
     
             # First pulse definition:
-            self.pulses[0].power = 100
-            self.pulses[0].attack = 0.1
-            self.pulses[0].sustain = 0.1
-            self.pulses[0].release = 0.1
+            self.pulses[0].power = 1
+            self.pulses[0].attack = 0.01
+            self.pulses[0].sustain = 0.01
+            self.pulses[0].release = 0.01
             self.pulses[0].pulse_delay = 0.1
             self.pulses[0].sequence_delay = 0.1
             self.pulses[0].repetitions = 2
@@ -150,10 +150,10 @@ class VibrationMotor:
         elif mode == 'wizzy_A':
             self.current_mode = 'wizzy_A'
             # First pulse definition:
-            self.pulses[0].power = 100
-            self.pulses[0].attack = 0.100
-            self.pulses[0].sustain = 0.300
-            self.pulses[0].release = 0.100
+            self.pulses[0].power = 70
+            self.pulses[0].attack = 0.070
+            self.pulses[0].sustain = 0.100
+            self.pulses[0].release = 0.330
             self.pulses[0].pulse_delay = 0.1
             self.pulses[0].sequence_delay = 0.1
             self.pulses[0].repetitions = 1
@@ -173,11 +173,11 @@ class VibrationMotor:
         elif mode == 'wizzy_B':
             self.current_mode = 'wizzy_B'
             # First pulse definition:
-            self.pulses[0].power = 100
+            self.pulses[0].power = 85
             self.pulses[0].attack = 0.050
-            self.pulses[0].sustain = 0.250
-            self.pulses[0].release = 0.050
-            self.pulses[0].pulse_delay = 0.150
+            self.pulses[0].sustain = 0.200
+            self.pulses[0].release = 0.100
+            self.pulses[0].pulse_delay = 0.200
             self.pulses[0].sequence_delay = 0.1
             self.pulses[0].repetitions = 2
 
@@ -196,10 +196,10 @@ class VibrationMotor:
         elif mode == 'wizzy_C':
             self.current_mode = 'wizzy_C'
             # First pulse definition:
-            self.pulses[0].power = 100
+            self.pulses[0].power = 110
             self.pulses[0].attack = 0.050
             self.pulses[0].sustain = 0.150
-            self.pulses[0].release = 0.050
+            self.pulses[0].release = 0.033
             self.pulses[0].pulse_delay = 0.100
             self.pulses[0].sequence_delay = 0.1
             self.pulses[0].repetitions = 5

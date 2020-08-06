@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     rospy.init_node('wizzy_motors')
 
-    delta_time = 0.01
+    delta_time = VibrationMotor.DT
 
     motor_list = [VibrationMotor(0, 20)]
      #             VibrationMotor(1, 26, gpio),
