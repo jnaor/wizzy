@@ -45,7 +45,7 @@ class ObstacleDetector(object):
         # initialize obstacle reporting structures
         self.obstacle_list, self.obstacle_mask = None, None
 
-        rospy.loginfo('started camera {}'.format(camera_config['serial']))
+        rospy.loginfo('started camera {}'.format(camera.serial))
 
     def grab(self):
         self.camera.grab()
@@ -220,8 +220,11 @@ if __name__ == '__main__':
     # initialize cameras
     cameras = list()
 
+    print('camera section in config is: {}'.format(config['cameras']))
+
     for camera_config in config['cameras']:
         try:
+            print('current config {}'.format(camera_config))
             cameras.append(CameraFactory().get_camera(camera_config))
         except RuntimeError as runtime_error:
             rospy.logwarn(runtime_error)
