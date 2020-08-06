@@ -127,16 +127,16 @@ class VibrationMotor:
             self.current_mode = 'wizzy_clear'
     
             # First pulse definition:
-            self.pulses[0].power = 1
+            self.pulses[0].power = 100
             self.pulses[0].attack = 0.1
             self.pulses[0].sustain = 0.1
             self.pulses[0].release = 0.1
             self.pulses[0].pulse_delay = 0.1
             self.pulses[0].sequence_delay = 0.1
-            self.pulses[0].repetitions = 1
+            self.pulses[0].repetitions = 2
 
             if self.number_of_pulses > 1:
-                self.pulses[1].power = 200
+                self.pulses[1].power = 100
                 self.pulses[1].attack = 0.05
                 self.pulses[1].sustain = 0.1
                 self.pulses[1].release = 0.05
@@ -160,7 +160,7 @@ class VibrationMotor:
 
             # Second pulse definition:
             if self.number_of_pulses > 1:
-                self.pulses[1].power = 200
+                self.pulses[1].power = 100
                 self.pulses[1].attack = 0.05
                 self.pulses[1].sustain = 0.1
                 self.pulses[1].release = 0.05
@@ -173,7 +173,7 @@ class VibrationMotor:
         elif mode == 'wizzy_B':
             self.current_mode = 'wizzy_B'
             # First pulse definition:
-            self.pulses[0].power = 150
+            self.pulses[0].power = 100
             self.pulses[0].attack = 0.050
             self.pulses[0].sustain = 0.250
             self.pulses[0].release = 0.050
@@ -183,7 +183,7 @@ class VibrationMotor:
 
             # Second pulse definition:
             if self.number_of_pulses > 1:
-                self.pulses[1].power = 200
+                self.pulses[1].power = 100
                 self.pulses[1].attack = 0.05
                 self.pulses[1].sustain = 0.1
                 self.pulses[1].release = 0.05
@@ -196,7 +196,7 @@ class VibrationMotor:
         elif mode == 'wizzy_C':
             self.current_mode = 'wizzy_C'
             # First pulse definition:
-            self.pulses[0].power = 200
+            self.pulses[0].power = 100
             self.pulses[0].attack = 0.050
             self.pulses[0].sustain = 0.150
             self.pulses[0].release = 0.050
@@ -206,7 +206,7 @@ class VibrationMotor:
 
             # Second pulse definition:
             if self.number_of_pulses > 1:
-                self.pulses[1].power = 200
+                self.pulses[1].power = 100
                 self.pulses[1].attack = 0.05
                 self.pulses[1].sustain = 0.1
                 self.pulses[1].release = 0.05
@@ -235,15 +235,9 @@ if __name__ == "__main__":
     desired_motor = 0  # [0-5]
     
     motor_list = [VibrationMotor(1, 20)]
-    #motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list] 
-    #for current_thread in motor_threads:
-        #current_thread.daemon=True
-
-    #motor_threads[desired_motor].start()
-   
-    #motor_list[desired_motor].set_mode('wizzy_clear')
+    repeating_interval = 5  # Seconds
     
-    now = time.time() - 10
+    now = time.time() - repeating_interval
 
     try:
         for motor in motor_list:
@@ -253,7 +247,7 @@ if __name__ == "__main__":
                 motor.iterate_sequence()
             time.sleep(VibrationMotor.DT)
             
-            if time.time() - now > 10:
+            if time.time() - now > repeating_interval:
                 now = time.time()
                 for motor in motor_list:
                     motor.reset_sequence()

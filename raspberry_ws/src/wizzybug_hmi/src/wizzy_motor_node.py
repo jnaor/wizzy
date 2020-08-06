@@ -27,7 +27,7 @@ class CallbackHandler:
         
         else:
             indices = [self.radians_to_index(data.ttc_msg.ttc_azimuth)]
-        indices = [0]
+        indices = [0]  # Override for 1-motor setup!
         # Check for active motors:
         for idx in indices:
             if self.motors[idx].is_active:
@@ -77,11 +77,6 @@ if __name__ == "__main__":
        #           VibrationMotor(3, 26, gpio),
         #          VibrationMotor(4, 26, gpio),
          #         VibrationMotor(5, 26, gpio)]
-
-    #motor_threads = [threading.Thread(target = mot.loop_sequence) for mot in motor_list]
-    #for current_thread in motor_threads:
-     #   current_thread.daemon=True
-      #  current_thread.start()
 
     handler = CallbackHandler(motor_list)
 
