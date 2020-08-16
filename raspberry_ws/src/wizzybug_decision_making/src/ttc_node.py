@@ -27,6 +27,8 @@ wizzy_width = 0.5
 wizzy_length = 0.5
 lidar_obj_width = 0.5
 lidar_obj_length = 0.5
+v_thresh = 0.2
+w_thresh = 0.01
 
 
 class Polygon:
@@ -149,9 +151,9 @@ def calc_time_to_collision(v, w, objects, lidar_dist):
             if obj.width.data < w_threshold and obj.length.data < w_threshold:
                 continue
             if obj.width.data < w_threshold:
-                obj.width.data = wizzy_width/10
+                obj.width.data = wizzy_width/5
             if obj.length.data < w_threshold:
-                obj.length.data = wizzy_width/10
+                obj.length.data = wizzy_width/5
             obj_poly = Polygon(x = obj.x.data, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = obj.length.data)
             if wizzy.is_colliding(obj_poly):
 #                print(obj.x.data, obj.y.data)
@@ -167,17 +169,26 @@ class CallbackItems:
     def __init__(self):
         self.v = 0.0
         self.w = 0.0
+        self.v_sign = 1.0
         self.lidar_dist = 100.0
         self.objects = []
         self.ttc_msg = ttc()
 
     def lidar_dist_to_obstacle_callback(self, data):
-        #self.lidar_dist = min([data.dist_to_pitfall, data.dist_to_obstacle])
+        #self.lidar_dist = min([data.visible_floor_distance, data.dist_to_obstacle])
         self.lidar_dist = data.visible_floor_distance
 
     def joy_callback(self, data):
-        self.v = data.linear.x
-        self.w = data.angular.z
+        if np.abs(data.linear.x)>v_thresh and np.abs(data.angular.z)>w_thresh:
+           
+           self.v = data.linear.x
+           self.w = data.angular.z
+           self.v_sign = np.sign(data.linear.x)
+           if np.abs(data.linear.x)<v_thresh:
+              self.v_sign * v_thresh
+        else:
+           self.v = self.v_sign * v_thresh
+           self.w = 0.0
 
     def objects_sub_callback(self, data):
         lidar_obj = obstacle()
@@ -202,7 +213,7 @@ if __name__ == '__main__':
     #
     ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)
     # loop rate of 8Hz
-    rate = rospy.Rate(8)
+    rate = rospy.Rate(10)
 
     while not rospy.is_shutdown():
         #

@@ -17,6 +17,7 @@ DANGER_TTC = 1.0
 WARNING_TTC = 3.0
 CLEARANCE_TTC = 5.0
 STATE_HOLD = 0.05
+ON_HOLD = 3.0
 
 class WizzyA(smach.State):
     def __init__(self):
@@ -24,6 +25,7 @@ class WizzyA(smach.State):
 
     def execute(self, userdata):
         relay_cmd("on")
+        rospy.sleep(ON_HOLD)
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state A')
         return inputs_container.ttc_state
@@ -35,6 +37,7 @@ class WizzyB(smach.State):
 
     def execute(self, userdata):
         relay_cmd("off")
+        rospy.sleep(STATE_HOLD)
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state B')
         return inputs_container.ttc_state
@@ -59,6 +62,7 @@ class WizzyClear(smach.State):
 
     def execute(self, userdata):
         relay_cmd("off")
+        rospy.sleep(STATE_HOLD)
         if inputs_container.ttc_state != inputs_container.prev_state:
             rospy.logdebug('Executing state Clear')
         return inputs_container.ttc_state
@@ -121,7 +125,7 @@ class callback_items:
             self.ttc_state = 'outcome4'
             self.chair_state.state.data= 'WizzyClear'
         self.state_publisher.publish(self.chair_state)
-        rospy.sleep(STATE_HOLD)
+        #rospy.sleep(STATE_HOLD)
 
     def lidar_data_callback(self, data):
         self.lidar_data = data
