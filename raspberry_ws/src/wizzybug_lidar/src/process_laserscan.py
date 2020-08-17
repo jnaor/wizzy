@@ -94,7 +94,13 @@ class LidarProcess :
             return
 
         # estimate ground line using RANSAC
-        ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
+        try:
+
+            ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
+
+        except ValueError as e:
+            rospy.logwarn(f'RANSAC error {e}')
+            return
 
         # estimate line at all x
         l = ransac.predict(x.reshape(-1, 1))
