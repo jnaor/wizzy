@@ -4,9 +4,6 @@
 
  <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
  <node name="can_sniffer" pkg="wizzybug_control" type="canSniffer.py"/>
- 
- <!--<param name='vision_config' value='$(find wizzybug_vision)/config/vision_config.json' /> -->
-
 
 <!--<include file="$(find wizzybug_hmi)/launch/wizzybug_hmi.launch"/>-->
 
