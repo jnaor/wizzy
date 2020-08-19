@@ -1,0 +1,74 @@
+{
+    "cameras": [
+        {
+            "R": [
+                [
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1
+                ]
+            ],
+            "cam_height_cm": "27",
+            "name": "front_cam",
+            "serial": "851112060198",
+            "t": [
+                0,
+                0
+            ],
+            "width": 640,
+            "height": 360,
+            "framerate": 15,
+            "type": "direct"
+        },
+        {
+            "R": [
+                [
+                    0,
+                    -1
+                ],
+                [
+                    1,
+                    0
+                ]
+            ],
+            "cam_height_cm": "28",
+            "name": "left_cam",
+            "serial": "851112060220",
+            "t": [
+                0,
+                0
+            ],
+            "width": 640,
+            "height": 360,
+            "framerate": 15,
+            "type": "direct"
+        },
+        {
+            "R": [
+                [
+                    0,
+                    1
+                ],
+                [
+                    -1,
+                    0
+                ]
+            ],
+            "cam_height_cm": "28",
+            "name": "right_cam",
+            "serial": "851112062252",
+            "t": [
+                0,
+                0
+            ],
+            "width": 640,
+            "height": 360,
+            "framerate": 15,
+            "type": "direct"
+        }
+    ],
+    "rate": 10
+}

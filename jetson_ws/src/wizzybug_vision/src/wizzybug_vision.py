@@ -45,7 +45,7 @@ class ObstacleDetector(object):
         # initialize obstacle reporting structures
         self.obstacle_list, self.obstacle_mask = None, None
 
-        rospy.loginfo('started camera {}'.format(camera_config['serial']))
+        rospy.loginfo('started camera {}'.format(camera.serial))
 
     def grab(self):
         self.camera.grab()
