@@ -99,7 +99,7 @@ class LidarProcess :
             ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
 
         except ValueError as e:
-            rospy.logwarn(f'RANSAC error {e}')
+            rospy.logwarn('RANSAC error {}'.format(e))
             return
 
         # estimate line at all x
