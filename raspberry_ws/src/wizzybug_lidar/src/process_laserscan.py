@@ -29,7 +29,7 @@ class LidarProcess :
     # maximum difference between successive floor z measurements
     MAX_FLOOR_Z_DIFF = 0.05
 
-    def __init__ (self, min_obstacle_height, min_pitfall_depth, visualize=False):
+    def __init__ (self, min_obstacle_height, min_pitfall_depth):
 
         # save parameters
         self.min_obstacle_height, self.min_pitfall_depth = min_obstacle_height, min_pitfall_depth
@@ -42,20 +42,6 @@ class LidarProcess :
 
         # simulation-specific correction
         self.simulated_radar = rospy.get_param('simulated_lidar', False)
-
-        # visualization stuff
-        self.visualize = visualize
-        if visualize:
-            import matplotlib
-            matplotlib.use('Agg')
-            import matplotlib.pyplot as plt
-
-            # "interactive" on for dynamic visualization
-            plt.ion()
-
-            self.fig, self.ax = plt.subplots()
-            self.sc = self.ax.scatter([], [])
-            plt.draw()
         
     def scan_cb(self, msg):           
 
@@ -99,14 +85,6 @@ class LidarProcess :
                              z[(x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
                                (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE)]
 
-        if self.visualize:
-            import matplotlib
-            matplotlib.use('Agg')
-            import matplotlib.pyplot as plt
-            self.sc.set_offsets(np.c_[ground_x, ground_z])
-            self.fig.canvas.draw_idle()
-            plt.pause(0.1)
-
         if min(len(ground_x), len(ground_z)) == 0:
             rospy.logwarn('unable to detect ground readings')
             return
@@ -124,7 +102,7 @@ class LidarProcess :
         l = ransac.predict(x.reshape(-1, 1))
 
         # show
-        show_line_fit(ransac, ground_x, ground_z, l)
+        # show_line_fit(ransac, ground_x, ground_z, l)
 
         # keep ransac score
         ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
@@ -189,7 +167,10 @@ class LidarProcess :
             ld.visible_floor_distance = msg.range_max
             rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
         else:
-            ld.visible_floor_distance = x[z_gap[0]]
+            ld.visible_floor_distance = x[z_gap[0]-1]
+
+        if ld.visible_floor_distance > 1.0 :
+            print ("Here")
 
         # publish results
         self.lidar_proc.publish(ld)
@@ -229,6 +210,6 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1)
     rospy.spin()
 
