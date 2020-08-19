@@ -22,7 +22,7 @@ class LedSection:
         self.set_state_params('idle')
         
         self.is_active = False
-        #self.heartbeat()
+        self.heartbeat()
 
     def heartbeat(self):
         for current_color in range(3):
@@ -30,10 +30,9 @@ class LedSection:
             strip_color[current_color] = 50
             self.set_section_color(strip_color[0],strip_color[1],strip_color[2])
 
-            print('before show')
             self.led_strip.show()
 
-            print('now testing led section {} with color {}'.format(self.section_id, strip_color))
+            #print('now testing led section {} with color {}'.format(self.section_id, strip_color))
 
             time.sleep(0.2)
             self.set_section_color(0,0,0)
@@ -250,15 +249,10 @@ if __name__ == "__main__":
                     LedSection(4, pixels), 
                     LedSection(5, pixels)]
 
- 
-    #section_list[desired_section].set_mode('wizzy_clear')
-
-    #section_threads = [threading.Thread(target = sec.loop_sequence) for sec in section_list]
-    #for current_thread in section_threads:
-        #current_thread.daemon=True
-    #section_threads[desired_section].start()
+    repeating_interval = 5  # Seconds
    
-    now = time.time() - 5
+    now = time.time() - repeating_interval
+    counter = 0
     try:
         for section in section_list:
             section.reset_sequence()
@@ -271,12 +265,13 @@ if __name__ == "__main__":
                     any_active = True
 
             if any_active:
-                print('active')
+                #print(counter)
+                counter+=1
                 pixels.show()
 
             time.sleep(LedSection.DT)
             
-            if time.time() - now > 5:
+            if time.time() - now > repeating_interval:
                 now = time.time()
                 for section in section_list:
                     section.reset_sequence()

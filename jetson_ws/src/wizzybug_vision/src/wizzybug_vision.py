@@ -140,10 +140,10 @@ class Camera(object):
         # listen for camera transformation
         listener = tf.TransformListener()
 
-        # wait till transform is available
-        listener.waitForTransform('/base_link', '/{}_link'.format(self.name), rospy.Time(), rospy.Duration(4.0))
-
         try:
+            # wait till transform is available
+            listener.waitForTransform('/base_link', '/{}_link'.format(self.name), rospy.Time(), rospy.Duration(10.0))
+
             (translation, rotation_quat) = listener.lookupTransform(
                 '/base_link', '/{}_link'.format(self.name), rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):

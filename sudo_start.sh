@@ -2,6 +2,9 @@ WIZZY_HOME=/home/wizzy-aux/wizzy/
 
 # for usb relay (? don't remember)
 chmod +x /dev/ttyACM0
+chmod +x /dev/ttyACM1
+chmod +x /dev/ttyACM2
+chmod +x /dev/ttyACM3
 
 # init LED controller
 # python3 $WIZZY_HOME/raspberry_ws/src/wizzybug_hmi/src/wizzy_led_controller.py & 
