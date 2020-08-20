@@ -91,7 +91,6 @@ class LidarProcess :
 
         # estimate ground line using RANSAC
         try:
-
             ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
 
         except ValueError as e:
@@ -100,9 +99,6 @@ class LidarProcess :
 
         # estimate line at all x
         l = ransac.predict(x.reshape(-1, 1))
-
-        # show
-        # show_line_fit(ransac, ground_x, ground_z, l)
 
         # keep ransac score
         ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
@@ -129,33 +125,6 @@ class LidarProcess :
         # subtract ground height
         T[1, :] += ld.lidar_height
 
-        # where are there obstacles
-        obstacle_loc = np.bitwise_and(T[1, :] > self.min_obstacle_height,
-                                      T[0, :] > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE)
-
-        # x's where there is an obstacle
-        obstacle_x = T[0, :][obstacle_loc]
-
-        # if none found
-        if len(obstacle_x) == 0 :
-            obstacle_x = [np.inf]
-
-        # report distance to obstacle
-        ld.dist_to_obstacle = min(min(obstacle_x), msg.range_max)
-
-        # where are there pitfalls
-        # pitfall_loc = np.bitwise_and(T[1, :] < -self.min_pitfall_depth,
-        #                             T[0, :] > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE)
-
-        # x's where there is a pitfall
-        #pitfall_x = T[0, :][pitfall_loc]
-
-        # if none found
-        #if len(pitfall_x) == 0 :
-        #    pitfall_x = [np.inf]
-
-        # ld.dist_to_pitfall = min(min(pitfall_x), msg.range_max)
-
         # difference between successive z measurements
         diff = np.abs(np.diff(T[1]))
 
@@ -168,9 +137,6 @@ class LidarProcess :
             rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
         else:
             ld.visible_floor_distance = x[z_gap[0]-1]
-
-        if ld.visible_floor_distance > 1.0 :
-            print ("Here")
 
         # publish results
         self.lidar_proc.publish(ld)
