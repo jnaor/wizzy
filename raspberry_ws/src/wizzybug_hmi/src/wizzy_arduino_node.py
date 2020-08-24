@@ -32,7 +32,7 @@ class CallbackHandler:
 
         self.data_pipe.write(byte_sequence)
         #self.data_pipe.send_data(mode, indices, len(indices))
-        print('Arduino respones: ' + self.data_pipe.read(1000))
+        #print('Arduino response: ' + self.data_pipe.read(1000))
 
     def radians_to_index(self, angle):  # Motors will be different than LED!
         # Quick and dirty, there can be a more efficient way:
