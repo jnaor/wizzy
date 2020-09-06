@@ -13,5 +13,7 @@
 
     <node name="decision_maker" pkg="wizzybug_decision_making" type="decision_maker.py" output="screen" />
 
+    <node name="bit" pkg="wizzybug_bit" type="bit.py" output="screen" />
+
 
 </launch>
