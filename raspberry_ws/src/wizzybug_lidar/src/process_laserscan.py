@@ -14,36 +14,40 @@ from sklearn.linear_model import RANSACRegressor
     Process lidar sensor input from topic /scan, 
     and publish obstacle distance and LidarProcess state (i.e., obstacle type)
     """
-class LidarProcess :
 
+
+class LidarProcess:
     # score threshold for ground plane estimation
     GROUND_PLANE_ESTIMATION_THRESHOLD = 10
 
     # there's some noise in front of the sensor; estimate ground based on measurements
     # taken after a certain distance
-    GROUND_PLANE_ESTIMATION_MIN_DISTANCE = 0.2
+    GROUND_PLANE_ESTIMATION_MIN_DISTANCE = 0.0
 
     # max distance for ground plane estimation
-    GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.5
+    GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
     # maximum difference between successive floor z measurements
     MAX_FLOOR_Z_DIFF = 0.05
 
-    def __init__ (self, min_obstacle_height, min_pitfall_depth):
+    def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
 
         # save parameters
         self.min_obstacle_height, self.min_pitfall_depth = min_obstacle_height, min_pitfall_depth
 
         # initialize publisher 
-        self.lidar_proc = rospy.Publisher('/wizzy/lidar_proc', lidar_data, queue_size=10)          
+        self.lidar_proc = rospy.Publisher('/wizzy/lidar_proc', lidar_data, queue_size=10)
 
         # Subscribe 
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
 
         # simulation-specific correction
         self.simulated_radar = rospy.get_param('simulated_lidar', False)
-        
-    def scan_cb(self, msg):           
+
+        # visualization on/off
+        self.visualize = visualize
+
+    def scan_cb(self, msg):
 
         # prepare result structure to publish
         ld = lidar_data()
@@ -97,8 +101,8 @@ class LidarProcess :
             rospy.logwarn('RANSAC error {}'.format(e))
             return
 
-        # estimate line at all x
-        l = ransac.predict(x.reshape(-1, 1))
+        # estimate line at ground_x
+        l = ransac.predict(ground_x.reshape(-1, 1))
 
         # keep ransac score
         ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
@@ -113,8 +117,27 @@ class LidarProcess :
         ld.lidar_height = -ransac.predict([[0]])[0]
 
         # floor angle
-        inclination = np.arctan((l[0]-l[-1])/(x[-1]-x[0]))
+        inclination = np.arctan((l[0] - l[-1]) / (x[-1] - x[0]))
         ld.floor_inclination_degrees = np.rad2deg(inclination)
+
+        if self.visualize:
+            from matplotlib import pylab as plt
+            from drawnow import drawnow, figure
+
+            def visualize():
+                plt.subplot(1, 1, 1)
+                plt.scatter(x, z)
+                # plt.scatter(ground_x, ground_z)
+
+                inlier_mask = ransac.inlier_mask_
+                outlier_mask = np.logical_not(inlier_mask)
+
+                plt.scatter(ground_x[inlier_mask], ground_z[inlier_mask], color='yellowgreen', marker='.',
+                            label='Inliers')
+                plt.scatter(ground_x[outlier_mask], ground_z[outlier_mask], color='cornflowerblue', marker='.',
+                            label='Outliers')
+
+            drawnow(visualize)
 
         # rotation matrix to make ground level
         R = np.array([[np.cos(inclination), -np.sin(inclination)], [np.sin(inclination), np.cos(inclination)]])
@@ -136,22 +159,22 @@ class LidarProcess :
             ld.visible_floor_distance = msg.range_max
             rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
         else:
-            ld.visible_floor_distance = x[z_gap[0]-1]
+            ld.visible_floor_distance = x[z_gap[0] - 1]
 
         # publish results
         self.lidar_proc.publish(ld)
 
-        
+
 def polar2cart(rho, phi):
     """
     Helper function - Changing from Polar to Cartesian coordinates
     """
     x = rho * np.cos(phi)
     y = rho * np.sin(phi)
-    return(x, y)
+    return (x, y)
+
 
 def show_line_fit(ransac, X, y, y_ransac):
-
     from matplotlib import pylab as plt
 
     inlier_mask = ransac.inlier_mask_
@@ -176,6 +199,5 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
     rospy.spin()
-
