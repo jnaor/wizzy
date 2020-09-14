@@ -84,10 +84,9 @@ class LidarProcess:
             return
 
         # locations assumed to be the ground
-        ground_x, ground_z = x[(x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
-                               (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE)], \
-                             z[(x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
-                               (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE)]
+        ground_indices = np.where((x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
+                               (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE))
+        ground_x, ground_z = x[ground_indices], z[ground_indices]
 
         if min(len(ground_x), len(ground_z)) == 0:
             rospy.logwarn('unable to detect ground readings')
@@ -95,7 +94,7 @@ class LidarProcess:
 
         # estimate ground line using RANSAC
         try:
-            ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
+            ransac = RANSACRegressor(random_state=0, residual_threshold=1).fit(ground_x.reshape(-1, 1), ground_z)
 
         except ValueError as e:
             rospy.logwarn('RANSAC error {}'.format(e))
@@ -120,25 +119,6 @@ class LidarProcess:
         inclination = np.arctan((l[0] - l[-1]) / (x[-1] - x[0]))
         ld.floor_inclination_degrees = np.rad2deg(inclination)
 
-        if self.visualize:
-            from matplotlib import pylab as plt
-            from drawnow import drawnow, figure
-
-            def visualize():
-                plt.subplot(1, 1, 1)
-                plt.scatter(x, z)
-                # plt.scatter(ground_x, ground_z)
-
-                inlier_mask = ransac.inlier_mask_
-                outlier_mask = np.logical_not(inlier_mask)
-
-                plt.scatter(ground_x[inlier_mask], ground_z[inlier_mask], color='yellowgreen', marker='.',
-                            label='Inliers')
-                plt.scatter(ground_x[outlier_mask], ground_z[outlier_mask], color='cornflowerblue', marker='.',
-                            label='Outliers')
-
-            drawnow(visualize)
-
         # rotation matrix to make ground level
         R = np.array([[np.cos(inclination), -np.sin(inclination)], [np.sin(inclination), np.cos(inclination)]])
 
@@ -160,6 +140,34 @@ class LidarProcess:
             rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
         else:
             ld.visible_floor_distance = x[z_gap[0] - 1]
+
+        if self.visualize:
+            from matplotlib import pylab as plt
+            from drawnow import drawnow, figure
+
+            def visualize():
+                # plt.figure(1)
+                # plt.subplot(1, 1, 1)
+                # plt.scatter(x, z)
+                # # plt.scatter(ground_x, ground_z)
+                #
+                # inlier_mask = ransac.inlier_mask_
+                # outlier_mask = np.logical_not(inlier_mask)
+                #
+                # plt.scatter(ground_x[inlier_mask], ground_z[inlier_mask], color='yellowgreen', marker='.',
+                #             label='Inliers')
+                # plt.scatter(ground_x[outlier_mask], ground_z[outlier_mask], color='cornflowerblue', marker='.',
+                #             label='Outliers')
+                #
+                # plt.xlim([-0.5, 6])
+                # plt.ylim([-1, 3])
+                #
+                # plt.figure(2)
+                plt.subplot(1, 1, 1)
+                plt.scatter(T[0, :], T[1, :])
+
+            drawnow(visualize)
+
 
         # publish results
         self.lidar_proc.publish(ld)
@@ -199,5 +207,5 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
     rospy.spin()
