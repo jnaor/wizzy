@@ -124,7 +124,8 @@ class callback_items:
         elif self.ttc > CLEARANCE_TTC:
             self.ttc_state = 'outcome4'
             self.chair_state.state.data= 'WizzyClear'
-        self.state_publisher.publish(self.chair_state)
+        if self.prev_state != self.ttc_state:
+            self.state_publisher.publish(self.chair_state)
         #rospy.sleep(STATE_HOLD)
 
     def lidar_data_callback(self, data):
