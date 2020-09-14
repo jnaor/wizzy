@@ -13,6 +13,7 @@ class CallbackHandler:
 
     def __init__(self):
         self.data_pipe = serial.Serial('/dev/ttyACM1', 9600, timeout=1)  # Opens Automatically
+        self.current_state = "WizzyClear"
         time.sleep(2)  # Wait for arduino bootloader to load
         print('Arduino serial channel open')
 
@@ -23,16 +24,17 @@ class CallbackHandler:
             #idx, dist = self.obstacle_azi_dist(obstacle)
             #if dist < 2 and idx not in indices:
                 #indices.append(idx)
-        
-        idx = self.radians_to_index(data.ttc_msg.ttc_azimuth)
-        mode = self.mode_to_char(data.state.data)
-        byte_sequence = struct.pack('6c', chr(72), chr(72), chr(idx+48), mode, chr(84), chr(84))
-        unpacked_sequence = struct.unpack('6c', byte_sequence)
-        #print(unpacked_sequence)
+        if self.current_state != data.state.data:
+            self.current_state = data.state.data
+            idx = self.radians_to_index(data.ttc_msg.ttc_azimuth)
+            mode = self.mode_to_char(data.state.data)
+            byte_sequence = struct.pack('6c', chr(72), chr(72), chr(idx+48), mode, chr(84), chr(84))
+            unpacked_sequence = struct.unpack('6c', byte_sequence)
+            #print(unpacked_sequence)
 
-        self.data_pipe.write(byte_sequence)
-        #self.data_pipe.send_data(mode, indices, len(indices))
-        #print('Arduino response: ' + self.data_pipe.read(1000))
+            self.data_pipe.write(byte_sequence)
+            #self.data_pipe.send_data(mode, indices, len(indices))
+            #print('Arduino response: ' + self.data_pipe.read(1000))
 
     def radians_to_index(self, angle):  # Motors will be different than LED!
         # Quick and dirty, there can be a more efficient way:
@@ -50,13 +52,13 @@ class CallbackHandler:
             return 3
 
     def mode_to_char(self, char):
-        if char == 'wizzy_clear':
+        if char == 'WizzyClear':
             return 'O'
-        elif char == 'wizzy_A':
+        elif char == 'WizzyA':
             return 'A'
-        elif char == 'wizzy_B':
+        elif char == 'WizzyB':
             return 'B'
-        elif char == 'wizzy_C':
+        elif char == 'WizzyC':
             return 'C'
         else:  # error, non existent mode
             return 'e'
@@ -72,7 +74,7 @@ if __name__ == "__main__":
     try:
         rospy.init_node('wizzy_arduino_leds')
         handler = CallbackHandler()
-        section_subscriber = rospy.Subscriber('/hmi_commands', ChairState, handler.activation_callback)
+        section_subscriber = rospy.Subscriber('/chair_state', ChairState, handler.activation_callback)
 
         while not rospy.is_shutdown():
             rospy.spin()

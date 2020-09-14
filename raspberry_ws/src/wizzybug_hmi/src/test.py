@@ -12,19 +12,19 @@ def index_to_mode(idx):
     modded_idx = idx % 3
     print(idx, modded_idx)
     if modded_idx == 0:
-        return 'wizzy_A'
+        return 'WizzyA'
     elif modded_idx == 1:
-        return 'wizzy_B'
+        return 'WizzyB'
     elif modded_idx == 2:
-        return 'wizzy_C'
+        return 'WizzyC'
     else:
-        return 'wizzy_clear'
+        return 'WizzyClear'
 
 
 if __name__ == "__main__":
 
     rospy.init_node('hmi_tester')
-    chair_state_pub = rospy.Publisher('/hmi_commands', ChairState, queue_size=50)
+    chair_state_pub = rospy.Publisher('/chair_state', ChairState, queue_size=50)
     time.sleep(1)  # For letting the publisher subscribe in the server
     chair_state = ChairState()
 
