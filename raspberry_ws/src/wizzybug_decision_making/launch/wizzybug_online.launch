@@ -5,6 +5,6 @@
  <include file="$(find wizzybug_decision_making)/launch/wizzybug_bringup.launch"/>
  <node name="can_sniffer" pkg="wizzybug_control" type="canSniffer.py"/>
 
-<!--<include file="$(find wizzybug_hmi)/launch/wizzybug_hmi.launch"/>-->
+ <include file="$(find wizzybug_hmi)/launch/wizzybug_hmi.launch"/>
 
 </launch>

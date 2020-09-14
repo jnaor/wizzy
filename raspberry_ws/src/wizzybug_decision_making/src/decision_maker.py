@@ -10,7 +10,7 @@ import copy
 import smach_ros
 import serial
 
-PORT_NAME = "/dev/ttyACM0"
+PORT_NAME = "/dev/Relay"
 RELAYNUM = "0"  # Support only one relay
 
 DANGER_TTC = 1.0
