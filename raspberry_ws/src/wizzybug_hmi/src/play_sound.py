@@ -25,13 +25,11 @@ def sound_cb(msg):
     """
     Ring the bell only when USB Relay receives an "on" command,
     that stops the Wizzy.
-    """    
-    rospy.loginfo('play_sound received message {}'.format(msg))    
-    if "on" in str(msg):
-        rospy.loginfo("*** Got USB Relay ON : Ringing the bell")
-        play(bell_sound)
+    """
+    rospy.loginfo("*** chair state changed to {} : Ringing the bell".format(msg.state.data))
+    play(bell_sound)
 
 # Subscribe
-rospy.Subscriber("usb_relay_command", String, sound_cb)
+rospy.Subscriber("/chair_state", String, sound_cb)
 
 rospy.spin()
