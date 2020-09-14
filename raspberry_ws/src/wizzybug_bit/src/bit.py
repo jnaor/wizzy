@@ -60,7 +60,7 @@ class BIT:
 if __name__ == '__main__':
 
     # start this node
-    rospy.init_node('bit', log_level=rospy.DEBUG)
+    rospy.init_node('bit', log_level=rospy.WARN)
 
     # topics to look for
     topics = ['/wizzy/obstacle_list', '/wizzy/lidar_proc', '/chair_state']
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     bit = BIT(topics=topics)
 
     # test frequency
-    rate = rospy.Rate(1.0/3)
+    rate = rospy.Rate(1.0/8)
 
     while not rospy.is_shutdown():
         # publish status
