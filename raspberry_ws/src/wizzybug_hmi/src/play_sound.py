@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import String
 
 from pydub import AudioSegment
 from pydub.playback import play
 
 import os
+
+from wizzybug_msgs.msg import ChairState
 
 rospy.loginfo("Initializing audio")
 rospy.init_node('play_sound', anonymous=True)
@@ -30,6 +31,6 @@ def sound_cb(msg):
     play(bell_sound)
 
 # Subscribe
-rospy.Subscriber("/chair_state", String, sound_cb)
+rospy.Subscriber("/chair_state", ChairState, sound_cb)
 
 rospy.spin()
