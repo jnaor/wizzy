@@ -161,8 +161,8 @@ class LidarProcess:
             z_gap = min(np.where(np.bitwise_and(x_gap, diff_z > LidarProcess.MAX_FLOOR_Z_DIFF))[0])
             ld.visible_floor_distance = x[z_gap - 1]
         except ValueError:
-            ld.visible_floor_distance = msg.range_max
-            rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
+            ld.visible_floor_distance = np.max(x)
+            # rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
 
         if self.visualize:
             from matplotlib import pylab as plt
@@ -231,5 +231,5 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
     rospy.spin()
