@@ -9,6 +9,7 @@ from wizzybug_msgs.msg import lidar_data
 
 import numpy as np
 from sklearn.linear_model import RANSACRegressor
+from scipy.ndimage.morphology import binary_erosion
 
 """
     Process lidar sensor input from topic /scan, 
@@ -27,8 +28,8 @@ class LidarProcess:
     # max distance for ground plane estimation
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
-    # maximum difference between successive floor z measurements
-    MAX_FLOOR_Z_DIFF = 0.05
+    # maximum difference between successive floor measurements
+    MAX_FLOOR_X_DIFF, MAX_FLOOR_Z_DIFF = 0.3, 0.3
 
     def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
 
@@ -78,6 +79,10 @@ class LidarProcess:
         finite_indices = np.isfinite(x) & np.isfinite(z)
         x, z = x[finite_indices], z[finite_indices]
 
+        # sort by x
+        sorted_indices = np.argsort(x)
+        x, z = x[sorted_indices], z[sorted_indices]
+
         # check that both x and z are not empty
         if len(x) * len(z) == 0:
             rospy.logerr("invalid laser scan readings")
@@ -94,7 +99,7 @@ class LidarProcess:
 
         # estimate ground line using RANSAC
         try:
-            ransac = RANSACRegressor(random_state=0, residual_threshold=1).fit(ground_x.reshape(-1, 1), ground_z)
+            ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
 
         except ValueError as e:
             rospy.logwarn('RANSAC error {}'.format(e))
@@ -105,12 +110,26 @@ class LidarProcess:
 
         # keep ransac score
         ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
-        # rospy.logdebug('ransac score is {}'.format(ransac_score))
 
         # if readings do not fit a line then report error
         if ransac_score > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
             rospy.logwarn('unable to detect ground. score is {}'.format(ransac_score))
             return
+
+        # ransac inliers
+        inlier_mask = ransac.inlier_mask_
+
+        # ransac outliers
+        outlier_mask = np.logical_not(inlier_mask)
+
+        # find index of last outlier in original array
+        try:
+            last_outlier_index = ground_indices[0][np.max(np.nonzero(outlier_mask)[0])]
+
+        # if there are no outliers
+        except ValueError:
+            # take last ground point
+            last_outlier_index = 0
 
         # record lidar height (minus sign because the lidar is above the floor)
         ld.lidar_height = -ransac.predict([[0]])[0]
@@ -129,17 +148,21 @@ class LidarProcess:
         T[1, :] += ld.lidar_height
 
         # difference between successive z measurements
-        diff = np.abs(np.diff(T[1]))
+        diff_x, diff_z = np.abs(np.diff(T[0])), np.abs(np.diff(T[1]))
+
+        # skip to after the last outlier
+        diff_z[:last_outlier_index+1] = 0
+
+        # x gaps
+        x_gap = binary_erosion(diff_x < LidarProcess.MAX_FLOOR_X_DIFF)
 
         # detect gap in z
-        z_gap = min(np.where(diff > LidarProcess.MAX_FLOOR_Z_DIFF))
-
-        # How far can we see the floor
-        if len(z_gap) == 0:
+        try:
+            z_gap = min(np.where(np.bitwise_and(x_gap, diff_z > LidarProcess.MAX_FLOOR_Z_DIFF))[0])
+            ld.visible_floor_distance = x[z_gap - 1]
+        except ValueError:
             ld.visible_floor_distance = msg.range_max
             rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
-        else:
-            ld.visible_floor_distance = x[z_gap[0] - 1]
 
         if self.visualize:
             from matplotlib import pylab as plt
@@ -151,20 +174,21 @@ class LidarProcess:
                 # plt.scatter(x, z)
                 # # plt.scatter(ground_x, ground_z)
                 #
-                # inlier_mask = ransac.inlier_mask_
-                # outlier_mask = np.logical_not(inlier_mask)
                 #
                 # plt.scatter(ground_x[inlier_mask], ground_z[inlier_mask], color='yellowgreen', marker='.',
                 #             label='Inliers')
-                # plt.scatter(ground_x[outlier_mask], ground_z[outlier_mask], color='cornflowerblue', marker='.',
+                # plt.scatter(ground_x[outlier_mask], ground_z[outlier_mask], color='black', marker='.',
                 #             label='Outliers')
                 #
-                # plt.xlim([-0.5, 6])
-                # plt.ylim([-1, 3])
-                #
+
                 # plt.figure(2)
                 plt.subplot(1, 1, 1)
-                plt.scatter(T[0, :], T[1, :])
+                # plt.scatter(T[0, :], T[1, :])
+                plt.scatter(x[1:], diff_z, color='green')
+                plt.plot(ld.visible_floor_distance, 0, 'bx')
+
+                plt.xlim([-0.5, 6])
+                plt.ylim([-1, 3])
 
             drawnow(visualize)
 
