@@ -63,7 +63,7 @@ if __name__ == '__main__':
     rospy.init_node('bit', log_level=rospy.WARN)
 
     # topics to look for
-    topics = ['/wizzy/obstacle_list', '/wizzy/lidar_proc', '/chair_state']
+    topics = ['/wizzy/obstacle_list', '/wizzy/lidar_proc']
 
     # create test object
     bit = BIT(topics=topics)
