@@ -27,8 +27,8 @@ wizzy_width = 0.5
 wizzy_length = 0.5
 lidar_obj_width = 0.5
 lidar_obj_length = 0.5
-v_thresh = 0.2
-w_thresh = 0.01
+v_thresh = 0.0
+w_thresh = 0.0
 
 
 class Polygon:
