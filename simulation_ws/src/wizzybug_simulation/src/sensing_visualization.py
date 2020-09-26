@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
+import rospy
+
 from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import Vector3
 from wizzybug_msgs.msg import lidar_data, obstacle, obstacleArray
-
-# visualization frequency detemined by this
-SLEEP_DURATION = 0.05
 
 # for how long to display markers
 MARKER_DISPLAY_DURATION = 0.1
@@ -19,7 +18,7 @@ class Visualizer(object):
         rospy.init_node('sensing_visualization', log_level=rospy.DEBUG)
 
         # initialize display duration for markers
-        self.display_duration = rospy.duration(MARKER_DISPLAY_DURATION)
+        self.display_duration = rospy.Duration(MARKER_DISPLAY_DURATION)
 
         # subscribe to lidar
         lidar_subscriber = rospy.Subscriber('/wizzy/lidar_proc', lidar_data, self.lidar_callback)
@@ -65,6 +64,10 @@ class Visualizer(object):
             marker.pose.position.y = obstacle.y.data
             marker.pose.position.z = obstacle.z.data
 
+            # how long to show
+            marker.lifetime = MARKER_DISPLAY_DURATION
+
+            # finally, add to list
             markerArray.markers.append(marker)
 
         # publish markers for detected 
