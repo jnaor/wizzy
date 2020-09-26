@@ -17,9 +17,6 @@ class Visualizer(object):
         # initialize node
         rospy.init_node('sensing_visualization', log_level=rospy.DEBUG)
 
-        # initialize display duration for markers
-        self.display_duration = rospy.Duration(MARKER_DISPLAY_DURATION)
-
         # subscribe to lidar
         lidar_subscriber = rospy.Subscriber('/wizzy/lidar_proc', lidar_data, self.lidar_callback)
         
@@ -30,23 +27,21 @@ class Visualizer(object):
         self.obstacles_publisher = rospy.Publisher('obstacle_marker', MarkerArray, queue_size = 10)
 
     def lidar_callback(self, lidar_data):
-        rospy.logdebug('in lidar callback')
         pass
 
     def camera_callback(self, obstacle_array):
-        rospy.logdebug('in camera callback')
 
         # to hold obstacle markers array
-        markerArray = MarkerArray()
+        marker_array = MarkerArray()
 
         # go over received array and add markers per obstacle
-        for obstacle in obstacle_array:
+        for obstacle_id, obstacle in enumerate(obstacle_array.data):
 
             # new marker for this obstacle
             marker = Marker()
 
             # marker attributes
-            marker.header.frame_id = "/obstacle_marker"
+            marker.header.frame_id = "base_footprint"
 
             marker.type = marker.CUBE
             marker.action = marker.ADD
@@ -65,13 +60,16 @@ class Visualizer(object):
             marker.pose.position.z = obstacle.z.data
 
             # how long to show
-            marker.lifetime = MARKER_DISPLAY_DURATION
+            marker.lifetime = rospy.Duration(MARKER_DISPLAY_DURATION)
+
+            # id for this marker
+            marker.id = obstacle_id
 
             # finally, add to list
-            markerArray.markers.append(marker)
+            marker_array.markers.append(marker)
 
         # publish markers for detected 
-        self.obstacles_publisher.publish(markerArray)
+        self.obstacles_publisher.publish(marker_array)
 
     def spin(self):
         rospy.spin()
