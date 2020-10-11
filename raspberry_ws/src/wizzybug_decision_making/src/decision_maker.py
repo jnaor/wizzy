@@ -69,7 +69,7 @@ class WizzyClear(WizzyState):
 class WizzyLock(WizzyState):
    def execute(self, userdata):
 
-        rospy.loginfo('Received external lock message')
+        rospy.logdebug('Received external lock message')
         return super(WizzyLock, self).execute("on")        
 
 
@@ -164,7 +164,7 @@ inputs_container = callback_items()
 
 if __name__ == '__main__':
 
-    rospy.init_node('decision_maker', log_level = rospy.DEBUG)
+    rospy.init_node('decision_maker', log_level = rospy.INFO)
     relay_cmd("off")
     # Subscribers
 
