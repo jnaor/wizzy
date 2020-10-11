@@ -115,7 +115,9 @@ class callback_items:
         self.yaw, self.pitch, self.roll = transformations.euler_from_quaternion(quat, 'rzyx')
 
     def ttc_callback(self, data):
-        self.prev_state = copy.deepcopy(self.state)
+        # remember current state
+        self.prev_state = self.state
+
         self.ttc = data.ttc
         self.azimuth = data.ttc_azimuth
         self.chair_state.ttc_msg = data
@@ -137,6 +139,10 @@ class callback_items:
 
     def flic_button_callback(self, msg):
         print('flic_button_callback data: {}'.format(msg.data))
+        
+        # remember
+        self.prev_state = self.state
+
         if msg.data == 'single':
             self.chair_state.state.data = 'WizzyLock'
             self.state = 'caretaker_lock'
@@ -148,7 +154,10 @@ class callback_items:
         # no action for "hold" operation for now
 
         # publish to notify HMI 
-        self.state_publisher.publish(self.chair_state)
+        if self.prev_state != self.state:
+
+            # publish
+            self.state_publisher.publish(self.chair_state)
 
 
 inputs_container = callback_items()
