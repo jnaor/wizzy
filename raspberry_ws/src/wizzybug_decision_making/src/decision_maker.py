@@ -17,7 +17,7 @@ DANGER_TTC = 1.0
 WARNING_TTC = 3.0
 CLEARANCE_TTC = 5.0
 STATE_HOLD = 0.05
-ON_HOLD = 3.0
+ON_HOLD = 0.1
 
 
 """ base class for wizzy states """
@@ -34,7 +34,7 @@ class WizzyState(smach.State):
         # TODO: misuse of userdata            
         relay_cmd(userdata)
 
-        # TODO: check why this is necessary
+        # sleep between state checks
         rospy.sleep(ON_HOLD)
 
         # return state from global structure

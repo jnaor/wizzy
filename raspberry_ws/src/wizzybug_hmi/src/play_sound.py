@@ -13,7 +13,7 @@ rospy.loginfo("Initializing audio")
 rospy.init_node('play_sound', anonymous=True)
 
 # read camera configuration. default to local if no parameter set by ros
-bell_sound_file = rospy.get_param('bell_sound', 'sound/Alert.wav')
+bell_sound_file = rospy.get_param('bell_sound', '../sound/Alert.wav')
 
 # get absolute path
 bell_sound_file = os.path.abspath(bell_sound_file)
