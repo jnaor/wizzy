@@ -12,9 +12,9 @@ from wizzybug_msgs.msg import *
 import smach
 import serial
 
-DANGER_TTC = 1.0
-WARNING_TTC = 3.0
-CLEARANCE_TTC = 5.0
+DANGER_TTC = 2.0
+WARNING_TTC = 4.0
+CLEARANCE_TTC = 6.0
 PORT_NAME = "/dev/Relay"
 RELAYNUM = "0"  # Support only one relay
 
