@@ -39,6 +39,7 @@ class StateTtcMsg(StateMsg):
         self.chair_state.ttc_msg = msg
 
     def process(self, prev_state):
+
         if prev_state is not None and prev_state.state.data == 'WizzyLock':
             return None
 
@@ -64,6 +65,8 @@ class StateFlicMsg(StateMsg):
             self.chair_state.state.data = 'WizzyLock'
         elif self.flic_msg == 'double':
             self.chair_state.state.data = 'WizzyClear'
+        else:
+            return None
         return self.chair_state
 
 
@@ -180,7 +183,7 @@ class WizzyActionState(smach.State):
 
 
 def main():
-    rospy.init_node('decision_maker', log_level=rospy.DEBUG)
+    rospy.init_node('decision_maker', log_level=rospy.INFO)
 
     # Create a wizzy state machine
     wizzy_sm = smach.StateMachine(outcomes=['ABORT'])
