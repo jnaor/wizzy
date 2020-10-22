@@ -38,7 +38,10 @@ class StateTtcMsg(StateMsg):
         StateMsg.__init__(self)
         self.chair_state.ttc_msg = msg
 
-    def process(self):
+    def process(self, prev_state):
+        if prev_state is not None and prev_state.state.data == 'WizzyLock':
+            return None
+
         ttc = self.chair_state.ttc_msg.ttc
         if ttc < DANGER_TTC:
             self.chair_state.state.data = 'WizzyA'
@@ -56,7 +59,7 @@ class StateFlicMsg(StateMsg):
         StateMsg.__init__(self)
         self.flic_msg = msg.data
 
-    def process(self):
+    def process(self,prev_state):
         if self.flic_msg == 'single':
             self.chair_state.state.data = 'WizzyLock'
         elif self.flic_msg == 'double':
@@ -115,8 +118,8 @@ class WizzyWaitingState(smach.State):
     def execute(self, userdata):
         state_msg = self.waitForMsg()
         if state_msg is not None:
-            new_state = state_msg.process()
             prev_state = userdata.chair_state_in
+            new_state = state_msg.process(prev_state)
             if new_state is not None and (prev_state is None or (new_state.state.data is not prev_state.state.data)):
                 # move to another state
                 userdata.chair_state_out = new_state
