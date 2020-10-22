@@ -1,199 +1,228 @@
 #!/usr/bin/env python
+import sys
+
+sys.path.append('../../../devel/lib/python2.7/dist-packages')
 
 import rospy
-import tf.transformations as transformations
-from sensor_msgs.msg import Imu
+import threading
+
 from std_msgs.msg import String
 from wizzybug_msgs.msg import *
-import smach
-import copy
-import smach_ros
-import serial
 
-PORT_NAME = "/dev/Relay"
-RELAYNUM = "0"  # Support only one relay
+import smach
+import serial
 
 DANGER_TTC = 1.0
 WARNING_TTC = 3.0
 CLEARANCE_TTC = 5.0
-STATE_HOLD = 0.05
-ON_HOLD = 0.1
+PORT_NAME = "/dev/Relay"
+RELAYNUM = "0"  # Support only one relay
+
+"""
+Decision making is done based on the recieved messages.
+Below classes implements these logics (ttc and flic_button)
+"""
 
 
-""" base class for wizzy states """
-class WizzyState(smach.State):
-    def __init__(self, outcomes):
-        # init state
-        smach.State.__init__(self, outcomes=outcomes)
-
-    # do this when entering state
-    def execute(self, userdata):
-
-        rospy.logdebug('relay command {}'.format(userdata))
-
-        # TODO: misuse of userdata            
-        relay_cmd(userdata)
-
-        # sleep between state checks
-        rospy.sleep(ON_HOLD)
-
-        # return state from global structure
-        return inputs_container.state
-
-class WizzyA(WizzyState):
-    
-    def execute(self, userdata):
-        rospy.logdebug('Entering WizzyA state')
-        return super(WizzyA, self).execute("on")
-
-
-class WizzyB(WizzyState):
-    
-    def execute(self, userdata):
-        rospy.logdebug('Entering WizzyB state')
-        return super(WizzyB, self).execute("off")
-
-
-class WizzyC(WizzyState):
-
-    def execute(self, userdata):
-        rospy.logdebug('Entering WizzyC state')
-        return super(WizzyC, self).execute("off")
-
-
-class WizzyClear(WizzyState):
-    def execute(self, userdata):
-        rospy.logdebug('Entering WizzyClear state')
-        return super(WizzyClear, self).execute("off")
-
-class WizzyLock(WizzyState):
-   def execute(self, userdata):
-
-        rospy.logdebug('Received external lock message')
-        return super(WizzyLock, self).execute("on")        
-
-
-def relay_cmd(relay_cmd_str):
-    if inputs_container.relay_state != relay_cmd_str:
-        str_cmd = "relay " + relay_cmd_str + " " + RELAYNUM + "\n\r"
-        try:
-            inputs_container.serial_port.write(str.encode(str_cmd))
-            rospy.loginfo('Relay CMD:' + str_cmd)
-        except:
-            pass
-        # relevant for sim only
-        # inputs_container.relay_publisher.publish(relay_cmd_str)
-        inputs_container.relay_state = relay_cmd_str
-
-class callback_items:
-
+class StateMsg():
     def __init__(self):
-        self.roll = 0.0
-        self.pitch = 0.0
-        self.yaw = 0.0
-        self.ttc = 1.0
-        self.azimuth = 0
-        # self.lidar_data = lidar_data()
-        self.state = 'ttc_clear'
-        self.prev_state = 'ttc_clear'
-
+        # This is due to ttc message being stored in chair_state. Otherwise it wouldn't be required
         self.chair_state = ChairState()
-        self.relay_state = "off"
+
+    def process(self):
+        return None
+
+
+class StateTtcMsg(StateMsg):
+    def __init__(self, msg=None):
+        StateMsg.__init__(self)
+        self.chair_state.ttc_msg = msg
+
+    def process(self):
+        ttc = self.chair_state.ttc_msg.ttc
+        if ttc < DANGER_TTC:
+            self.chair_state.state.data = 'WizzyA'
+        elif DANGER_TTC <= ttc < WARNING_TTC:
+            self.chair_state.state.data = 'WizzyB'
+        elif WARNING_TTC <= ttc < CLEARANCE_TTC:
+            self.chair_state.state.data = 'WizzyC'
+        else:
+            self.chair_state.state.data = 'WizzyClear'
+        return self.chair_state
+
+
+class StateFlicMsg(StateMsg):
+    def __init__(self, msg=None):
+        StateMsg.__init__(self)
+        self.flic_msg = msg.data
+
+    def process(self):
+        if self.flic_msg == 'single':
+            self.chair_state.state.data = 'WizzyLock'
+        elif self.flic_msg == 'double':
+            self.chair_state.state.data = 'WizzyClear'
+        return self.chair_state
+
+
+""" Implementation of Waiting Node. 
+    Synchronous waiting for subscribed events
+"""
+class WizzyWaitingState(smach.State):
+    def __init__(self, outcomes, latch=False, timeout=None):
+        smach.State.__init__(self, outcomes=outcomes, input_keys=['chair_state_in'], output_keys=['chair_state_out'])
+        self.msg = None
+        self.latch = latch
+        self.timeout = timeout
+        self.mutex = threading.Lock()
+        self.ttc_subscriber = rospy.Subscriber('/ttc', ttc, self.ttc_callback)
+        self.flic_subscriber = rospy.Subscriber('/flic_button', String, self.flic_button_callback)
+
+    def ttc_callback(self, msg):
+        rospy.logdebug('Executing ttc_callback %f', msg.ttc)
+        self.mutex.acquire()
+        self.msg = StateTtcMsg(msg)
+        self.mutex.release()
+
+    def flic_button_callback(self, msg):
+        rospy.logdebug('Executing flic_callback %s', msg.data)
+        self.mutex.acquire()
+        self.msg = StateFlicMsg(msg)
+        self.mutex.release()
+
+    def waitForMsg(self):
+        rospy.logdebug('Waiting for message...')
+        if self.timeout is not None:
+            timeout_time = rospy.Time.now() + rospy.Duration.from_sec(self.timeout)
+        while self.timeout is None or rospy.Time.now() < timeout_time:
+            self.mutex.acquire()
+            if self.msg is not None:
+                rospy.logdebug('Got message.')
+                message = self.msg
+                if not self.latch:
+                    self.msg = None
+                self.mutex.release()
+                return message
+            self.mutex.release()
+            rospy.sleep(.1)
+        rospy.logdebug('Timeout on waiting for message!')
+        return None
+
+    """ Main function of the Waiting Note. 
+    Recieves a message and executes only if state has changed.
+    Special case is first message - in such case we only need a valid new state to execute. 
+    """
+
+    def execute(self, userdata):
+        state_msg = self.waitForMsg()
+        if state_msg is not None:
+            new_state = state_msg.process()
+            prev_state = userdata.chair_state_in
+            if new_state is not None and (prev_state is None or (new_state.state.data is not prev_state.state.data)):
+                # move to another state
+                userdata.chair_state_out = new_state
+                return new_state.state.data
+            else:
+                # keep waiting
+                rospy.logdebug('No state change...')
+                return 'wait'
+        else:
+            rospy.logdebug('Aborting...')
+            return 'abort'
+
+
+""" Implmentation of Action Nodes. 
+    Controls Relay and Notifies HMI
+"""
+
+
+class WizzyActionState(smach.State):
+    def __init__(self, outcomes, relay_state):
+        smach.State.__init__(self, outcomes=outcomes, input_keys=['chair_state_in'], output_keys=['chair_state_out'])
+        self.relay_state = relay_state
         self.state_publisher = rospy.Publisher('chair_state', ChairState, queue_size=10)
-        
-        # relevant for sim only
-        # dead code?
-        # self.relay_publisher = rospy.Publisher('usb_relay_command', String,queue_size=10)
-        
         try:
             self.serial_port = serial.Serial(PORT_NAME, 19200, timeout=1)
         except:
             pass
 
-    def imu_callback(self, data):
-        quat = [data.orientation.x, data.orientation.y, data.orientation.z, data.orientation.w]
-        self.yaw, self.pitch, self.roll = transformations.euler_from_quaternion(quat, 'rzyx')
+    def execute(self, userdata):
+        # for clarity - action state user data is a chair_state
+        new_state = userdata.chair_state_in
 
-    def ttc_callback(self, data):
-        # remember current state
-        self.prev_state = self.state
+        # operate relay
+        self.relay_cmd()
 
-        self.ttc = data.ttc
-        self.azimuth = data.ttc_azimuth
-        self.chair_state.ttc_msg = data
-        if self.ttc < DANGER_TTC:
-            self.state = 'ttc_danger'
-            self.chair_state.state.data = 'WizzyA'
-        elif DANGER_TTC < self.ttc < WARNING_TTC:
-            self.state = 'ttc_warning'
-            self.chair_state.state.data = 'WizzyB'
-        elif WARNING_TTC < self.ttc < CLEARANCE_TTC:
-            self.state = 'ttc_notification'
-            self.chair_state.state.data = 'WizzyC'
-        elif self.ttc > CLEARANCE_TTC:
-            self.state = 'ttc_clear'
-            self.chair_state.state.data= 'WizzyClear'
-        if self.prev_state != self.state:
-            self.state_publisher.publish(self.chair_state)
-        #rospy.sleep(STATE_HOLD)
+        # publish state
+        self.state_publisher.publish(new_state)
 
-    def flic_button_callback(self, msg):
-        print('flic_button_callback data: {}'.format(msg.data))
-        
-        # remember
-        self.prev_state = self.state
+        # go to waiting state
+        userdata.chair_state_out = new_state
+        return 'wait'
 
-        if msg.data == 'single':
-            self.chair_state.state.data = 'WizzyLock'
-            self.state = 'caretaker_lock'
-
-        elif msg.data == 'double':
-            self.chair_state.state.data = 'WizzyClear'
-            self.state = 'ttc_clear'
-
-        # no action for "hold" operation for now
-
-        # publish to notify HMI 
-        if self.prev_state != self.state:
-
-            # publish
-            self.state_publisher.publish(self.chair_state)
+    def relay_cmd(self):
+        str_cmd = "relay " + self.relay_state + " " + RELAYNUM + "\n\r"
+        try:
+            self.serial_port.write(str.encode(str_cmd))
+            rospy.logdebug('Relay CMD:' + str_cmd)
+        except:
+            rospy.logdebug('Failed to execute relay CMD:' + str_cmd)
+            pass
 
 
-inputs_container = callback_items()
+# main
+""" Wizzy State Machine is  a star topology statemachine where every Acting Node is connected to the central Waiting Node.
+    Waiting Node listens for subscribed events. Once event arrives (ttc,flic,...), a logic is applied to select Action.
+    Corresponding Action Node (A,B,C,Clear,Lock) is executed, HMI is notified and graph returns back to Waiting Node.
+"""
 
-if __name__ == '__main__':
 
-    rospy.init_node('decision_maker', log_level = rospy.INFO)
-    relay_cmd("off")
-    # Subscribers
+def main():
+    rospy.init_node('decision_maker', log_level=rospy.DEBUG)
 
-    # IMU inactive for now
-    # imu_subscriber = rospy.Subscriber('/imu/data', Imu, inputs_container.imu_callback)
-    ttc_subscriber = rospy.Subscriber('/ttc', ttc, inputs_container.ttc_callback)
+    # Create a wizzy state machine
+    wizzy_sm = smach.StateMachine(outcomes=['ABORT'])
+    wizzy_sm.userdata.prev_state = None
+    wizzy_sm.userdata.new_state = None
 
-    # subscribe to flic button messages
-    flic_subscriber = rospy.Subscriber('/flic_button', String, inputs_container.flic_button_callback)
-
-    smach.set_loggers(rospy.logdebug, rospy.logwarn, rospy.logdebug, rospy.logerr)
-
-    # State machine
-    wizzy_sm = smach.StateMachine(outcomes=['outcome5'])
-
-    # transition map for all states
-    transition_map = {'ttc_danger' : 'WizzyA', 'ttc_warning' : 'WizzyB', 
-                'ttc_notification' : 'WizzyC', 'ttc_clear': 'WizzyClear', 
-                'caretaker_lock' : 'WizzyLock'}
+    # transition map from WAITING state
+    waiting_transition_map = {'wait': 'WAITING', 'abort': 'ABORT',
+                              'WizzyA': 'WIZZY_A', 'WizzyB': 'WIZZY_B', 'WizzyC': 'WIZZY_C',
+                              'WizzyClear': 'WIZZY_CLEAR', 'WizzyLock': 'WIZZY_LOCK'}
 
     with wizzy_sm:
+        smach.StateMachine.add('WAITING',
+                               WizzyWaitingState(outcomes=waiting_transition_map.keys(), latch=False, timeout=None),
+                               transitions=waiting_transition_map,
+                               remapping={'chair_state_in': 'prev_state', 'chair_state_out': 'new_state'})
 
-        # start at 'clear' state
-        smach.StateMachine.add('WizzyClear', WizzyClear(outcomes=transition_map.keys()), transitions=transition_map)
+        smach.StateMachine.add('WIZZY_A',
+                               WizzyActionState(outcomes={'wait'}, relay_state="on"),
+                               transitions={'wait': 'WAITING'},
+                               remapping={'chair_state_in': 'new_state', 'chair_state_out': 'prev_state'})
 
-        smach.StateMachine.add('WizzyA', WizzyA(outcomes=transition_map.keys()), transitions=transition_map)
-        smach.StateMachine.add('WizzyB', WizzyB(outcomes=transition_map.keys()), transitions=transition_map)
-        smach.StateMachine.add('WizzyC', WizzyC(outcomes=transition_map.keys()), transitions=transition_map)
-        
-        smach.StateMachine.add('WizzyLock', WizzyLock(outcomes=transition_map.keys()), transitions=transition_map)
+        smach.StateMachine.add('WIZZY_B',
+                               WizzyActionState(outcomes={'wait'}, relay_state="off"),
+                               transitions={'wait': 'WAITING'},
+                               remapping={'chair_state_in': 'new_state', 'chair_state_out': 'prev_state'})
 
+        smach.StateMachine.add('WIZZY_C',
+                               WizzyActionState(outcomes={'wait'}, relay_state="off"),
+                               transitions={'wait': 'WAITING'},
+                               remapping={'chair_state_in': 'new_state', 'chair_state_out': 'prev_state'})
+
+        smach.StateMachine.add('WIZZY_CLEAR',
+                               WizzyActionState(outcomes={'wait'}, relay_state="off"),
+                               transitions={'wait': 'WAITING'},
+                               remapping={'chair_state_in': 'new_state', 'chair_state_out': 'prev_state'})
+
+        smach.StateMachine.add('WIZZY_LOCK',
+                               WizzyActionState(outcomes={'wait'}, relay_state="on"),
+                               transitions={'wait': 'WAITING'},
+                               remapping={'chair_state_in': 'new_state', 'chair_state_out': 'prev_state'})
+
+    # Execute SMACH plan
     outcome = wizzy_sm.execute()
+
+
+if __name__ == '__main__':
+    main()
