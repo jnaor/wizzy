@@ -30,6 +30,8 @@ lidar_obj_length = 0.5
 v_thresh = 0.0
 w_thresh = 0.0
 
+TTC_RATE = 20
+
 
 class Polygon:
     # polygon class for object \ robot modeling
@@ -212,8 +214,9 @@ if __name__ == '__main__':
     joy_sub = rospy.Subscriber('/cmd_vel', Twist, inputs_container.joy_callback)
     #
     ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)
-    # loop rate of 8Hz
-    rate = rospy.Rate(1)
+    
+# loop rate of 8Hz
+    rate = rospy.Rate(TTC_RATE)
 
 
     while not rospy.is_shutdown():
