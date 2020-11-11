@@ -20,7 +20,7 @@ from geometry_msgs.msg import Twist
 #                     [5, -3, 0, 1, 1, 1]])
 
 time_step = 0.2
-t_horizon = 5 + time_step
+t_horizon = 6 + time_step
 robot_radius = 0.4
 w_threshold = 0.001
 wizzy_width = 0.5
@@ -213,24 +213,27 @@ if __name__ == '__main__':
     #
     ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)
     # loop rate of 8Hz
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1)
+
 
     while not rospy.is_shutdown():
         #
         objects_temp = copy.deepcopy(inputs_container.objects)
         lidar_temp = copy.deepcopy(inputs_container.lidar_dist)
         t, ang = calc_time_to_collision(inputs_container.v, inputs_container.w, objects_temp, lidar_temp)
-        #
-        ttc_msg.ttc = t
-        ttc_msg.ttc_azimuth = ang
-        ttc_msg.header.stamp = rospy.Time.now()
-        lidar_obj.y.data = 0.0
-        lidar_obj.x.data = lidar_temp
-        lidar_obj.width.data = wizzy_width
-        lidar_obj.length.data = wizzy_length
-        objects_temp.append(lidar_obj)
-        # obs_msg.data = objects_temp
-        ttc_msg.obstacles = objects_temp
-        ttc_pub.publish(ttc_msg)
-        # print(ttc_msg)
+
+        if t < t_horizon:        
+
+            ttc_msg.ttc = t
+            ttc_msg.ttc_azimuth = ang
+            ttc_msg.header.stamp = rospy.Time.now()
+            lidar_obj.y.data = 0.0
+            lidar_obj.x.data = lidar_temp
+            lidar_obj.width.data = wizzy_width
+            lidar_obj.length.data = wizzy_length
+            objects_temp.append(lidar_obj)
+            # obs_msg.data = objects_temp
+            ttc_msg.obstacles = objects_temp
+            ttc_pub.publish(ttc_msg)
+            # print(ttc_msg)
         rate.sleep()
