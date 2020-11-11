@@ -228,7 +228,7 @@ def show_line_fit(ransac, X, y, y_ransac):
 
 
 if __name__ == '__main__':
-    rospy.init_node('Lidar_process', log_level=rospy.DEBUG)
+    rospy.init_node('Lidar_process', log_level=rospy.INFO)
 
     # TODO: read from json or something
     myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)

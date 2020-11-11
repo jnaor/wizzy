@@ -31,6 +31,6 @@ def sound_cb(msg):
     play(bell_sound)
 
 # Subscribe
-rospy.Subscriber("/chair_state", ChairState, sound_cb)
+rospy.Subscriber("/chair_state", ChairState, sound_cb, queue_size=1)
 
 rospy.spin()

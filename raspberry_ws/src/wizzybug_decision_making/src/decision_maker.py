@@ -24,7 +24,7 @@ RELAYNUM = "0"  # Support only one relay
 DISABLE_TIME_CONST = 5.0 # For A State
 
 class DmUtils():
-    q = Queue.Queue(maxsize=0)
+    q = Queue.Queue(maxsize=1)
     chair_state = ChairState()
     serial_port = None
     state_publisher = None
@@ -35,9 +35,9 @@ class DmUtils():
         if DmUtils.state_publisher == None:
             DmUtils.state_publisher = rospy.Publisher('chair_state', ChairState, queue_size=10)
         if DmUtils.ttc_subscriber == None:
-            DmUtils.ttc_subscriber = rospy.Subscriber('/ttc', ttc, DmUtils.ttc_callback)
+            DmUtils.ttc_subscriber = rospy.Subscriber('/ttc', ttc, DmUtils.ttc_callback, queue_size=1)
         if DmUtils.flic_subscriber == None:
-            DmUtils.flic_subscriber = rospy.Subscriber('/flic_button', String, DmUtils.flic_callback)
+            DmUtils.flic_subscriber = rospy.Subscriber('/flic_button', String, DmUtils.flic_callback,queue_size = 1)
         if DmUtils.serial_port == None:
             try:
                 DmUtils.serial_port = serial.Serial(PORT_NAME, 19200, timeout=1)
@@ -85,7 +85,10 @@ class DmUtils():
 
     @staticmethod
     def post_message(message):
-        DmUtils.q.put(message)
+        try:
+            DmUtils.q.put(message, block=False)
+        except Queue.Full:
+            print("this too shall pass")
     
     @staticmethod
     def wait4message(messages):
@@ -117,7 +120,7 @@ class WizzyA(smach.State):
 class WizzyB(smach.State):
     def execute(self, userdata):
         # do state operations
-        DmUtils.state_publisher.publish('WizzyB')
+        DmUtils.publish('WizzyB')
         
         # Wait for insrtructions
         new_state = DmUtils.wait4message(['WizzyLock','WizzyClear','WizzyA','WizzyC'])
@@ -129,11 +132,11 @@ class WizzyC(smach.State):
         DmUtils.publish('WizzyC')
         
         DmUtils.relay("on")
-        time.sleep(DISABLE_TIME_CONST)
+        rospy.sleep(DISABLE_TIME_CONST)
         DmUtils.relay("off")
 
         # Wait for insrtructions
-        new_state = DmUtils.wait4message(['WizzyLock','WizzyClear','WizzyA','WizzyB'])
+        new_state = DmUtils.wait4message(['WizzyLock','WizzyClear','WizzyA','WizzyB','WizzyC'])
         return new_state
 
 class WizzyLock(smach.State):
@@ -171,8 +174,8 @@ def main():
                                 {'WizzyLock': 'WIZZY_LOCKED','WizzyClear':'WIZZY_CLEAR','WizzyA':'WIZZY_A','WizzyC':'WIZZY_C'})
 
         smach.StateMachine.add('WIZZY_C',
-                                WizzyC(outcomes=['WizzyLock','WizzyClear','WizzyA','WizzyB']),
-                                {'WizzyLock': 'WIZZY_LOCKED','WizzyClear':'WIZZY_CLEAR','WizzyA':'WIZZY_A','WizzyB':'WIZZY_B'})
+                                WizzyC(outcomes=['WizzyLock','WizzyClear','WizzyA','WizzyB','WizzyC']),
+                                {'WizzyLock': 'WIZZY_LOCKED','WizzyClear':'WIZZY_CLEAR','WizzyA':'WIZZY_A','WizzyB':'WIZZY_B','WizzyC':'WIZZY_C'})
 
         smach.StateMachine.add('WIZZY_LOCKED',WizzyLock(outcomes=['WizzyUnlock']),{'WizzyUnlock': 'WIZZY_CLEAR'})
 
