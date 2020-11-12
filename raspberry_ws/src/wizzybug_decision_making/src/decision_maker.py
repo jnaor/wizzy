@@ -24,45 +24,40 @@ RELAYNUM = "0"  # Support only one relay
 DISABLE_TIME_CONST = 5.0 # For A State
 
 class DmUtils():
-    q = Queue.Queue(maxsize=1)
-    chair_state = ChairState()
-    serial_port = None
-    state_publisher = None
-    ttc_subscriber = None
-    flic_subscriber = None
+    __q = Queue.Queue(maxsize=1)
+    __chair_state = ChairState()
+    __serial_port = None
+    __state_publisher = None
+    __ttc_subscriber = None
+    __flic_subscriber = None
     
     def __init__(self):
-        if DmUtils.state_publisher == None:
-            DmUtils.state_publisher = rospy.Publisher('chair_state', ChairState, queue_size=10)
-        if DmUtils.ttc_subscriber == None:
-            DmUtils.ttc_subscriber = rospy.Subscriber('/ttc', ttc, DmUtils.ttc_callback, queue_size=1)
-        if DmUtils.flic_subscriber == None:
-            DmUtils.flic_subscriber = rospy.Subscriber('/flic_button', String, DmUtils.flic_callback,queue_size = 1)
-        if DmUtils.serial_port == None:
+        if DmUtils.__state_publisher == None:
+            DmUtils.__state_publisher = rospy.Publisher('chair_state', ChairState, queue_size=10)
+        if DmUtils.__ttc_subscriber == None:
+            DmUtils.__ttc_subscriber = rospy.Subscriber('/ttc', ttc, DmUtils.__ttc_callback, queue_size=1)
+        if DmUtils.__flic_subscriber == None:
+            DmUtils.__flic_subscriber = rospy.Subscriber('/flic_button', String, DmUtils.__flic_callback,queue_size = 1)
+        if DmUtils.__serial_port == None:
             try:
-                DmUtils.serial_port = serial.Serial(PORT_NAME, 19200, timeout=1)
+                DmUtils.__serial_port = serial.Serial(PORT_NAME, 19200, timeout=1)
             except:
                 pass
 
     @staticmethod
-    def publish(state):
-        DmUtils.chair_state.state.data = state
-        DmUtils.state_publisher.publish(DmUtils.chair_state)
-
-    @staticmethod
-    def relay(cmd):
+    def __relay(cmd):
         str_cmd = "relay " + cmd + " " + RELAYNUM + "\n\r"
         try:
-            DmUtils.serial_port.write(str.encode(str_cmd))
+            DmUtils.__serial_port.write(str.encode(str_cmd))
             rospy.logdebug('Relay CMD:' + str_cmd)
         except:
             rospy.logdebug('Failed to execute relay CMD:' + str_cmd)
         pass
     
     @staticmethod
-    def ttc_callback(msg):
+    def __ttc_callback(msg):
         rospy.logdebug('Executing ttc_callback %s', msg.ttc)
-        DmUtils.chair_state.ttc_msg = msg
+        DmUtils.__chair_state.ttc_msg = msg
         ttc = msg.ttc
         
         # TODO: Add logic according to obstacale classification
@@ -76,7 +71,7 @@ class DmUtils():
             DmUtils.post_message('WizzyClear')
     
     @staticmethod
-    def flic_callback(msg):
+    def __flic_callback(msg):
         rospy.logdebug('Executing flic_callback %s', msg.data)
         if msg.data == 'single':
             DmUtils.post_message('WizzyLock')
@@ -84,25 +79,48 @@ class DmUtils():
             DmUtils.post_message('WizzyUnlock') 
 
     @staticmethod
+    def publish(state):
+        DmUtils.__chair_state.state.data = state
+        DmUtils.__state_publisher.publish(DmUtils.__chair_state)
+
+    @staticmethod
     def post_message(message):
         try:
-            DmUtils.q.put(message, block=False)
+            DmUtils.__q.put(message, block=False)
         except Queue.Full:
-            print("this too shall pass")
+            rospy.logdebug("Message Queue is full - skipping %s",message)
     
     @staticmethod
     def wait4message(messages):
         while True:
-            msg = DmUtils.q.get()
+            msg = DmUtils.__q.get()
             if msg in messages:
                 break
         return msg
+    
+    @staticmethod
+    def stop():
+        DmUtils.__relay("on")
+
+    @staticmethod
+    def release():
+        #drain all the messages that might have been accumulated while wizzy stopped
+        while DmUtils.__q.empty() == False:
+            try:
+                message = DmUtils.__q.get_nowait()
+                rospy.logdebug("Flushing Message %s",message)
+            except Queue.Empty:
+                rospy.logdebug("Queue is empty")
+                pass
+        #release a chair
+        DmUtils.__relay("off")
+
 
 class WizzyClear(smach.State):
     def execute(self, userdata):
         # do state operations
         DmUtils.publish('WizzyClear')
-        DmUtils.relay("off")
+        DmUtils.release()
         
         # Wait for insrtructions
         new_state = DmUtils.wait4message(['WizzyLock','WizzyA','WizzyB','WizzyC'])
@@ -131,9 +149,9 @@ class WizzyC(smach.State):
         # do state operations
         DmUtils.publish('WizzyC')
         
-        DmUtils.relay("on")
+        DmUtils.stop()
         rospy.sleep(DISABLE_TIME_CONST)
-        DmUtils.relay("off")
+        DmUtils.release()
 
         # Wait for insrtructions
         new_state = DmUtils.wait4message(['WizzyLock','WizzyClear','WizzyA','WizzyB','WizzyC'])
@@ -143,7 +161,7 @@ class WizzyLock(smach.State):
     def execute(self, userdata):
         # do state operations
         DmUtils.publish('WizzyLock')
-        DmUtils.relay("on")
+        DmUtils.stop()
         
         # Wait for insrtructions
         new_state = DmUtils.wait4message(['WizzyUnlock'])
