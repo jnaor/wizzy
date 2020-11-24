@@ -1,0 +1,8 @@
+Bag Description :
+-----------------------
+Nominal Scenario : 
+The obstacle (a square meter shelf) is about a meter from the Wizzy.
+Driving the wizzy slowly straight towards the obstacle. Once it gets close, the wizzy stops and the USB Relay locks movement.
+After 5 seconds, the relay is released, and the Joystick is moved backwards. 
+The Wizzy successfuly moves backwards.
+End of recording.
