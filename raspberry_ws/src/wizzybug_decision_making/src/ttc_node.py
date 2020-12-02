@@ -30,8 +30,6 @@ lidar_obj_length = 0.5
 v_thresh = 0.0
 w_thresh = 0.0
 
-TTC_RATE = 20
-
 
 class Polygon:
     # polygon class for object \ robot modeling
@@ -181,16 +179,28 @@ class CallbackItems:
         self.lidar_dist = data.visible_floor_distance
 
     def joy_callback(self, data):
-        if np.abs(data.linear.x)>v_thresh and np.abs(data.angular.z)>w_thresh:
-           
-           self.v = data.linear.x
-           self.w = data.angular.z
-           self.v_sign = np.sign(data.linear.x)
-           if np.abs(data.linear.x)<v_thresh:
-              self.v_sign * v_thresh
-        else:
-           self.v = self.v_sign * v_thresh
-           self.w = 0.0
+
+        self.v = data.linear.x
+        self.w = data.angular.z
+        self.v_sign = np.sign(data.linear.x)
+
+        objects_temp = copy.deepcopy(inputs_container.objects)
+        lidar_temp = copy.deepcopy(inputs_container.lidar_dist)
+        t, ang = calc_time_to_collision(inputs_container.v, inputs_container.w, objects_temp, lidar_temp)
+
+        if t < t_horizon:        
+
+            ttc_msg.ttc = t
+            ttc_msg.ttc_azimuth = ang
+            ttc_msg.header.stamp = rospy.Time.now()
+            lidar_obj.y.data = 0.0
+            lidar_obj.x.data = lidar_temp
+            lidar_obj.width.data = wizzy_width
+            lidar_obj.length.data = wizzy_length
+            objects_temp.append(lidar_obj)
+            # obs_msg.data = objects_temp
+            ttc_msg.obstacles = objects_temp
+            ttc_pub.publish(ttc_msg)
 
     def objects_sub_callback(self, data):
         lidar_obj = obstacle()
@@ -215,28 +225,5 @@ if __name__ == '__main__':
     #
     ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)
     
-# loop rate of 8Hz
-    rate = rospy.Rate(TTC_RATE)
-
-
-    while not rospy.is_shutdown():
-        #
-        objects_temp = copy.deepcopy(inputs_container.objects)
-        lidar_temp = copy.deepcopy(inputs_container.lidar_dist)
-        t, ang = calc_time_to_collision(inputs_container.v, inputs_container.w, objects_temp, lidar_temp)
-
-        if t < t_horizon:        
-
-            ttc_msg.ttc = t
-            ttc_msg.ttc_azimuth = ang
-            ttc_msg.header.stamp = rospy.Time.now()
-            lidar_obj.y.data = 0.0
-            lidar_obj.x.data = lidar_temp
-            lidar_obj.width.data = wizzy_width
-            lidar_obj.length.data = wizzy_length
-            objects_temp.append(lidar_obj)
-            # obs_msg.data = objects_temp
-            ttc_msg.obstacles = objects_temp
-            ttc_pub.publish(ttc_msg)
-            # print(ttc_msg)
-        rate.sleep()
+    # wait for events
+    rospy.spin()
