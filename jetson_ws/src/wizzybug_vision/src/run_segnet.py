@@ -1,8 +1,10 @@
 #!/usr/bin/python2
 
 import sys
+
 import jetson.inference
 import jetson.utils
+import segnet_utils 
 
 import argparse
 
@@ -12,11 +14,22 @@ from cv_bridge import CvBridge, CvBridgeError
 # inputs are images
 from sensor_msgs.msg import Image
 
+import numpy as np
+import cv2
+
 # callback. do this when a new image arrives
 def callback(msg):
 
-    # get opencv image from ROS topic
-    img_input = bridge.imgmsg_to_cv2(msg)
+    # get numpy image from ROS topic
+    img = bridge.imgmsg_to_cv2(msg)
+
+    cv2.imshow("img", img)
+    cv2.waitKey(1)
+
+    rospy.logdebug("new image received")
+
+    # convert to CUDA
+    img_input = jetson.utils.cudaFromNumpy(img.astype(np.float32))
 
     # allocate buffers for this size image
     buffers.Alloc(img_input.shape, img_input.format)
@@ -26,10 +39,12 @@ def callback(msg):
 
     # generate the overlay
     if buffers.overlay:
+        print('overlay')
         net.Overlay(buffers.overlay, filter_mode=opt.filter_mode)
 
     # generate the mask
     if buffers.mask:
+        print('mask')
         net.Mask(buffers.mask, filter_mode=opt.filter_mode)
 
     # composite the images
@@ -60,10 +75,11 @@ if __name__ == '__main__':
 
     parser.add_argument("--network", type=str, default="fcn-resnet18-voc", help="pre-trained model to load, see below for options")
     parser.add_argument("--filter-mode", type=str, default="linear", choices=["point", "linear"], help="filtering mode used during visualization, options are:\n  'point' or 'linear' (default: 'linear')")
-    parser.add_argument("--visualize", type=str, default="overlay,mask", help="Visualization options (can be 'overlay' 'mask' 'overlay,mask'")
+    parser.add_argument("--visualize", type=str, default="overlay", help="Visualization options (can be 'overlay' 'mask' 'overlay,mask'")
     parser.add_argument("--ignore-class", type=str, default="void", help="optional name of class to ignore in the visualization results (default: 'void')")
     parser.add_argument("--alpha", type=float, default=150.0, help="alpha blending value to use during overlay, between 0.0 and 255.0 (default: 150.0)")
     parser.add_argument("--stats", action="store_true", help="compute statistics about segmentation mask class output")
+    parser.add_argument("output_URI", type=str, default="", nargs='?', help="URI of the output stream")
 
     is_headless = ["--headless"] if sys.argv[0].find('console.py') != -1 else [""]
 
@@ -81,7 +97,7 @@ if __name__ == '__main__':
     net.SetOverlayAlpha(opt.alpha)
 
     # create buffer manager
-    buffers = segmentationBuffers(net, opt)
+    buffers = segnet_utils.segmentationBuffers(net, opt)
 
     # opencv "bridge" for incoming images
     bridge = CvBridge()
