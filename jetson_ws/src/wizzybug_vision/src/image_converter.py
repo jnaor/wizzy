@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import roslib
-# roslib.load_manifest('my_package')
 import sys
 import rospy
 import cv2
@@ -14,11 +13,11 @@ from cv_bridge import CvBridge, CvBridgeError
 class ImageConverter:
     """ 'convert' the RealSense RGB format to the BGR format jetson-inference likes """
 
-    def __init__(self, cam="camera"):
-        self.image_pub = rospy.Publisher("image_topic_bgr8_{}".format(cam), Image, queue_size=100)
+    def __init__(self, cam):
+        self.image_pub = rospy.Publisher("bgr8/{}".format(cam), Image, queue_size=100)
 
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/{}/color/image_raw".format(cam), Image, self.callback)
+        self.image_sub = rospy.Subscriber(cam, Image, self.callback)
 
     def callback(self, data):
         try:
@@ -49,9 +48,9 @@ def main(args):
 
         # if this is a camera
         if "color" in topic_name and "image_raw" in topic_name:
-            rospy.logdebug('adding image converter {}'.format(index))
+            rospy.logdebug('adding image converter {}'.format(topic_name))
 
-            converters.append(ImageConverter(cam=index))
+            converters.append(ImageConverter(cam=topic_name))
     try:
         rospy.spin()
     except KeyboardInterrupt:

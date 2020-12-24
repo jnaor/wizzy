@@ -4,7 +4,7 @@
     <node name="image_converter" pkg="wizzybug_vision" type="image_converter.py"></node>
     
     <node name="segnet" pkg="ros_deep_learning" type="segnet">
-    <remap from="/segnet/image_in" to="/image_topic_bgr8_camera"/>
+    <remap from="/segnet/image_in" to="/bgr8/camera/color/image_raw"/>
     <param name = "model_name" value ="fcn-resnet18-sun-512x400"/>
     </node>
     
