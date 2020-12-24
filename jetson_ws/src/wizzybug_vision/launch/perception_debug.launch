@@ -1,7 +1,7 @@
 <launch>
     <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
     
-    <node name="image_converter" pkg="wizzybug_perception" type="image_converter.py"></node>
+    <node name="image_converter" pkg="wizzybug_vision" type="image_converter.py"></node>
     
     <node name="segnet" pkg="ros_deep_learning" type="segnet">
     <remap from="/segnet/image_in" to="/image_topic_bgr8_camera"/>
