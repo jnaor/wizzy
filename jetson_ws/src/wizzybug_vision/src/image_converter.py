@@ -14,7 +14,7 @@ class ImageConverter:
     """ 'convert' the RealSense RGB format to the BGR format jetson-inference likes """
 
     def __init__(self, cam):
-        self.image_pub = rospy.Publisher("bgr8/{}".format(cam), Image, queue_size=100)
+        self.image_pub = rospy.Publisher("bgr8{}".format(cam), Image, queue_size=100)
 
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber(cam, Image, self.callback)
@@ -37,8 +37,6 @@ def main(args):
 
     # get published topics
     published_topics = dict(rospy.get_published_topics())
-
-    print(published_topics)
 
     # to hold list of converters
     converters = list()
