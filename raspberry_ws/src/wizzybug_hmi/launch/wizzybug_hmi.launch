@@ -4,10 +4,6 @@
     <!-- LEDs + Haptic over Arduino -->
     <node name="hmi_arduino" pkg="wizzybug_hmi" type="wizzy_arduino_node.py" />
 
-    <!-- Audio -->
-    <node name="play_sound" pkg="wizzybug_hmi" type="play_sound.py" />
-    <param name='bell_sound' value='$(find wizzybug_hmi)/sound/Alert.wav' /> 
-
     <!-- Test -->
     <node name="hmi_test" pkg="wizzybug_hmi" type="test.py" if="$(arg test)"/>
 
