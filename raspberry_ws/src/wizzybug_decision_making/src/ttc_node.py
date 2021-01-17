@@ -123,6 +123,9 @@ class Polygon:
 
         self.update_pose(x_new,y_new, yaw_new)
 
+    def diff_robot_clear(self):
+        self.update_pose(0,0,0)
+
     @staticmethod
     def vertex_pose(self_pose, dx, dy):
         vertex_pose = np.zeros((2), dtype=np.float64)
@@ -133,19 +136,23 @@ class Polygon:
 
 def calc_time_to_collision(v, w, objects, lidar_dist):
 
-
     wizzy = Polygon(x=-wizzy_length/3, width=wizzy_width, depth=wizzy_length)
     lidar_obj = Polygon(x=lidar_dist, width=wizzy_width, depth=wizzy_length/5)
     ttc = t_horizon
     ttc_azimuth = 0.0
+    # Test and probe starting from horizon
     for i in range(int(t_horizon / time_step)):
 
+        # Hypothetically move wizy in direction
         wizzy.diff_robot_move(v, w, time_step)
 
+        # Check if new location intersects with lidar objects
         if wizzy.is_colliding(lidar_obj):
+            #rospy.logdebug('lidar ttc: {}'.format(ttc))
             if ttc > time_step * i:
                 ttc = time_step * i
                 ttc_azimuth = 0.0
+            # TODO: Why do we keep moving, why not first collision matter?
 
         for obj in objects:
             if obj.width.data < w_threshold and obj.length.data < w_threshold:
@@ -156,11 +163,14 @@ def calc_time_to_collision(v, w, objects, lidar_dist):
                 obj.length.data = wizzy_width/5
             obj_poly = Polygon(x = obj.x.data, y = obj.y.data, yaw = 0.0, width = obj.width.data, depth = obj.length.data)
             if wizzy.is_colliding(obj_poly):
-#                print(obj.x.data, obj.y.data)
+                #rospy.logdebug('obj.x.data: {},obj.y.data: {}'.format(obj.x.data, obj.y.data))
                 if ttc > time_step * i:
                     ttc = time_step * i
                     ttc_azimuth = np.arctan2(obj.y.data, obj.x.data)
-
+    
+    # reset robot location 
+    wizzy.diff_robot_clear()
+    
     return ttc, ttc_azimuth
 
 
@@ -173,6 +183,8 @@ class CallbackItems:
         self.lidar_dist = 100.0
         self.objects = []
         self.ttc_msg = ttc()
+        self.cur_ttc = 0
+        self.cur_azimuth = 0
 
     def lidar_dist_to_obstacle_callback(self, data):
         #self.lidar_dist = min([data.visible_floor_distance, data.dist_to_obstacle])
@@ -183,13 +195,18 @@ class CallbackItems:
         self.v = data.linear.x
         self.w = data.angular.z
         self.v_sign = np.sign(data.linear.x)
-
+        #rospy.logdebug('self vel: {}, ang: {}, sign: {}'.format(self.v, self.w,self.v_sign))
         objects_temp = copy.deepcopy(inputs_container.objects)
         lidar_temp = copy.deepcopy(inputs_container.lidar_dist)
         t, ang = calc_time_to_collision(inputs_container.v, inputs_container.w, objects_temp, lidar_temp)
 
-        if t < t_horizon:        
+        # send ttc message only when ttc changes and it is applicable
+        if t < t_horizon and (self.cur_ttc != t or self.cur_azimuth != ang):
+            # save current ttc data
+            self.cur_ttc = t
+            self.cur_azimuth = ang
 
+            # prepare a message with ttc data
             ttc_msg.ttc = t
             ttc_msg.ttc_azimuth = ang
             ttc_msg.header.stamp = rospy.Time.now()
@@ -200,6 +217,7 @@ class CallbackItems:
             objects_temp.append(lidar_obj)
             # obs_msg.data = objects_temp
             ttc_msg.obstacles = objects_temp
+            # rospy.logdebug('ttc: {}, azimuth: {}'.format(t,ang))
             ttc_pub.publish(ttc_msg)
 
     def objects_sub_callback(self, data):
