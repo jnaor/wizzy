@@ -18,6 +18,8 @@ DANGER_TTC = 2.0
 WARNING_TTC = 4.0
 CLEARANCE_TTC = 6.0
 
+VALID_MAX_DELAY_SEC_FOR_MSG_TTC = 5.0
+
 PORT_NAME = "/dev/Relay"
 RELAYNUM = "0"  # Support only one relay
 
@@ -30,7 +32,7 @@ class DmUtils():
     __state_publisher = None
     __ttc_subscriber = None
     __flic_subscriber = None
-    
+ 
     def __init__(self):
         if DmUtils.__state_publisher == None:
             DmUtils.__state_publisher = rospy.Publisher('chair_state', ChairState, queue_size=10)
@@ -56,7 +58,18 @@ class DmUtils():
     
     @staticmethod
     def __ttc_callback(msg):
-        rospy.logdebug('Executing ttc_callback %s', msg.ttc)
+        now = rospy.get_rostime()
+        delta_secs = now.to_sec() - msg.header.stamp.to_sec()
+
+        # Ignore old TTC messages
+        if delta_secs > VALID_MAX_DELAY_SEC_FOR_MSG_TTC :
+            rospy.logdebug('Ignoring TTC message with ttc value of %s. Message is %.3f seconds old, more then %.3f threshold', 
+                            msg.ttc, delta_secs, VALID_MAX_DELAY_SEC_FOR_MSG_TTC)
+            return
+
+        # TTC message is valid. Continue processing
+        rospy.logdebug('Executing ttc_callback %s, sent %.3f seconds ago', 
+                        msg.ttc, delta_secs)
         DmUtils.__chair_state.ttc_msg = msg
         ttc = msg.ttc
         
