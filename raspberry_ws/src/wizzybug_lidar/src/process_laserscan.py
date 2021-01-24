@@ -11,6 +11,9 @@ import numpy as np
 from sklearn.linear_model import RANSACRegressor
 from scipy.ndimage.morphology import binary_erosion
 
+# processing rate (in Hertz)
+LIDAR_PROCESS_RATE = 10
+
 """
     Process lidar sensor input from topic /scan, 
     and publish obstacle distance and LidarProcess state (i.e., obstacle type)
@@ -48,10 +51,25 @@ class LidarProcess:
         # visualization on/off
         self.visualize = visualize
 
-    def scan_cb(self, msg):
+        # no messages received so far
+        self.current_message = None
 
-        # prepare result structure to publish
+    def scan_cb(self, msg):
+        # save as current message
+        self.current_message = msg
+
+    def process_scan(self):
+
+        # if there are no laser scans bail out
+        if self.current_message is None:
+            rospy.logwarn('no lidar scans received')
+            return
+
+        # to hold message to be published
         ld = lidar_data()
+
+        # get last message
+        msg = self.current_message
 
         # copy range readings from message to numpy array
         range_readings = np.array(msg.ranges)
@@ -192,7 +210,6 @@ class LidarProcess:
 
             drawnow(visualize)
 
-
         # publish results
         self.lidar_proc.publish(ld)
 
@@ -232,4 +249,15 @@ if __name__ == '__main__':
 
     # TODO: read from json or something
     myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
+
+    # rate to perform calculation
+    rate = rospy.Rate(LIDAR_PROCESS_RATE)
+
+    while rospy.ok():
+        # do processing and publishing
+        myLidarProcess.process_scan()
+
+        # sleep
+        rate.sleep()
+
     rospy.spin()
