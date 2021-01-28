@@ -253,7 +253,7 @@ if __name__ == '__main__':
     # rate to perform calculation
     rate = rospy.Rate(LIDAR_PROCESS_RATE)
 
-    while rospy.ok():
+    while not rospy.is_shutdown():
         # do processing and publishing
         myLidarProcess.process_scan()
 

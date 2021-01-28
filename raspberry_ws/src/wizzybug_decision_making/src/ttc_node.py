@@ -202,6 +202,7 @@ class CallbackItems:
 
         # send ttc message only when ttc changes and it is applicable
         if t < t_horizon and (self.cur_ttc != t or self.cur_azimuth != ang):
+
             # save current ttc data
             self.cur_ttc = t
             self.cur_azimuth = ang
@@ -219,6 +220,8 @@ class CallbackItems:
             ttc_msg.obstacles = objects_temp
             # rospy.logdebug('ttc: {}, azimuth: {}'.format(t,ang))
             ttc_pub.publish(ttc_msg)
+        else:
+            rospy.logdebug('no ttc because of small change. t {} < t_horizon {} and (cur_ttc {} != t or cur_azimuth {} != ang{}'.format(t, t_horizon, self.cur_ttc, self.cur_azimuth, ang))
 
     def objects_sub_callback(self, data):
         lidar_obj = obstacle()
