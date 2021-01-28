@@ -30,7 +30,7 @@ if __name__ == "__main__":
     settings = termios.tcgetattr(sys.stdin)
     rospy.init_node('wizzybug_teleop')
     pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-    relay_command = rospy.Subscriber('usb_relay_command', String, relay_sub_callback)
+    relay_command = rospy.Subscriber('usb_relay_command', String, relay_sub_callback, queue_size=1)
     target_linear_vel = 0.0
     target_angular_vel = 0.0
     rate = rospy.Rate(10)
