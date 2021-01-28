@@ -240,9 +240,15 @@ if __name__ == '__main__':
     obs_msg = obstacleArray()
     #
     inputs_container = CallbackItems()
-    obj_sub = rospy.Subscriber('wizzy/obstacle_list', obstacleArray, inputs_container.objects_sub_callback)
-    lidar_dist_to_obstacle_subscriber = rospy.Subscriber('/wizzy/lidar_proc', lidar_data, inputs_container.lidar_dist_to_obstacle_callback)
-    joy_sub = rospy.Subscriber('/cmd_vel', Twist, inputs_container.joy_callback)
+    obj_sub = rospy.Subscriber('wizzy/obstacle_list', obstacleArray,
+                               inputs_container.objects_sub_callback,queue_size=1)
+
+    lidar_dist_to_obstacle_subscriber = rospy.Subscriber('/wizzy/lidar_proc',
+                                                         lidar_data,
+                                                         inputs_container.lidar_dist_to_obstacle_callback,
+                                                         queue_size=1)
+
+    joy_sub = rospy.Subscriber('/cmd_vel', Twist, inputs_container.joy_callback, queue_size=1)
     #
     ttc_pub = rospy.Publisher('/ttc', ttc, queue_size=10)
     

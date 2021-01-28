@@ -54,7 +54,7 @@ def listener():
     rospy.init_node('usb_relay_listener', anonymous=True)
     
     # DM command topic
-    rospy.Subscriber("usb_relay_command", String, callback)
+    rospy.Subscriber("usb_relay_command", String, callback, queue_size=1)
     
     # Flic button command topic
 #    rospy.Subscriber("/wizzy/flic_btn",   String, callback_Button)

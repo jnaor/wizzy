@@ -21,7 +21,8 @@ class BIT:
             # subscribe
             self.subscribers[topic_name] = rospy.Subscriber(topic_name, rospy.AnyMsg,
                                                             self.topic_hz[topic_name].callback_hz,
-                                                            callback_args=topic_name)
+                                                            callback_args=topic_name,
+                                                            queue_size=1)
 
         # a publishing rate higher than this will cause an error report
         self.min_publish_rate = max_publish_rate
