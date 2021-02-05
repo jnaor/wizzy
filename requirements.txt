@@ -83,7 +83,7 @@ gennodejs==2.0.2
 genpy==0.6.14
 gprof2dot==2019.11.30
 html5lib==1.0.1
-httplib2==0.14.0
+httplib2==0.18.0
 hyperlink==19.0.0
 idna==2.8
 ifcfg==0.18
