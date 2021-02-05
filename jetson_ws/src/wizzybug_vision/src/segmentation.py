@@ -7,9 +7,6 @@ import json
 from skimage.measure import label, regionprops
 from sklearn.cluster import MeanShift, estimate_bandwidth
 
-from matplotlib import pylab as plt
-import matplotlib.patches as mpatches
-
 from scipy.stats import mode
 
 # percentile to take as distance estimation for cluster
