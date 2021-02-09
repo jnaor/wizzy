@@ -17,7 +17,7 @@ catkin_make
 source devel/setup.bash
 cd ..
 
-source simulation_ws/devel/setup.bash
+# source simulation_ws/devel/setup.bash  # This was done 2 lines ago, nn for running again.vhh
 
 # haven't figured out when this is actually needed. uncomment if you encounter trouble
 # rosdep update
