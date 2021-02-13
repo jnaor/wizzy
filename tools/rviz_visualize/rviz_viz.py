@@ -16,23 +16,38 @@ import time
 
 class CallbackItems:
     def __init__(self):
-        self.lidar_dist = 100.0
-        self. marker = Marker(
+        self.lidar_dist = 0.0
+        self.marker_obstacle = Marker(
                                 type=Marker.ARROW,
                                 id = 123,  # Make sure the ID is different for every marker you make!
                                 pose=Pose(Point(0, -0.1, 0), Quaternion(0, 0, 0, 1)),
                                 scale=Vector3(1, 1, 1),
                                 header=Header(frame_id='base_link'),
                                 color=ColorRGBA(0.0, 1.0, 0.0, 0.8))
+        self.marker_text = Marker(
+                                type=Marker.TEXT_VIEW_FACING,
+                                id = 124,  # Make sure the ID is different for every marker you make!
+                                pose=Pose(Point(0, -0.1, 0), Quaternion(0, 0, 0, 1)),
+                                scale=Vector3(10, 10, 1),
+                                header=Header(frame_id='base_link'),
+                                text = "%f"%self.lidar_dist,
+                                color=ColorRGBA(0.0, 1.0, 0.0, 0.8))
+
         self.marker_publisher = rospy.Publisher('visualization_marker', Marker, queue_size=5)                                
 
     def lidar_dist_to_obstacle_callback(self, data):
         self.lidar_dist = data.visible_floor_distance
-        rospy.loginfo("self.lidar_dist : " + str(self.lidar_dist))
+        rospy.loginfo("self.lidar_dist : %.2fm" % self.lidar_dist)
 
-        self.marker.pose = Pose(Point(self.lidar_dist, -0.1, 0), Quaternion(0, 0, 0, 1))
-        self.marker.header.stamp = rospy.Time.now()
-        self.marker_publisher.publish(self.marker)
+        # Marker obstacle
+        self.marker_obstacle.pose = Pose(Point(self.lidar_dist, -0.1, 0), Quaternion(0, 0, 0, 1))
+        self.marker_obstacle.header.stamp = rospy.Time.now()
+        self.marker_publisher.publish(self.marker_obstacle)
+
+        # Marker Text
+        self.marker_text.text = "Visible floor distance : %.2fm" % self.lidar_dist
+        self.marker_text.header.stamp = rospy.Time.now()
+        self.marker_publisher.publish(self.marker_text)
 
 
 def my_main(inputs_container):
