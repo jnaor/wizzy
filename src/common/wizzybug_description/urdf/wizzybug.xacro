@@ -161,12 +161,11 @@
         </inertial>
     </link>
 
-    <joint name="left_caster_axle_joint" type="continuous">
+    <joint name="left_caster_axle_joint" type="fixed">
         <parent link="base_link"/>
         <child link="left_caster_axle_link"/>
         <origin xyz="${-caster_axis_x}  ${caster_wheel_base/2+wheel_thickness/2} ${caster_axis_z}" rpy="0 0 0"/>
-        <axis xyz="0 0 1"/>
-        <dynamics damping="${caster_damping}" friction="${caster_friction}"/>
+        <!-- <dynamics damping="${caster_damping}" friction="${caster_friction}"/> -->
     </joint>
 
     <link name="left_caster_link">
@@ -193,7 +192,6 @@
         </inertial>
     </link>
 
-<!--
     <joint name="left_caster_joint" type="continuous">
         <parent link="left_caster_axle_link"/>
         <child link="left_caster_link"/>
@@ -201,8 +199,8 @@
         <axis xyz="0 1 0"/>
         <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
     </joint>
--->
 
+<!--
     <joint name="left_caster_joint" type="continuous">
         <parent link="base_link"/>
         <child link="left_caster_link"/>
@@ -210,7 +208,7 @@
         <axis xyz="0 1 0"/>
         <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
     </joint>
-
+-->
 
     <!-- ################################Right caster Wheel##############################################-->
     <link name="right_caster_axle_link">
@@ -224,12 +222,11 @@
         </inertial>
     </link>
 
-    <joint name="right_caster_axle_joint" type="continuous">
+    <joint name="right_caster_axle_joint" type="fixed">
         <parent link="base_link"/>
         <child link="right_caster_axle_link"/>
         <origin xyz="${-caster_axis_x} ${-caster_wheel_base/2-wheel_thickness/2} ${caster_axis_z}" rpy="0 0 0"/>
-        <axis xyz="0 0 1"/>
-        <dynamics damping="${caster_damping}" friction="${caster_friction}"/>
+        <!-- <dynamics damping="${caster_damping}" friction="${caster_friction}"/> -->
     </joint>
 
     <link name="right_caster_link">
@@ -255,7 +252,7 @@
                      izz="${1/4*wheel_mass*wheel_radius*wheel_radius + 1/12*wheel_mass*wheel_thickness}"/>
         </inertial>
     </link>
-<!--
+
     <joint name="right_caster_joint" type="continuous">
         <parent link="right_caster_axle_link"/>
         <child link="right_caster_link"/>
@@ -263,8 +260,8 @@
         <axis xyz="0 1 0"/>
         <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
     </joint>
--->
 
+<!--
     <joint name="right_caster_joint" type="continuous">
         <parent link="base_link"/>
         <child link="right_caster_link"/>
@@ -272,6 +269,7 @@
         <axis xyz="0 1 0"/>
         <dynamics damping="${wheel_damping}" friction="${wheel_friction}"/>
     </joint>
+-->
 
     <!-- ################################imu##############################################-->
 
@@ -340,7 +338,7 @@
 <!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
 <!--    </sensor_d415>-->
 
-<!--            &lt;!&ndash; ################################ left cam ##############################################&ndash;&gt;-->
+<!--  ################################ left cam ############################################## -->
     <joint name="left_cam_joint" type="fixed">
         <parent link="base_link"/>
         <child link="left_cam_link"/>
@@ -357,7 +355,7 @@
 <!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
 <!--    </sensor_d415>-->
 
-<!--                &lt;!&ndash; ################################ rear cam ##############################################&ndash;&gt;-->
+<!-- ################################ rear cam ##############################################-->
     <joint name="rear_cam_joint" type="fixed">
         <parent link="base_link"/>
         <child link="rear_cam_link"/>

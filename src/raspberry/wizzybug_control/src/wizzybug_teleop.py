@@ -35,46 +35,52 @@ if __name__ == "__main__":
     target_angular_vel = 0.0
     rate = rospy.Rate(10)
     key = ''
+    twist = Twist()
+    filtered_angular_vel = 0.0
+    filtered_linear_vel = 0.0
+    alpha = 0.5
+
     try:
         while not rospy.is_shutdown():
             key = getKey()
             if key == ('w'):
-                target_linear_vel += WIZZY_LIN_STEP
+                target_linear_vel = WIZZY_MAX_LINE_VEL
             elif key == ('s'):
-                target_linear_vel -= WIZZY_LIN_STEP
+                target_linear_vel = -WIZZY_MAX_LINE_VEL
             elif key == ('d'):
-                target_angular_vel -= WIZZY_ANG_STEP
+                target_angular_vel = -WIZZY_MAX_ANG_VEL
             elif key == ('a'):
-                target_angular_vel += WIZZY_ANG_STEP
-            elif key == ('p'):
-                target_angular_vel = 0.0
-                target_linear_vel = 0.0
+                target_angular_vel = WIZZY_MAX_ANG_VEL
             elif key == ('q'):
                 target_angular_vel = 0.0
                 target_linear_vel = 0.0
-                break
+                break  # quit node
+            else:
+                target_angular_vel = 0.0
+                target_linear_vel = 0.0
+
             if relay_command == "on":
                 if target_linear_vel > 0:
                     target_linear_vel = 0.0
                     target_linear_vel = 0.0
-            # else:
-            #     target_angular_vel = 0.0
-            #     target_linear_vel = 0.0
 
+            filtered_angular_vel = target_angular_vel*(1-alpha) + filtered_angular_vel*alpha
+            filtered_linear_vel = target_linear_vel*(1-alpha) + filtered_linear_vel*alpha
 
-            twist = Twist()
-            if abs(target_linear_vel) >= WIZZY_MAX_LINE_VEL:
-                target_linear_vel = math.copysign(WIZZY_MAX_LINE_VEL, target_linear_vel)
-            if abs(target_angular_vel) >= WIZZY_MAX_ANG_VEL:
-                target_angular_vel = math.copysign(WIZZY_MAX_LINE_VEL, target_angular_vel)
+            # print(target_angular_vel, filtered_angular_vel, target_linear_vel, filtered_linear_vel)
 
-            twist.linear.x = target_linear_vel
+            if abs(filtered_linear_vel) < 0.01:
+                filtered_linear_vel = 0
+            if abs(filtered_angular_vel) < 0.01:
+                filtered_angular_vel = 0
+
+            twist.linear.x = filtered_linear_vel
             twist.linear.y = 0.0
             twist.linear.z = 0.0
 
             twist.angular.x = 0.0
             twist.angular.y = 0.0
-            twist.angular.z = target_angular_vel
+            twist.angular.z = filtered_angular_vel
 
             pub.publish(twist)
             rate.sleep()

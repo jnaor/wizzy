@@ -21,7 +21,7 @@
             "width": 640,
             "height": 360,
             "framerate": 15,
-            "type": "direct"
+            "type": "ros"
         }
     ],
     "rate": 10

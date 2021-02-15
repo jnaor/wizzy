@@ -200,49 +200,6 @@ class DirectCamera(Camera):
         if 'color' in image.keys(): self.color_image = image['color']
 
 
-def visualize_obstacles(self, obstacle_array):
-
-    # to hold obstacle markers array
-    marker_array = MarkerArray()
-
-    # go over received array and add markers per obstacle
-    for obstacle_id, obstacle in enumerate(obstacle_array.data):
-
-        # new marker for this obstacle
-        marker = Marker()
-
-        # marker attributes
-        marker.header.frame_id = "base_footprint"
-
-        marker.type = marker.CUBE
-        marker.action = marker.ADD
-        marker.scale.x = 0.2
-        marker.scale.y = 0.2
-        marker.scale.z = 0.2
-        marker.color.a = 1.0
-        marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 0.0
-        marker.pose.orientation.w = 1.0
-        
-        # get location from message
-        marker.pose.position.x = obstacle.x.data
-        marker.pose.position.y = obstacle.y.data
-        marker.pose.position.z = obstacle.z.data
-
-        # how long to show
-        marker.lifetime = rospy.Duration(MARKER_DISPLAY_DURATION)
-
-        # id for this marker
-        marker.id = obstacle_id
-
-        # finally, add to list
-        marker_array.markers.append(marker)
-    
-    # TODO: ugly global
-    visualization_publisher.publish(marker_array)
-
-
 if __name__ == '__main__':
     import json
     import os
@@ -276,15 +233,6 @@ if __name__ == '__main__':
     # run at hz specified in config
     rate = rospy.Rate(config['rate'])
 
-    # visualization on?
-    visualization = rospy.get_param('visualization', True)
-
-    if visualization:
-
-        from visualization_msgs.msg import Marker, MarkerArray
-
-        # visualization publisher if requested
-        visualization_publisher = rospy.Publisher('obstacle_marker', MarkerArray, queue_size = 10)
 
     # as long as ros is alive
     while not rospy.is_shutdown():
@@ -306,10 +254,8 @@ if __name__ == '__main__':
         # publish if not empty
         if len(obstacle_list) > 0:
             publish_obstacles(obstacle_list_pub, obstacle_list)
-
-        if visualization:
-            # publish markers
-            visualize_obstacles(obstacle_list)
+        else:
+            print('empty obstacle list')
 
         # go to sleep till next request
         rate.sleep()

@@ -47,7 +47,6 @@ def main(args):
         # if this is a camera
         if "color" in topic_name and "image_raw" in topic_name:
             rospy.logdebug('adding image converter {}'.format(topic_name))
-
             converters.append(ImageConverter(cam=topic_name))
     try:
         rospy.spin()
