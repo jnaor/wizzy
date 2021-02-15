@@ -71,7 +71,6 @@ class ObstacleDetector(object):
 
         # transform according to camera pose
         for detection in self.obstacle_list:
-
             # calculate with camera pose
             loc = np.matmul(self.camera.pose, [[detection['x']], [detection['y']], [detection['z']], [1]])
             dim = np.matmul(self.camera.pose, [[detection['width']], [detection['length']], [0], [1]])
@@ -118,14 +117,15 @@ def publish_obstacles(obstacle_publisher, obstacle_list):
     msg_object_array.header.stamp = rospy.Time.now()
     for current_obstacle in obstacle_list:
         msg_object = obstacle()
-        msg_object.x.data = current_obstacle['x']
-        msg_object.y.data = current_obstacle['y']
-        msg_object.z.data = current_obstacle['z']
-        msg_object.width.data = current_obstacle['width']
-        msg_object.height.data = current_obstacle['height']
-        msg_object.length.data = current_obstacle['length']  # should change to length
-        msg_object.classification.data = current_obstacle['classification']
+        msg_object.x = current_obstacle['x']
+        msg_object.y = current_obstacle['y']
+        msg_object.z = current_obstacle['z']
+        msg_object.width = current_obstacle['width']
+        msg_object.height = current_obstacle['height']
+        msg_object.length = current_obstacle['length']  # should change to length
+        msg_object.classification = current_obstacle['classification']
         msg_object_array.data.append(msg_object)
+
     obstacle_publisher.publish(msg_object_array)
 
 
@@ -141,8 +141,9 @@ class Camera(object):
         listener = tf.TransformListener()
 
         try:
-            # wait till transform is available
-            listener.waitForTransform('/base_link', '/{}_link'.format(self.name), rospy.Time(), rospy.Duration(10.0))
+            time.sleep(3)  # wait till transform is available
+            child_transform = '/{}_link'.format(self.name)
+            listener.waitForTransform('/base_link', child_transform, rospy.Time(), rospy.Duration(10))
 
             (translation, rotation_quat) = listener.lookupTransform(
                 '/base_link', '/{}_link'.format(self.name), rospy.Time(0))
@@ -155,6 +156,11 @@ class Camera(object):
         # add translation
         self.pose[:3, 3] = translation
 
+        # pose matrix seems ok
+        # print('#############################################################################')
+        # print(self.pose)
+        # print('#############################################################################')
+
     def grab(self):
         pass
 
@@ -166,6 +172,8 @@ class ROSCamera(Camera):
 
         # subscribe to depth
         rospy.Subscriber("/{}/depth/image_mono16".format(self.name), Image, self.save_depth)
+        # rospy.Subscriber("/front_cam/depth/image_rect_raw".format(self.name), Image, self.save_depth)
+
 
         # initialize ros2opencv converter
         self.cv_bridge = CvBridge()
@@ -254,8 +262,8 @@ if __name__ == '__main__':
         # publish if not empty
         if len(obstacle_list) > 0:
             publish_obstacles(obstacle_list_pub, obstacle_list)
-        else:
-            print('empty obstacle list')
+        # else:
+        #     print('empty obstacle list')
 
         # go to sleep till next request
         rate.sleep()

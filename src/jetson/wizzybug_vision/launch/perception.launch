@@ -5,7 +5,7 @@
     <param name='vision_config' value='$(find wizzybug_vision)/config/vision_config_front.json' />
 
     <node name="obstacle_detector" pkg="wizzybug_vision" type="wizzybug_vision.py" output="screen"></node>
-    <node name="image_converter" pkg="wizzybug_vision" type="image_converter.py"></node>
+<!--    <node name="image_converter" pkg="wizzybug_vision" type="image_converter.py"></node>-->
 
     <!-- Audio -->
     <!-- node name="play_sound" pkg="wizzybug_sound" type="play_sound.py" / -->

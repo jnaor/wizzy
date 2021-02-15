@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import rospy
 from visualization_msgs.msg import Marker, MarkerArray
@@ -31,21 +31,21 @@ class ObstacleHandler:
 
             marker.type = marker.CUBE
             # marker.action = marker.ADD  # redundant
-            marker.scale.x = 0.2
-            marker.scale.y = 0.2
-            marker.scale.z = 0.2
+            marker.scale.x = 0.1
+            marker.scale.y = 1.0
+            marker.scale.z = 1.0
             marker.color.a = 1.0
             marker.color.r = 1.0
             marker.color.g = 1.0
             marker.color.b = 0.0
-            # marker.pose.orientation.w = 1.0  # redundant
+            marker.pose.orientation = Quaternion()
 
             # get location from message
-            marker.pose.position.x = obstacle_data.x.data
-            marker.pose.position.y = obstacle_data.y.data
-            marker.pose.position.z = obstacle_data.z.data
+            marker.pose.position.x = obstacle_data.x  # + 0.5
+            marker.pose.position.y = obstacle_data.y
+            marker.pose.position.z = obstacle_data.z
 
-            # how long to show - handeled within rvix
+            # how long to show - handeled within rviz
             # marker.lifetime = rospy.Duration(MARKER_DISPLAY_DURATION)
 
             # id for this marker

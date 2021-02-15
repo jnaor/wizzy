@@ -32,7 +32,12 @@
 
     <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py" launch-prefix="xterm -e"/>
 
+    <!-- convert depth images to realsense-like format -->
+    <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>
+
     <include file="$(find wizzybug_vision)/launch/perception.launch"/>
+
+    <node name="obstacle_visualizer" pkg="rviz_visualizers" type="obstacle_visualizer.py"/>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/simulation_sensors.rviz" if="$(arg rviz)"/>
 
