@@ -9,6 +9,9 @@ from sklearn.cluster import MeanShift, estimate_bandwidth
 
 from scipy.stats import mode
 
+from matplotlib import pylab as plt
+
+
 # percentile to take as distance estimation for cluster
 CLUSTER_PERCENTILE = 5
 
@@ -164,8 +167,9 @@ def segment_depth(D, max_range=5000, min_size_ratio=1/50):
     # convert image to 8-bit
     D8 = (D.astype(np.float) / 256).astype(np.uint8)
 
+    print('max element in 8-bit {}'.format(np.max(D8)))
+
     # calculate histogram
-    # hist = cv2.calcHist([D], [0], None, [2**16], [0, 2**16])
     hist = cv2.calcHist([D8], [0], None, [256], [0, 256]).astype(np.int)
 
     # remove places with depth zero
@@ -192,6 +196,9 @@ def segment_depth(D, max_range=5000, min_size_ratio=1/50):
 
         # pixels in this region
         B = np.bitwise_and(D8 >= start, D8 < end)
+
+        plt.imshow(B)
+        plt.pause(0)
 
         # find bounding values
         nonzero_indices = np.where(B)

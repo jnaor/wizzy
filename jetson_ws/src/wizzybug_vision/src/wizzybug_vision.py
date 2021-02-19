@@ -11,8 +11,7 @@ import rospy
 from segmentation import segment_depth
 from cv_bridge import CvBridge, CvBridgeError
 
-# inputs are images
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, PointCloud2
 import tf
 from tf.transformations import quaternion_matrix
 
@@ -55,19 +54,101 @@ class ObstacleDetector(object):
         # default to no detections
         self.obstacle_list, self.obstacle_mask = [], []
 
+        return self.obstacle_list, self.obstacle_mask
+
         if self.camera.depth_image is None:
+            rospy.logwarn('no image received for camera {}'.format(self.camera.name))
             return
 
-        # blacken out bottom of image to get rid of floor TODO: actual calculation
-        num_black_rows = 150
+        # restrict to places where we have finite readings
+        finite_indices = np.isfinite(x) & np.isfinite(z)
+        x, z = x[finite_indices], z[finite_indices]
 
-        # need this since for some reason depth image is not writeable
-        D = self.camera.depth_image.copy()
+        # sort by x
+        sorted_indices = np.argsort(x)
+        x, z = x[sorted_indices], z[sorted_indices]
 
-        D[-num_black_rows:, :] = 0
+        # check that both x and z are not empty
+        if len(x) * len(z) == 0:
+            rospy.logerr("invalid laser scan readings")
+            return
 
-        # detect obstacles based on depth
-        self.obstacle_list, self.obstacle_mask = segment_depth(D)
+        # locations assumed to be the ground
+        ground_indices = np.where((x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
+                               (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE))
+        ground_x, ground_z = x[ground_indices], z[ground_indices]
+
+        if min(len(ground_x), len(ground_z)) == 0:
+            rospy.logwarn('unable to detect ground readings')
+            return
+
+        # estimate ground line using RANSAC
+        try:
+            ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
+
+        except ValueError as e:
+            rospy.logwarn('RANSAC error {}'.format(e))
+            return
+
+        # estimate line at ground_x
+        l = ransac.predict(ground_x.reshape(-1, 1))
+
+        # keep ransac score
+        ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
+
+        # if readings do not fit a line then report error
+        if ransac_score > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
+            rospy.logwarn('unable to detect ground. score is {}'.format(ransac_score))
+            return
+
+        # ransac inliers
+        inlier_mask = ransac.inlier_mask_
+
+        # ransac outliers
+        outlier_mask = np.logical_not(inlier_mask)
+
+        # find index of last outlier in original array
+        try:
+            last_outlier_index = ground_indices[0][np.max(np.nonzero(outlier_mask)[0])]
+
+        # if there are no outliers
+        except ValueError:
+            # take last ground point
+            last_outlier_index = 0
+
+        # record lidar height (minus sign because the lidar is above the floor)
+        ld.lidar_height = -ransac.predict([[0]])[0]
+
+        # floor angle
+        inclination = np.arctan((l[0] - l[-1]) / (x[-1] - x[0]))
+        ld.floor_inclination_degrees = np.rad2deg(inclination)
+
+        # rotation matrix to make ground level
+        R = np.array([[np.cos(inclination), -np.sin(inclination)], [np.sin(inclination), np.cos(inclination)]])
+
+        # transform readings
+        T = np.matmul(R, np.vstack((x, z)))
+
+        # subtract ground height
+        T[1, :] += ld.lidar_height
+
+        # difference between successive z measurements
+        diff_x, diff_z = np.abs(np.diff(T[0])), np.abs(np.diff(T[1]))
+
+        # skip to after the last outlier
+        diff_z[:last_outlier_index+1] = 0
+
+        # x gaps
+        x_gap = binary_erosion(diff_x < LidarProcess.MAX_FLOOR_X_DIFF)
+
+        # detect gap in z
+        try:
+            z_gap = min(np.where(np.bitwise_and(x_gap, diff_z > LidarProcess.MAX_FLOOR_Z_DIFF))[0])
+            ld.visible_floor_distance = x[z_gap - 1]
+        except ValueError:
+            ld.visible_floor_distance = np.max(x)
+            # rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
+
 
         # transform according to camera pose
         for detection in self.obstacle_list:
@@ -79,6 +160,7 @@ class ObstacleDetector(object):
             # update results
             detection['x'], detection['y'], detection['z'] = loc[0], loc[1], loc[2]
             detection['width'], detection['length'] = abs(dim[0]), abs(dim[1])
+
 
     def segnet_callback(self, data):
 
@@ -134,8 +216,8 @@ class Camera(object):
         # save parameters
         self.name, self.serial = config['name'], config['serial']
 
-        # placeholders for images
-        self.color_image, self.depth_image = None, None
+        # placeholders for images and pointcloud
+        self.color_image, self.depth_image, self.pointcloud = None, None, None
 
         # listen for camera transformation
         listener = tf.TransformListener()
@@ -167,6 +249,10 @@ class ROSCamera(Camera):
         # subscribe to depth
         rospy.Subscriber("/{}/depth/image_mono16".format(self.name), Image, self.save_depth)
 
+        # subscribe to pointcloud
+        rospy.Subscriber("/{}/depth/points".format(self.name), PointCloud2, self.save_pointcloud)
+
+
         # initialize ros2opencv converter
         self.cv_bridge = CvBridge()
 
@@ -174,6 +260,14 @@ class ROSCamera(Camera):
         """ callback activated when ros depth image message received """
         # create an opencv image from ROS
         self.depth_image = self.cv_bridge.imgmsg_to_cv2(msg, "passthrough")
+
+    def save_pointcloud(self, msg):
+
+        # save pointcloud
+        self.pointcloud = msg.points
+
+        print('got point cloud')
+
 
 
 class DirectCamera(Camera):
@@ -196,7 +290,7 @@ class DirectCamera(Camera):
         image = self.grabber.grab()
 
         # hold in internal structures
-        if 'depth' in image.keys(): self.depth_image = image['depth']
+        if 'depth' in image.keys(): self.depth_image = image['depth'], self.pointcloud = image["pointcloud"]
         if 'color' in image.keys(): self.color_image = image['color']
 
 
@@ -277,7 +371,7 @@ if __name__ == '__main__':
     rate = rospy.Rate(config['rate'])
 
     # visualization on?
-    visualization = rospy.get_param('visualization', True)
+    visualization = rospy.get_param('visualization', False)
 
     if visualization:
 
