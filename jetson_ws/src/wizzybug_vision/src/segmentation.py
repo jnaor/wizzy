@@ -34,6 +34,8 @@ def calc_attributes(depth_image, bounding_box, distance, fov=[40, 48], percentil
     # get bb coordinates
     x1, y1, x2, y2 = bounding_box
 
+    print((x1, y1, x2, y2))
+
     # estimate how much of field of view we are using
     pitch = ((y2 - y1) / depth_image.shape[0]) * fov[0]
     yaw = ((x2 - x1) / depth_image.shape[1]) * fov[1]
@@ -235,7 +237,10 @@ def label_detections(obstacle_list, obstacle_mask, segmentation_image):
 
 if __name__ == '__main__':
 
-    D = cv2.imread('grab.png', cv2.IMREAD_ANYDEPTH)
+
+    D = cv2.imread('../test/grab.png', cv2.IMREAD_ANYDEPTH)
+
+    print('max element {}'.format(np.max(D)))
 
     # obstacle_list, obstacle_mask = cluster_depth(D)
     obstacle_list, obstacle_mask = segment_depth(D)
