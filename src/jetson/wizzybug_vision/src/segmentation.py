@@ -9,6 +9,9 @@ from sklearn.cluster import MeanShift, estimate_bandwidth
 
 from scipy.stats import mode
 
+from matplotlib import pylab as plt
+
+
 # percentile to take as distance estimation for cluster
 CLUSTER_PERCENTILE = 5
 
@@ -33,6 +36,8 @@ def calc_attributes(depth_image, bounding_box, distance, fov=[40, 48], percentil
 
     # get bb coordinates
     x1, y1, x2, y2 = bounding_box
+
+    print((x1, y1, x2, y2))
 
     # estimate how much of field of view we are using
     pitch = ((y2 - y1) / depth_image.shape[0]) * fov[0]
@@ -162,8 +167,9 @@ def segment_depth(D, max_range=5000, min_size_ratio=1/50):
     # convert image to 8-bit
     D8 = (D.astype(np.float) / 256).astype(np.uint8)
 
+    print('max element in 8-bit {}'.format(np.max(D8)))
+
     # calculate histogram
-    # hist = cv2.calcHist([D], [0], None, [2**16], [0, 2**16])
     hist = cv2.calcHist([D8], [0], None, [256], [0, 256]).astype(np.int)
 
     # remove places with depth zero
@@ -190,6 +196,9 @@ def segment_depth(D, max_range=5000, min_size_ratio=1/50):
 
         # pixels in this region
         B = np.bitwise_and(D8 >= start, D8 < end)
+
+        plt.imshow(B)
+        plt.pause(0)
 
         # find bounding values
         nonzero_indices = np.where(B)
@@ -235,7 +244,10 @@ def label_detections(obstacle_list, obstacle_mask, segmentation_image):
 
 if __name__ == '__main__':
 
-    D = cv2.imread('grab.png', cv2.IMREAD_ANYDEPTH)
+
+    D = cv2.imread('../test/grab.png', cv2.IMREAD_ANYDEPTH)
+
+    print('max element {}'.format(np.max(D)))
 
     # obstacle_list, obstacle_mask = cluster_depth(D)
     obstacle_list, obstacle_mask = segment_depth(D)

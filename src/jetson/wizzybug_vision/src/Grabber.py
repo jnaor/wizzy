@@ -56,6 +56,9 @@ class Grabber(object):
             depth_frame = frames.get_depth_frame()
             result["depth"] = np.asanyarray(depth_frame.get_data())
 
+            # get point cloud
+            result["pointcloud"] = rs.pointcloud().calculate(depth_frame)
+
         # Get color frame
         if self.color:
             color_frame = frames.get_color_frame()
