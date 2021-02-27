@@ -16,9 +16,24 @@
 	</node>
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
-    <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py" output="screen" launch-prefix="xterm -e"/>
+
+    <!-- convert depth images to realsense-like format -->
+<!--    <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>-->
+
+<!--    <include file="$(find wizzybug_vision)/launch/perception.launch"/>-->
+
+    <node name="obstacle_simulator" pkg="wizzybug_simulation" type="obstacle_simulator.py"/>
+
+    <node name="obstacle_visualizer" pkg="rviz_visualizers" type="obstacle_visualizer.py"/>
+
+    <node name="state_stuff" pkg="wizzybug_decision_making" type="state_experiment.py"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/simulation_sensors.rviz" if="$(arg rviz)"/>
+
+     <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find wizzybug_simulation)/worlds/wizzy_full.world"/>
+        <arg name="world_name" value="$(find wizzybug_simulation)/worlds/wizzy_empty.world"/>
         <arg name="debug" value="$(arg debug)"/>
         <arg name="gui" value="$(arg gui)"/>
         <arg name="paused" value="$(arg paused)"/>
@@ -29,16 +44,5 @@
     <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
           args="-urdf -model wizzybug -param robot_description"/>
-
-    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py" launch-prefix="xterm -e"/>
-
-    <!-- convert depth images to realsense-like format -->
-    <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>
-    
-    <include file="$(find wizzybug_vision)/launch/perception.launch"/>
-
-    <node name="obstacle_visualizer" pkg="rviz_visualizers" type="obstacle_visualizer.py"/>
-
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/simulation_sensors.rviz" if="$(arg rviz)"/>
 
 </launch>

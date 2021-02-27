@@ -56,7 +56,7 @@
             <publishTf>true</publishTf>
             <publishWheelJointState>true</publishWheelJointState>
             <legacyMode>false</legacyMode>
-            <updateRate>20</updateRate>
+            <updateRate>10</updateRate>
             <leftJoint>wheel_left_joint</leftJoint>
             <rightJoint>wheel_right_joint</rightJoint>
             <wheelSeparation>0.46</wheelSeparation>

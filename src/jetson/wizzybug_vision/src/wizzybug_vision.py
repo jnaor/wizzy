@@ -264,7 +264,7 @@ class ROSCamera(Camera):
     def save_pointcloud(self, msg):
 
         # save pointcloud
-        self.pointcloud = msg.points
+        self.pointcloud = msg
 
         print('got point cloud')
 

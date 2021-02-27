@@ -17,10 +17,12 @@ class ObstacleHandler:
         self.marker_array = MarkerArray()
 
     def visualize_obstacles(self, obstacle_array):
+
+        # clear marker list for a fresh new start
+        self.marker_array.markers = []
+
         # go over received array and add markers per obstacle
         for obstacle_id, obstacle_data in enumerate(obstacle_array.data):
-            # clear marker list for a fresh new start
-            self.marker_array.markers = []
 
             # new marker for this obstacle
             marker = Marker()
@@ -29,24 +31,15 @@ class ObstacleHandler:
             marker.header.frame_id = "base_footprint"
             marker.header.stamp = rospy.Time.now()
 
-            marker.type = marker.CUBE
-            # marker.action = marker.ADD  # redundant
-            marker.scale.x = 0.1
-            marker.scale.y = 1.0
-            marker.scale.z = 1.0
-            marker.color.a = 1.0
-            marker.color.r = 1.0
-            marker.color.g = 1.0
-            marker.color.b = 0.0
-            marker.pose.orientation = Quaternion()
+            marker.type = marker.SPHERE
+            marker.scale = Vector3(0.5, 0.5, 0.5)
+            marker.color = ColorRGBA(1.0, 1.0, 0.0, 1.0)
+            marker.pose.orientation = Quaternion(0, 0, 0, 1)
 
             # get location from message
             marker.pose.position.x = obstacle_data.x  # + 0.5
             marker.pose.position.y = obstacle_data.y
             marker.pose.position.z = obstacle_data.z
-
-            # how long to show - handeled within rviz
-            # marker.lifetime = rospy.Duration(MARKER_DISPLAY_DURATION)
 
             # id for this marker
             # added arbitrary offset so that it won't collide with other visualization nodes
