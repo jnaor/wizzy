@@ -43,7 +43,7 @@ class LidarProcess:
         self.lidar_proc = rospy.Publisher('/wizzy/lidar_proc', lidar_data, queue_size=10)
 
         # Subscribe 
-        rospy.Subscriber("/scan", LaserScan, self.scan_cb)
+        self.laserscan_subscriber = rospy.Subscriber("/scan", LaserScan, self.scan_cb)
 
         # simulation-specific correction
         self.simulated_radar = rospy.get_param('simulated_lidar', False)
@@ -86,12 +86,12 @@ class LidarProcess:
         # and not towards x axis)
         z, x = polar2cart(range_readings, angles)
 
-        # TODO: ugly patch!!
-        if self.simulated_radar:
-            x = -x
-
-        else:
-            z = -z
+        # # TODO: ugly patch!!
+        # if self.simulated_radar:
+        #     x = -x
+        #
+        # else:
+        #     z = -z
 
         # restrict to places where we have finite readings
         finite_indices = np.isfinite(x) & np.isfinite(z)
