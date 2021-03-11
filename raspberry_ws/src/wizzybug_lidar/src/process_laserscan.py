@@ -32,7 +32,7 @@ class LidarProcess:
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
     # maximum difference between successive floor measurements
-    MAX_FLOOR_X_DIFF, MAX_FLOOR_Z_DIFF = 0.3, 0.3
+    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.2, 0.2
 
     def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
 
@@ -165,18 +165,24 @@ class LidarProcess:
         # subtract ground height
         T[1, :] += ld.lidar_height
 
-        # difference between successive z measurements
-        diff_x, diff_z = np.abs(np.diff(T[0])), np.abs(np.diff(T[1]))
+        # difference between successive x measurements
+        diff_x = np.abs(np.diff(T[0]))
+
+        # get real heights (after the rotations, etc.)
+        heights = T[1]
+
+        # find places with Z above threshold
+        first_obstacle = np.min(np.where(T[1][last_outlier_index+1:] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
 
         # skip to after the last outlier
-        diff_z[:last_outlier_index+1] = 0
+        # diff_z[:last_outlier_index+1] = 0
 
         # x gaps
         x_gap = binary_erosion(diff_x < LidarProcess.MAX_FLOOR_X_DIFF)
 
         # detect gap in z
         try:
-            z_gap = min(np.where(np.bitwise_and(x_gap, diff_z > LidarProcess.MAX_FLOOR_Z_DIFF))[0])
+            z_gap = min(np.where(np.bitwise_and(x_gap, T[1] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))[0])
             ld.visible_floor_distance = x[z_gap - 1]
         except ValueError:
             ld.visible_floor_distance = np.max(x)
@@ -248,7 +254,7 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.INFO)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
 
     # rate to perform calculation
     rate = rospy.Rate(LIDAR_PROCESS_RATE)
