@@ -1,0 +1,52 @@
+<launch>
+
+    <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="rviz" default="true"/>
+
+	<param name="robot_description" command="$(find xacro)/xacro '$(find wizzybug_description)/urdf/wizzybug.xacro'" />
+
+    <!-- Manage transformations through URDF -->
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+		<param name="use_gui" value="false"/>
+	</node>
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+<!--    <node name="wizzybug_teleop" pkg="wizzybug_control" type="wizzybug_teleop.py" output="screen" launch-prefix="xterm -e"/>-->
+
+    <!-- convert depth images to realsense-like format -->
+<!--    <node name="simulation_image_converter" pkg="wizzybug_simulation" type="simulation_image_converter.py"/>-->
+
+<!--    <include file="$(find wizzybug_vision)/launch/perception.launch"/>-->
+
+<!--    <node name="obstacle_simulator" pkg="wizzybug_simulation" type="obstacle_simulator.py"/>-->
+
+<!--    <node name="obstacle_visualizer" pkg="rviz_visualizers" type="obstacle_visualizer.py"/>-->
+
+<!--    <node name="state_stuff" pkg="wizzybug_decision_making" type="state_experiment.py"/>-->
+
+    <node name="lidar_processing" pkg="wizzybug_lidar" type="process_laserscan.py"/>
+
+    <node name="lidar_proc_viz" pkg="rviz_visualizers" type="lidar_proc_visualizer.py"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find wizzybug_description)/launch/simulation_sensors.rviz" if="$(arg rviz)"/>
+
+     <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+<!--    <include file="$(find gazebo_ros)/launch/empty_world.launch">-->
+<!--        <arg name="world_name" value="$(find wizzybug_simulation)/worlds/wizzy_obstacles.world"/>-->
+<!--        <arg name="debug" value="$(arg debug)"/>-->
+<!--        <arg name="gui" value="$(arg gui)"/>-->
+<!--        <arg name="paused" value="$(arg paused)"/>-->
+<!--        <arg name="use_sim_time" value="$(arg use_sim_time)"/>-->
+<!--        <arg name="headless" value="$(arg headless)"/>-->
+<!--    </include>-->
+
+    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+<!--    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"-->
+<!--          args="-urdf -model wizzybug -param robot_description"/>-->
+
+</launch>

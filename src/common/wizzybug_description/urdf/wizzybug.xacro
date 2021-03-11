@@ -48,7 +48,7 @@
 
     <xacro:property name="rplidar_x" value="0.1"/>
     <xacro:property name="rplidar_y" value="0.1"/>
-    <xacro:property name="rplidar_z" value="0.0"/>
+    <xacro:property name="rplidar_z" value="0.05"/>
 
     <link name="base_footprint">
     </link>
@@ -376,9 +376,34 @@
     <joint name="rplidar_joint" type="fixed">
         <parent link="base_link"/>
         <child link="rplidar_link"/>
-        <origin xyz="${rplidar_x} ${rplidar_y} ${rplidar_z}" rpy="1.5708 0 0"/>
+        <origin xyz="${rplidar_x} ${rplidar_y} ${rplidar_z}" rpy="1.5708 1.45 0"/>
     </joint>
     <link name="rplidar_link">
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder length="0.05" radius="0.025"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder length="0.05" radius="0.025"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <mass value="1e-5"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+        </inertial>
+    </link>
+
+    <joint name="laser_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="laser"/>
+        <origin xyz="${rplidar_x} ${rplidar_y} ${rplidar_z}" rpy="1.5708 1.45 0"/>
+    </joint>
+    <link name="laser">
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>

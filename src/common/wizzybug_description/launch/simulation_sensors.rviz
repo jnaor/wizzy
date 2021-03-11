@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-      Splitter Ratio: 0.5761772990226746
+      Splitter Ratio: 0.6260387897491455
     Tree Height: 395
   - Class: rviz/Selection
     Name: Selection
@@ -26,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan
+    SyncSource: FrontCamera
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -88,6 +88,11 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         left_cam_link:
           Alpha: 1
           Show Axes: false
@@ -288,8 +293,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 1.0048742294311523
-        Min Value: -0.01755816489458084
+        Max Value: 0.9800046682357788
+        Min Value: -0.020252041518688202
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -364,7 +369,7 @@ Visualization Manager:
       Marker Topic: /visualization_marker
       Name: LidarProcessing
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -395,25 +400,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 11.733711242675781
+      Distance: 3.9034407138824463
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.2807675898075104
-        Y: -0.08886969834566116
-        Z: 0.8598231673240662
+        X: 1.415972113609314
+        Y: 0.29760798811912537
+        Z: 0.20562635362148285
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7197960615158081
+      Pitch: 0.5897963047027588
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.486754894256592
+      Yaw: 4.756740570068359
     Saved: ~
 Window Geometry:
   Displays:
