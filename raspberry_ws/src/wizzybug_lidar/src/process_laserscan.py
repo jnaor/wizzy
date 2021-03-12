@@ -169,10 +169,13 @@ class LidarProcess:
         diff_x = np.abs(np.diff(T[0]))
 
         # get real heights (after the rotations, etc.)
-        heights = T[1]
+        heights = T[1,:]
 
         # find places with Z above threshold
-        first_obstacle = np.min(np.where(T[1][last_outlier_index+1:] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
+        # sharonf : Fix first obstacle by finding the nearest Z that is above some threshold above ground.
+        # first_obstacle = np.min(np.where(T[1][last_outlier_index+1:] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
+
+        first_obstacle_idx = np.min(np.where(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
 
         # skip to after the last outlier
         # diff_z[:last_outlier_index+1] = 0
@@ -181,12 +184,13 @@ class LidarProcess:
         x_gap = binary_erosion(diff_x < LidarProcess.MAX_FLOOR_X_DIFF)
 
         # detect gap in z
-        try:
-            z_gap = min(np.where(np.bitwise_and(x_gap, T[1] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))[0])
-            ld.visible_floor_distance = x[z_gap - 1]
-        except ValueError:
-            ld.visible_floor_distance = np.max(x)
+        # try:
+        #     z_gap = min(np.where(np.bitwise_and(x_gap, T[1] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))[0])
+        #     ld.visible_floor_distance = x[z_gap - 1]
+        # except ValueError:
+        #     ld.visible_floor_distance = np.max(x)
             # rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
+        ld.visible_floor_distance = x[first_obstacle_idx]
 
         if self.visualize:
             from matplotlib import pylab as plt
@@ -208,7 +212,8 @@ class LidarProcess:
                 # plt.figure(2)
                 plt.subplot(1, 1, 1)
                 # plt.scatter(T[0, :], T[1, :])
-                plt.scatter(x[1:], diff_z, color='green')
+                # plt.scatter(x[1:], diff_z, color='green')
+                plt.scatter(x, z, color='green')
                 plt.plot(ld.visible_floor_distance, 0, 'bx')
 
                 plt.xlim([-0.5, 6])
@@ -217,6 +222,7 @@ class LidarProcess:
             drawnow(visualize)
 
         # publish results
+        print ("FLoor : " + str(ld.visible_floor_distance))
         self.lidar_proc.publish(ld)
 
 
