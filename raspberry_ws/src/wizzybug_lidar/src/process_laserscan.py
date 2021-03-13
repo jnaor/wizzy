@@ -32,7 +32,7 @@ class LidarProcess:
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
     # maximum difference between successive floor measurements
-    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.2, 0.2
+    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.7, 0.2
 
     def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
 
@@ -123,9 +123,6 @@ class LidarProcess:
             rospy.logwarn('RANSAC error {}'.format(e))
             return
 
-        # estimate line at ground_x
-        l = ransac.predict(ground_x.reshape(-1, 1))
-
         # keep ransac score
         ransac_score = np.abs(ransac.score(ground_x.reshape(-1, 1), ground_z))
 
@@ -134,20 +131,8 @@ class LidarProcess:
             rospy.logwarn('unable to detect ground. score is {}'.format(ransac_score))
             return
 
-        # ransac inliers
-        inlier_mask = ransac.inlier_mask_
-
-        # ransac outliers
-        outlier_mask = np.logical_not(inlier_mask)
-
-        # find index of last outlier in original array
-        try:
-            last_outlier_index = ground_indices[0][np.max(np.nonzero(outlier_mask)[0])]
-
-        # if there are no outliers
-        except ValueError:
-            # take last ground point
-            last_outlier_index = 0
+        # estimate line at all x's
+        l = ransac.predict(x.reshape(-1, 1))
 
         # record lidar height (minus sign because the lidar is above the floor)
         ld.lidar_height = -ransac.predict([[0]])[0]
@@ -165,55 +150,41 @@ class LidarProcess:
         # subtract ground height
         T[1, :] += ld.lidar_height
 
+        # get real heights (after the rotations, etc.)
+        heights = T[1, :]
+
+        # disregard the ground indices
+        # if something bad happened there then hopefully we'll see it in the ransac score
+        heights[ground_indices] = 0
+
+        # find places with obstacles above threshold
+        first_obstacle_idx = np.min(np.where(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
+
         # difference between successive x measurements
         diff_x = np.abs(np.diff(T[0]))
 
-        # get real heights (after the rotations, etc.)
-        heights = T[1,:]
-
-        # find places with Z above threshold
-        # sharonf : Fix first obstacle by finding the nearest Z that is above some threshold above ground.
-        # first_obstacle = np.min(np.where(T[1][last_outlier_index+1:] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
-
-        first_obstacle_idx = np.min(np.where(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
-
-        # skip to after the last outlier
-        # diff_z[:last_outlier_index+1] = 0
-
         # x gaps
-        x_gap = binary_erosion(diff_x < LidarProcess.MAX_FLOOR_X_DIFF)
+        x_gap_index = np.min(np.where(diff_x > LidarProcess.MAX_FLOOR_X_DIFF))+1
 
-        # detect gap in z
-        # try:
-        #     z_gap = min(np.where(np.bitwise_and(x_gap, T[1] > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))[0])
-        #     ld.visible_floor_distance = x[z_gap - 1]
-        # except ValueError:
-        #     ld.visible_floor_distance = np.max(x)
-            # rospy.logwarn('no z gap detected; max range visibility for now ({})'.format(msg.range_max))
-        ld.visible_floor_distance = x[first_obstacle_idx]
+        # floor is visible where there is no large gap in x and no obstacle in z
+        ld.visible_floor_distance = T[0][min(x_gap_index, first_obstacle_idx)]
 
         if self.visualize:
             from matplotlib import pylab as plt
             from drawnow import drawnow, figure
 
             def visualize():
-                # plt.figure(1)
+                plt.figure(1)
                 # plt.subplot(1, 1, 1)
-                # plt.scatter(x, z)
-                # # plt.scatter(ground_x, ground_z)
-                #
-                #
-                # plt.scatter(ground_x[inlier_mask], ground_z[inlier_mask], color='yellowgreen', marker='.',
-                #             label='Inliers')
-                # plt.scatter(ground_x[outlier_mask], ground_z[outlier_mask], color='black', marker='.',
-                #             label='Outliers')
-                #
+                plt.scatter(x, z)
+                plt.scatter(ground_x, ground_z, color='blue')
+                plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
 
-                # plt.figure(2)
-                plt.subplot(1, 1, 1)
-                # plt.scatter(T[0, :], T[1, :])
+                plt.figure(2)
+                # plt.subplot(1, 1, 1)
+                plt.scatter(T[0, :], T[1, :])
                 # plt.scatter(x[1:], diff_z, color='green')
-                plt.scatter(x, z, color='green')
+                # plt.scatter(T[0], T[1], color='green')
                 plt.plot(ld.visible_floor_distance, 0, 'bx')
 
                 plt.xlim([-0.5, 6])
@@ -232,28 +203,7 @@ def polar2cart(rho, phi):
     """
     x = rho * np.cos(phi)
     y = rho * np.sin(phi)
-    return (x, y)
-
-
-def show_line_fit(ransac, X, y, y_ransac):
-    from matplotlib import pylab as plt
-
-    inlier_mask = ransac.inlier_mask_
-    outlier_mask = np.logical_not(inlier_mask)
-
-    lw = 2
-    plt.clf()
-    plt.scatter(X[inlier_mask], y[inlier_mask], color='yellowgreen', marker='.',
-                label='Inliers')
-    plt.scatter(X[outlier_mask], y[outlier_mask], color='cornflowerblue', marker='.',
-                label='Outliers')
-    # plt.plot(X, y, color='navy', linewidth=lw, label='Linear regressor')
-    # plt.plot(X, y_ransac, color='cornflowerblue', linewidth=lw,
-    #          label='RANSAC regressor')
-    # plt.legend(loc='lower right')
-    # plt.xlabel("Input")
-    # plt.ylabel("Response")
-    plt.show(0.2)
+    return x, y
 
 
 if __name__ == '__main__':
