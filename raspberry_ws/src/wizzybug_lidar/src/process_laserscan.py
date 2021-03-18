@@ -32,9 +32,12 @@ class LidarProcess:
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
     # maximum difference between successive floor measurements
-    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.7, 0.2
+    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 1, 0.2
 
     def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
+
+        # TODO: remove
+        np.set_printoptions(precision=2)
 
         # save parameters
         self.min_obstacle_height, self.min_pitfall_depth = min_obstacle_height, min_pitfall_depth
@@ -157,17 +160,26 @@ class LidarProcess:
         # if something bad happened there then hopefully we'll see it in the ransac score
         heights[ground_indices] = 0
 
-        # find places with obstacles above threshold
-        first_obstacle_idx = np.min(np.where(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR))
+        # difference between successive x measurements. stick a zero at the beginning to preserve the length of the vector
+        diff_x = np.append([0], np.abs(np.diff(T[0, :])))
 
-        # difference between successive x measurements
-        diff_x = np.abs(np.diff(T[0]))
+        # where are there either obstacles or gaps in X
+        bad_indices = np.where(np.bitwise_or(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR, 
+                                diff_x > LidarProcess.MAX_FLOOR_X_DIFF))[0]
 
-        # x gaps
-        x_gap_index = np.min(np.where(diff_x > LidarProcess.MAX_FLOOR_X_DIFF))+1
+        # print(diff_x)
+
+       
+
+        #bad = dict(zip(bad_indices.tolist(), diff_x[bad_indices].tolist()))    
+        #print(bad)    
+
+        
+        # find first place with obstacles or gaps
+        first_idx = np.min(bad_indices)
 
         # floor is visible where there is no large gap in x and no obstacle in z
-        ld.visible_floor_distance = T[0][min(x_gap_index, first_obstacle_idx)]
+        ld.visible_floor_distance = T[0][first_idx]
 
         if self.visualize:
             from matplotlib import pylab as plt
@@ -210,7 +222,7 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.INFO)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
 
     # rate to perform calculation
     rate = rospy.Rate(LIDAR_PROCESS_RATE)
