@@ -100,9 +100,13 @@ class LidarProcess:
         finite_indices = np.isfinite(x) & np.isfinite(z)
         x, z = x[finite_indices], z[finite_indices]
 
+        angles = angles[finite_indices]
+
         # sort by x
         sorted_indices = np.argsort(x)
         x, z = x[sorted_indices], z[sorted_indices]
+
+        angles = angles[sorted_indices]
 
         # check that both x and z are not empty
         if len(x) * len(z) == 0:
@@ -111,7 +115,7 @@ class LidarProcess:
 
         # locations assumed to be the ground
         ground_indices = np.where((x > LidarProcess.GROUND_PLANE_ESTIMATION_MIN_DISTANCE) &
-                               (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE))
+                                  (x < LidarProcess.GROUND_PLANE_ESTIMATION_MAX_DISTANCE))
         ground_x, ground_z = x[ground_indices], z[ground_indices]
 
         if min(len(ground_x), len(ground_z)) == 0:
@@ -160,26 +164,24 @@ class LidarProcess:
         # if something bad happened there then hopefully we'll see it in the ransac score
         heights[ground_indices] = 0
 
-        # difference between successive x measurements. stick a zero at the beginning to preserve the length of the vector
+        # difference between successive x measurements. stick a zero at the beginning to preserve the length of the
+        # vector
         diff_x = np.append([0], np.abs(np.diff(T[0, :])))
 
         # where are there either obstacles or gaps in X
-        bad_indices = np.where(np.bitwise_or(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR, 
-                                diff_x > LidarProcess.MAX_FLOOR_X_DIFF))[0]
+        bad_indices = np.where(np.bitwise_or(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR,
+                                             diff_x > LidarProcess.MAX_FLOOR_X_DIFF))[0]
 
         # print(diff_x)
 
-       
+        # bad = dict(zip(bad_indices.tolist(), diff_x[bad_indices].tolist()))
+        # print(bad)
 
-        #bad = dict(zip(bad_indices.tolist(), diff_x[bad_indices].tolist()))    
-        #print(bad)    
-
-        
-        # find first place with obstacles or gaps
-        first_idx = np.min(bad_indices)
+        # find first angle that doesn't "land" on the floor
+        first_bad_angle = np.min(angles[bad_indices])
 
         # floor is visible where there is no large gap in x and no obstacle in z
-        ld.visible_floor_distance = T[0][first_idx]
+        ld.visible_floor_distance = ld.lidar_height / np.tan(np.rad2deg(first_bad_angle))  # T[0][first_bad_angle]
 
         if self.visualize:
             from matplotlib import pylab as plt
@@ -205,7 +207,7 @@ class LidarProcess:
             drawnow(visualize)
 
         # publish results
-        print ("FLoor : " + str(ld.visible_floor_distance))
+        print("FLoor : " + str(ld.visible_floor_distance))
         self.lidar_proc.publish(ld)
 
 
