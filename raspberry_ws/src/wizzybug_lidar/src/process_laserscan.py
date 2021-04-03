@@ -100,13 +100,9 @@ class LidarProcess:
         finite_indices = np.isfinite(x) & np.isfinite(z)
         x, z = x[finite_indices], z[finite_indices]
 
-        angles = angles[finite_indices]
-
         # sort by x
         sorted_indices = np.argsort(x)
         x, z = x[sorted_indices], z[sorted_indices]
-
-        angles = angles[sorted_indices]
 
         # check that both x and z are not empty
         if len(x) * len(z) == 0:
@@ -177,11 +173,11 @@ class LidarProcess:
         # bad = dict(zip(bad_indices.tolist(), diff_x[bad_indices].tolist()))
         # print(bad)
 
-        # find first angle that doesn't "land" on the floor
-        first_bad_angle = np.min(angles[bad_indices])
+        # find first place with obstacles or gaps
+        first_idx = np.min(bad_indices)-1
 
         # floor is visible where there is no large gap in x and no obstacle in z
-        ld.visible_floor_distance = ld.lidar_height / np.tan(np.rad2deg(first_bad_angle))  # T[0][first_bad_angle]
+        ld.visible_floor_distance = T[0][first_idx]
 
         if self.visualize:
             from matplotlib import pylab as plt
@@ -224,7 +220,7 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.INFO)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
 
     # rate to perform calculation
     rate = rospy.Rate(LIDAR_PROCESS_RATE)
