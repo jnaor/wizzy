@@ -32,7 +32,7 @@ class LidarProcess:
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
     # maximum difference between successive floor measurements
-    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 1, 0.2
+    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.3, 1000 # 0.3, 0.2
 
     def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
 
@@ -164,20 +164,23 @@ class LidarProcess:
         # vector
         diff_x = np.append([0], np.abs(np.diff(T[0, :])))
 
-        # where are there either obstacles or gaps in X
+        # where are there either obstacles or gaps in X or large heights
         bad_indices = np.where(np.bitwise_or(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR,
                                              diff_x > LidarProcess.MAX_FLOOR_X_DIFF))[0]
 
-        # print(diff_x)
+        print(bad_indices)
 
-        # bad = dict(zip(bad_indices.tolist(), diff_x[bad_indices].tolist()))
-        # print(bad)
+        # if none found
+        if len(bad_indices) == 0:
+            ld.visible_floor_distance = 1.0
 
-        # find first place with obstacles or gaps
-        first_idx = np.min(bad_indices)-1
+        else:
 
-        # floor is visible where there is no large gap in x and no obstacle in z
-        ld.visible_floor_distance = T[0][first_idx]
+            # find first place with obstacles or gaps
+            first_idx = max([0, np.min(bad_indices)-1])
+
+            # floor is visible where there is no large gap in x and no obstacle in z
+            ld.visible_floor_distance = T[0][first_idx]
 
         if self.visualize:
             from matplotlib import pylab as plt
@@ -220,7 +223,7 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.INFO)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
 
     # rate to perform calculation
     rate = rospy.Rate(LIDAR_PROCESS_RATE)
