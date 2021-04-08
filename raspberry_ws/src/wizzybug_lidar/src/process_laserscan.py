@@ -32,7 +32,7 @@ class LidarProcess:
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
     # maximum difference between successive floor measurements
-    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.3, 1000 # 0.3, 0.2
+    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.5, 0.5 # 0.3, 0.2
 
     def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
 
@@ -168,8 +168,6 @@ class LidarProcess:
         bad_indices = np.where(np.bitwise_or(heights > LidarProcess.MAX_HEIGHT_ABOVE_FLOOR,
                                              diff_x > LidarProcess.MAX_FLOOR_X_DIFF))[0]
 
-        print(bad_indices)
-
         # if none found
         if len(bad_indices) == 0:
             ld.visible_floor_distance = 1.0
@@ -187,13 +185,21 @@ class LidarProcess:
             from drawnow import drawnow, figure
 
             def visualize():
-                plt.figure(1)
+                #plt.figure(1)
                 # plt.subplot(1, 1, 1)
-                plt.scatter(x, z)
-                plt.scatter(ground_x, ground_z, color='blue')
-                plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
+                #plt.scatter(x, z)
+                #plt.scatter(ground_x, ground_z, color='blue')
+                #plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
 
-                plt.figure(2)
+                #plt.figure(1)
+                # plt.subplot(1, 1, 1)
+                #plt.plot(range_readings)
+
+                #plt.figure(2)
+                #plt.plot(angles)
+                #plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
+
+                plt.figure(1)
                 # plt.subplot(1, 1, 1)
                 plt.scatter(T[0, :], T[1, :])
                 # plt.scatter(x[1:], diff_z, color='green')
