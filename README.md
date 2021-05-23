@@ -1,3 +1,38 @@
+# Current Status
+
+## Functionality - *Yonatan*
+What works - USB Relay, FLIC button, Joystick, Haptic
+Code Complete - Audio
+What partially works - LIDAR, cameras, decision maker
+What doesn't work - Phone interface, Obstacle classification
+
+## System (ROS, etc.) - *Yonatan*
+
+## USB Relay - *Sharon*
+
+## Caretaker Emergency Stop Button - *Sharon*
+
+## Physical Setup (Raspberry, Jetson, Arduino) - *Maxim*
+
+## Network Setup - *Yaron*
+
+## User Interface
+
+### LEDs - *Idan*
+
+### Haptic - *Sharon Hornstein*
+
+### Audio - *Yonatan*
+
+## Sensing
+
+### LIDAR - *Yonatan*
+
+### Realsense - *Yonatan*
+
+## Decision Making - *Idan*
+
+
 # Wizzybug Driver Assist
 
 Proof of Concept Technical Specification 
