@@ -223,7 +223,7 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.INFO)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=False)
+    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
 
     # rate to perform calculation
     rate = rospy.Rate(LIDAR_PROCESS_RATE)
