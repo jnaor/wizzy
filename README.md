@@ -1,5 +1,62 @@
-# Wizzybug Driver Assist
+# Current Status
 
+## Functionality - *Yonatan*
+What works - USB Relay, FLIC button, Joystick, Haptic
+Code Complete - Audio
+What partially works - LIDAR, cameras, decision maker
+What doesn't work - Phone interface, Obstacle classification
+
+## Physical Setup (Raspberry, Jetson, Arduino) - *Maxim*
+
+1. A Raspberry PI running the main control logic, the LIDAR, the Haptic feedback and the FLIC emergency stop button
+2. An nVidia Jetson nano processing the images from four Realsense depth cameras and the audio output
+3. An arduino controlling LED visual feedback
+
+The system is based on ROS1 melodic (with the Raspberry as ROS_MASTER) and nodes in python2 (except for the LED component which is in C++ on the Arduino). 
+The computers are connected directly by ethernet.
+
+## USB Relay - *Sharon*
+
+Wizzy CAN reverse-engineered by cyber team. Works  
+
+## Caretaker Emergency Stop Button - *Sharon*
+
+Connected by bluetooth to the raspberry. One click locks, two clicks release. 
+The module works with python3 and therefore does not run as a ROS node but independently.
+If system is ported to noetic this can be included in main architecture.
+
+## Network Setup - *Yaron*
+
+## User Interface
+
+### LEDs - *Idan*
+
+works
+
+### Haptic - *Sharon Hornstein*
+
+works
+
+### Audio - *Yonatan*
+
+latency. seems better on the jetson but not really tested yet
+
+## Sensing
+
+### LIDAR - *Yonatan*
+
+Partial. Seems to work for obstacles. Not tested enough for stairs
+
+### Realsense - *Yonatan*
+
+Obstacles based on depth only worked last time it was checked (a long time ago). 
+
+## Decision Making - *Idan*
+
+# Simulation
+In Gazebo.
+
+# Wizzybug Driver Assist
 Proof of Concept Technical Specification 
 
 **Note: Work in progress**

@@ -24,9 +24,10 @@ class CallbackItems:
 
         # Initialize markers
         self.marker_obstacle = Marker(
-                                type=Marker.ARROW,
-                                id = 123,  # Make sure the ID is different for every marker you make!
-                                pose=Pose(Point(0, 0, 0), Quaternion(0, 0, 0, 1)),
+                                type=Marker.LINE_STRIP,                                
+                                id = 123,  # Make sure the ID is different for every marker
+								pose=Pose(Point(0, 0, 0), Quaternion(0, 0, 0, 1)),
+                                points=[Point(0, 0, 0), Point(1, 0, 0)],
                                 scale=Vector3(1, 1, 1),
                                 header=Header(frame_id='base_link'),
                                 color=ColorRGBA(0.0, 1.0, 0.0, 0.8))
@@ -74,11 +75,11 @@ class CallbackItems:
 
     def update_markers(self) :
         # Marker obstacle
-        self.marker_obstacle.pose = Pose(Point(self.lidar_obst_dist, 0, 0), Quaternion(0, 0, 0, 1))
+        self.marker_obstacle.points=[Point(0, 0, 0), Point(self.lidar_obst_dist, 0, 0)]        
         self.marker_obstacle.header.stamp = rospy.Time.now()
         self.marker_publisher.publish(self.marker_obstacle)
 
-        # Marker obstacle
+        # Marker chair (Cube) - Make no change. Maybe can remove this update line ?
         self.marker_chair.header.stamp = rospy.Time.now()
         self.marker_publisher.publish(self.marker_chair)
 
