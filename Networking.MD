@@ -64,4 +64,12 @@
 #### Now it should be possible to connect with a static IP to the WIzzyFI wireless network.
 #### Connect with the password wizzywizzy and change the IP address of the wireless adapter on the laptop to 10.0.0.40/24
 
-## Good Luck!
+# Network Topology:
+### The RaspberryPI is the Wireless Server (without DHCP, static IP addresses only)
+### Subnet in use - 10.0.0.0/24:
+
+### RaspberryPI - 10.0.0.10
+### Jetson nano - 10.0.0.20
+### Laptop    -   10.0.0.40 
+
+# Good Luck!
