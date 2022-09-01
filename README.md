@@ -3,7 +3,8 @@
 ## Prerequisites
 
 1. install [ROS1](http://wiki.ros.org/ROS/Installation)
-2. xterm (for controlling the chair in simulation) - **sudo apt install xterm**
+2. pip install sklearn scikit-image
+3. xterm (for controlling the chair in simulation) - **sudo apt install xterm**
 
 ## Install the code
 1. Clone the repository
