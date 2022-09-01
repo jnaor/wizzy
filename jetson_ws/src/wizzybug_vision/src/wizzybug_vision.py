@@ -249,8 +249,8 @@ class ROSCamera(Camera):
         # subscribe to depth
         rospy.Subscriber("/{}/depth/image_mono16".format(self.name), Image, self.save_depth)
 
-        # subscribe to pointcloud
-        rospy.Subscriber("/{}/depth/points".format(self.name), PointCloud2, self.save_pointcloud)
+        # subscribe to pointcloud TODO: did not "compile"
+        # rospy.Subscriber("/{}/depth/points".format(self.name), PointCloud2, self.save_pointcloud)
 
 
         # initialize ros2opencv converter
@@ -265,8 +265,6 @@ class ROSCamera(Camera):
 
         # save pointcloud
         self.pointcloud = msg.points
-
-        print('got point cloud')
 
 
 
