@@ -162,7 +162,7 @@ PyTrie==0.2
 pytz==2018.3
 PyWavelets==0.5.1
 pyxdg==0.25
-PyYAML==3.12
+PyYAML==5.4
 qrcode==5.3
 qt-dotgraph==0.4.2
 qt-gui==0.4.2
