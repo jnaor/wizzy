@@ -5,7 +5,7 @@ app-manager==1.1.1
 asn1crypto==0.24.0
 astor==0.8.1
 attrs==17.4.0
-autobahn==17.10.1
+autobahn==20.12.3
 Automat==0.6.0
 backports-abc==0.5
 backports.functools-lru-cache==1.4
