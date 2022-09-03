@@ -272,7 +272,7 @@ tf2-sensor-msgs==0.6.5
 topic-tools==1.14.11
 tornado==4.5.3
 trollius==2.0.1
-Twisted==17.9.0
+Twisted==22.4.0
 txaio==2.8.1
 u-msgpack-python==2.1
 unique-id==1.0.6
