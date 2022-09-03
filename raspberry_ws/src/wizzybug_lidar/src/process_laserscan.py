@@ -32,7 +32,7 @@ class LidarProcess:
     GROUND_PLANE_ESTIMATION_MAX_DISTANCE = 0.3
 
     # maximum difference between successive floor measurements
-    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.5, 0.5 # 0.3, 0.2
+    MAX_FLOOR_X_DIFF, MAX_HEIGHT_ABOVE_FLOOR = 0.5, 0.5  # 0.3, 0.2
 
     def __init__(self, min_obstacle_height, min_pitfall_depth, visualize=False):
 
@@ -42,10 +42,11 @@ class LidarProcess:
         # save parameters
         self.min_obstacle_height, self.min_pitfall_depth = min_obstacle_height, min_pitfall_depth
 
-        # initialize publisher 
-        self.lidar_proc = rospy.Publisher('/wizzy/lidar_proc', lidar_data, queue_size=10)
+        # initialize publisher
+        self.lidar_proc = rospy.Publisher(
+            '/wizzy/lidar_proc', lidar_data, queue_size=10)
 
-        # Subscribe 
+        # Subscribe
         rospy.Subscriber("/scan", LaserScan, self.scan_cb)
 
         # simulation-specific correction
@@ -120,7 +121,8 @@ class LidarProcess:
 
         # estimate ground line using RANSAC
         try:
-            ransac = RANSACRegressor(random_state=0).fit(ground_x.reshape(-1, 1), ground_z)
+            ransac = RANSACRegressor(random_state=0).fit(
+                ground_x.reshape(-1, 1), ground_z)
 
         except ValueError as e:
             rospy.logwarn('RANSAC error {}'.format(e))
@@ -131,7 +133,8 @@ class LidarProcess:
 
         # if readings do not fit a line then report error
         if ransac_score > LidarProcess.GROUND_PLANE_ESTIMATION_THRESHOLD:
-            rospy.logwarn('unable to detect ground. score is {}'.format(ransac_score))
+            rospy.logwarn(
+                'unable to detect ground. score is {}'.format(ransac_score))
             return
 
         # estimate line at all x's
@@ -145,7 +148,8 @@ class LidarProcess:
         ld.floor_inclination_degrees = np.rad2deg(inclination)
 
         # rotation matrix to make ground level
-        R = np.array([[np.cos(inclination), -np.sin(inclination)], [np.sin(inclination), np.cos(inclination)]])
+        R = np.array([[np.cos(inclination), -np.sin(inclination)],
+                     [np.sin(inclination), np.cos(inclination)]])
 
         # transform readings
         T = np.matmul(R, np.vstack((x, z)))
@@ -180,36 +184,36 @@ class LidarProcess:
             # floor is visible where there is no large gap in x and no obstacle in z
             ld.visible_floor_distance = T[0][first_idx]
 
-        if self.visualize:
-            from matplotlib import pylab as plt
-            from drawnow import drawnow, figure
+        # if self.visualize:
+        #     from matplotlib import pylab as plt
+        #     from drawnow import drawnow, figure
 
-            def visualize():
-                #plt.figure(1)
-                # plt.subplot(1, 1, 1)
-                #plt.scatter(x, z)
-                #plt.scatter(ground_x, ground_z, color='blue')
-                #plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
+        #     def visualize():
+        #         #plt.figure(1)
+        #         # plt.subplot(1, 1, 1)
+        #         #plt.scatter(x, z)
+        #         #plt.scatter(ground_x, ground_z, color='blue')
+        #         #plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
 
-                #plt.figure(1)
-                # plt.subplot(1, 1, 1)
-                #plt.plot(range_readings)
+        #         #plt.figure(1)
+        #         # plt.subplot(1, 1, 1)
+        #         #plt.plot(range_readings)
 
-                #plt.figure(2)
-                #plt.plot(angles)
-                #plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
+        #         #plt.figure(2)
+        #         #plt.plot(angles)
+        #         #plt.plot(x, ransac.predict(x.reshape(-1, 1)), color='red')
 
-                plt.figure(1)
-                # plt.subplot(1, 1, 1)
-                plt.scatter(T[0, :], T[1, :])
-                # plt.scatter(x[1:], diff_z, color='green')
-                # plt.scatter(T[0], T[1], color='green')
-                plt.plot(ld.visible_floor_distance, 0, 'bx')
+        #         plt.figure(1)
+        #         # plt.subplot(1, 1, 1)
+        #         plt.scatter(T[0, :], T[1, :])
+        #         # plt.scatter(x[1:], diff_z, color='green')
+        #         # plt.scatter(T[0], T[1], color='green')
+        #         plt.plot(ld.visible_floor_distance, 0, 'bx')
 
-                plt.xlim([-0.5, 6])
-                plt.ylim([-1, 3])
+        #         plt.xlim([-0.5, 6])
+        #         plt.ylim([-1, 3])
 
-            drawnow(visualize)
+        #     drawnow(visualize)
 
         # publish results
         print("FLoor : " + str(ld.visible_floor_distance))
@@ -229,7 +233,8 @@ if __name__ == '__main__':
     rospy.init_node('Lidar_process', log_level=rospy.INFO)
 
     # TODO: read from json or something
-    myLidarProcess = LidarProcess(min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
+    myLidarProcess = LidarProcess(
+        min_obstacle_height=0.2, min_pitfall_depth=0.1, visualize=True)
 
     # rate to perform calculation
     rate = rospy.Rate(LIDAR_PROCESS_RATE)
