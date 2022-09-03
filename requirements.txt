@@ -258,7 +258,7 @@ SPARQLWrapper==1.7.6
 srdfdom==0.5.2
 subprocess32==3.2.7
 tensorboard==1.15.0
-tensorflow==1.15.0
+tensorflow==2.7.2
 tensorflow-estimator==1.15.1
 termcolor==1.1.0
 testresources==2.0.1
