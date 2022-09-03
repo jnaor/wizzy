@@ -123,7 +123,7 @@ opt-einsum==2.3.2
 osrf-pycommon==0.1.9
 PAM==0.4.2
 pandas==0.24.2
-paramiko==2.0.0
+paramiko==2.10.1
 pbr==5.6.0
 Pillow==5.1.0
 pluggy==0.6.0
