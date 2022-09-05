@@ -20,8 +20,8 @@
 
 ## Physical Setup (Raspberry, Jetson, Arduino) 
 
-1. A Raspberry PI running the main control logic, the LIDAR, the Haptic feedback and the FLIC emergency stop button
-2. An nVidia Jetson nano processing the images from four Realsense depth cameras and the audio output
+1. A Raspberry PI running the main control logic, the LIDAR, the Haptic feedback and the FLIC emergency stop button. Login: **wizzy-aux**, Password: 123456. Generates a WIFI network (called WizzyFI; password **wizzywizzy**)
+2. An nVidia Jetson nano processing the images from four Realsense depth cameras and the audio output. Login: **wizzy*, Password: **wizzy**
 3. An arduino controlling LED visual feedback
 
 The system is based on ROS1 melodic (with the Raspberry as ROS_MASTER) and nodes in python2 (except for the LED component which is in C++ on the Arduino). 
