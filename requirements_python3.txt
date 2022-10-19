@@ -45,7 +45,7 @@ pathlib2==2.3.5
 Pillow==6.2.1
 pluggy==0.13.1
 pluginlib==1.11.3
-py==1.8.1
+py==1.11.0
 pyparsing==2.4.6
 pyrealsense2==2.31.0.1235
 pyros-config==0.2.1
