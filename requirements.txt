@@ -102,7 +102,7 @@ Markdown==3.1.1
 master-discovery-fkie==0.8.12
 master-sync-fkie==0.8.12
 matplotlib==2.1.1
-mechanize==0.2.5
+mechanize==0.4.6
 mercurial==4.5.3
 message-filters==1.14.11
 mock==3.0.5
