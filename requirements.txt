@@ -132,7 +132,7 @@ pr2-computer-monitor==1.6.31
 pr2-controller-manager==1.8.18
 pr2-power-board==1.1.7
 pr2-tuck-arms-action==0.0.11
-protobuf==3.17.3
+protobuf==3.18.3
 psutil==5.4.2
 py==1.5.2
 py-ubjson==0.8.5
