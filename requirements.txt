@@ -96,7 +96,7 @@ laser-geometry==1.6.7
 launchpadlib==1.10.6
 lazr.restfulclient==0.13.5
 lazr.uri==1.0.3
-lxml==4.2.1
+lxml==4.9.1
 lz4==0.10.1
 Markdown==3.1.1
 master-discovery-fkie==0.8.12
