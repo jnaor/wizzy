@@ -76,7 +76,7 @@ incremental==16.10.1
 interactive-markers==1.11.5
 ipaddress==1.0.17
 isodate==0.6.0
-joblib==0.11
+joblib==1.2.0
 joint-state-publisher==1.12.15
 joint-state-publisher-gui==1.12.15
 joint-trajectory-action-tools==0.0.11
