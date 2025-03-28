@@ -125,7 +125,7 @@ PAM==0.4.2
 pandas==0.24.2
 paramiko==2.0.0
 pbr==5.6.0
-Pillow==5.1.0
+Pillow==9.3.0
 pluggy==0.6.0
 pr2-camera-synchronizer==1.6.31
 pr2-computer-monitor==1.6.31
