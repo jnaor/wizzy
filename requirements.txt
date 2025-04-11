@@ -134,7 +134,7 @@ pr2-power-board==1.1.7
 pr2-tuck-arms-action==0.0.11
 protobuf==3.17.3
 psutil==5.4.2
-py==1.5.2
+py==1.11.0
 py-ubjson==0.8.5
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
